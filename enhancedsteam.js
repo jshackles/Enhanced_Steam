@@ -88,54 +88,76 @@ function get_groupname(t) {
 // colors the tile for owned games
 function highlight_owned(node) {
 	storage.get(function(settings) {
-		if (settings.bgcolor === undefined) { settings.bgcolor = "#5c7836";	storage.set({'bgcolor': settings.bgcolor}); }
-		if (settings.tag_owned_color === undefined) { settings.tag_owned_color = "#5c7836";	storage.set({'tag_owned_color': settings.tag_owned_color}); }
-		if (settings.showowned === undefined) { settings.showowned = true; storage.set({'showowned': settings.showowned}); }
+		if (settings.highlight_owned_color === undefined) { settings.highlight_owned_color = "#5c7836";	storage.set({'highlight_owned_color': settings.highlight_owned_color}); }
+		if (settings.highlight_owned === undefined) { settings.highlight_owned = true; storage.set({'highlight_owned': settings.highlight_owned}); }
+		if (settings.highlight_owned) highlight_node(node, settings.highlight_owned_color);
+
 		if (settings.tag_owned === undefined) { settings.tag_owned = false; storage.set({'tag_owned': settings.tag_owned}); }
-		if (settings.showowned) { highlight_node(node, settings.bgcolor); }
-		if (settings.tag_owned)  { add_tag(node, "Owned", settings.tag_owned_color); }
+		if (settings.tag_owned_color === undefined) { settings.tag_owned_color = "#5c7836";	storage.set({'tag_owned_color': settings.tag_owned_color}); }
+		if (settings.tag_owned) add_tag(node, "Owned", settings.tag_owned_color);
 	});
 }
 
 // colors the tile for wishlist games
 function highlight_wishlist(node) {
 	storage.get(function(settings) {
-		if (settings.wlcolor === undefined) { settings.wlcolor = "#496e93";	storage.set({'wlcolor': settings.wlcolor}); }
-		if (settings.showwishlist === undefined) { settings.showwishlist = true; storage.set({'showwishlist': settings.showwishlist}); }
-		if (settings.showwishlist) {
-			highlight_node(node, settings.wlcolor);
-			add_tag(node, "Wishlist", settings.wlcolor);
-		}
+		if (settings.highlight_wishlist_color === undefined) { settings.highlight_wishlist_color = "#496e93";	storage.set({'highlight_wishlist_color': settings.highlight_wishlist_color}); }
+		if (settings.highlight_wishlist === undefined) { settings.highlight_wishlist = true; storage.set({'highlight_wishlist': settings.highlight_wishlist}); }
+		if (settings.highlight_wishlist) highlight_node(node, settings.highlight_wishlist_color);
+
+		if (settings.tag_wishlist_color === undefined) { settings.tag_wishlist_color = "#496e93";	storage.set({'tag_wishlist_color': settings.tag_wishlist_color}); }
+		if (settings.tag_wishlist === undefined) { settings.tag_wishlist = true; storage.set({'tag_wishlist': settings.tag_wishlist}); }
+		if (settings.tag_wishlist) add_tag(node, "Wishlist", settings.highlight_wishlist_color);
 	});
 }
 
 // colors the tile for items with coupons
 function highlight_coupon(node) {
 	storage.get(function(settings) {
-		if (settings.ccolor === undefined) { settings.ccolor = "#6b2269"; storage.set({'ccolor': settings.ccolor}); }
-		if (settings.showcoupon === undefined) { settings.showcoupon = true; storage.set({'showcoupon': settings.showcoupon}); }
-		if (settings.showcoupon) {
-			highlight_node(node, settings.ccolor);
-			add_tag(node, "Coupon", settings.ccolor);
-		}
+		if (settings.highlight_coupon_color === undefined) { settings.highlight_coupon_color = "#6b2269"; storage.set({'highlight_coupon_color': settings.highlight_coupon_color}); }
+		if (settings.highlight_coupon === undefined) { settings.highlight_coupon = true; storage.set({'highlight_coupon': settings.highlight_coupon}); }
+		if (settings.highlight_coupon) highlight_node(node, settings.highlight_coupon_color);
+
+		if (settings.tag_coupon_color === undefined) { settings.tag_coupon_color = "#6b2269"; storage.set({'tag_coupon_color': settings.tag_coupon_color}); }
+		if (settings.tag_coupon === undefined) { settings.tag_coupon = true; storage.set({'tag_coupon': settings.tag_coupon}); }
+		if (settings.tag_coupon) add_tag(node, "Coupon", settings.highlight_coupon_color);
 	});
 }
 
 // colors the tile for items in inventory
 function highlight_inv_gift(node) {
 	storage.get(function(settings) {
-		if (settings.icolor === undefined) { settings.icolor = "#a75124"; storage.set({'icolor': settings.icolor}); }
-			highlight_node(node, settings.icolor);
-			add_tag(node, "Gift", settings.icolor);
+		if (settings.highlight_inv_gift_color === undefined) { settings.highlight_inv_gift_color = "#a75124"; storage.set({'highlight_inv_gift_color': settings.highlight_inv_gift_color}); }
+		if (settings.highlight_inv_gift === undefined) { settings.highlight_inv_gift = true; storage.set({'highlight_inv_gift': settings.highlight_inv_gift}); }
+		if (settings.highlight_inv_gift) highlight_node(node, settings.highlight_inv_gift_color);
+
+		if (settings.tag_inv_gift_color === undefined) { settings.tag_inv_gift_color = "#a75124"; storage.set({'tag_inv_gift_color': settings.tag_inv_gift_color}); }
+		if (settings.tag_inv_gift === undefined) { settings.tag_inv_gift = true; storage.set({'tag_inv_gift': settings.tag_inv_gift}); }
+		if (settings.tag_inv_gift) add_tag(node, "Gift", settings.highlight_inv_gift_color);
 	});
 }
-
 // colors the tile for items in inventory
 function highlight_inv_guestpass(node) {
 	storage.get(function(settings) {
-		if (settings.icolor === undefined) { settings.icolor = "#a75124"; storage.set({'icolor': settings.icolor}); }
-			highlight_node(node, settings.icolor);
-			add_tag(node, "Guest Pass", settings.icolor);
+		if (settings.highlight_inv_guestpass_color === undefined) { settings.highlight_inv_guestpass_color = "#a75124"; storage.set({'highlight_inv_guestpass_color': settings.highlight_inv_guestpass_color}); }
+		if (settings.highlight_inv_guestpass === undefined) { settings.highlight_inv_guestpass = true; storage.set({'highlight_inv_guestpass': settings.highlight_inv_guestpass}); }
+		if (settings.highlight_inv_guestpass) highlight_node(node, settings.highlight_inv_guestpass_color);
+
+		if (settings.tag_inv_guestpass_color === undefined) { settings.tag_inv_guestpass_color = "#a75124"; storage.set({'tag_inv_guestpass_color': settings.tag_inv_guestpass_color}); }
+		if (settings.tag_inv_guestpass === undefined) { settings.tag_inv_guestpass = true; storage.set({'tag_inv_guestpass': settings.tag_inv_guestpass}); }
+		if (settings.tag_inv_guestpass) add_tag(node, "Guest Pass", settings.highlight_inv_guestpass_color);
+	});
+}
+
+function highlight_friends_want(node, appid) {
+	storage.get(function(settings) {
+		if (settings.highlight_friends_want === undefined) { settings.highlight_friends_want = false; storage.set({'highlight_friends_want': settings.highlight_friends_want});}
+		if (settings.highlight_friends_want_color === undefined) { settings.highlight_friends_want_color = "#7E4060"; storage.set({'highlight_friends_want_color': settings.highlight_friends_want_color});}
+		if (settings.highlight_friends_want) highlight_node(node, settings.highlight_friends_want_color);
+
+		if (settings.tag_friends_want === undefined) { settings.tag_friends_want = true; storage.set({'tag_friends_want': settings.tag_friends_want});}
+		if (settings.tag_friends_want_color === undefined) { settings.tag_friends_want_color = "#7E4060"; storage.set({'tag_friends_want_color': settings.tag_friends_want_color});}
+		if (settings.tag_friends_want) add_tag(node, "<a href=\"http://steamcommunity.com/my/friendsthatplay/" + appid + "\">" + getValue(appid + "friendswant") + " wish for</a>", settings.tag_friends_want_color);
 	});
 }
 
@@ -146,37 +168,22 @@ function highlight_node(node, color) {
 	});
 }
 
-function add_friends_want_tag(node, appid) {
-	storage.get(function(settings) {
-		if (settings.show_friends_want === undefined) { settings.show_friends_want = true; storage.set({'show_friends_want': settings.show_friends_want});}
-		if (settings.show_friends_want_color === undefined) { settings.show_friends_want_color = "#7E4060"; storage.set({'show_friends_want_color': settings.show_friends_want_color});}
-		if (settings.show_friends_want) {
-			add_tag(node, "<a href=\"http://steamcommunity.com/my/friendsthatplay/" + appid + "\">" + getValue(appid + "friendswant") + " wish for</a>", settings.show_friends_want_color);
-		}
-	});
-}
-
 function add_tag (node, string, color) {
 	/* To add coloured tags to the end of app names instead of colour
 	highlighting; this allows an to be "highlighted" multiple times; e.g.
 	inventory and owned. */
-	storage.get(function(settings) {
-		if (settings.highlight_tag === undefined) { settings.highlight_tag = true; storage.set({'highlight_tag': settings.highlight_tag});}
-		if (settings.highlight_tag) {
-			node.tags = node.tags || [];
-			var tagItem = [string, color];
-			var already_tagged = false;
+	node.tags = node.tags || [];
+	var tagItem = [string, color];
+	var already_tagged = false;
 
-			// Check its not already tagged.
-			for (var i = 0; i < node.tags.length; i++) {
-				if (node.tags[i][0] === tagItem[0]) already_tagged = true;
-			}
-			if (!already_tagged) {
-				node.tags.push(tagItem);
-				display_tags(node);
-			}
-		}
-	});
+	// Check its not already tagged.
+	for (var i = 0; i < node.tags.length; i++) {
+		if (node.tags[i][0] === tagItem[0]) already_tagged = true;
+	}
+	if (!already_tagged) {
+		node.tags.push(tagItem);
+		display_tags(node);
+	}
 }
 
 function display_tags(node) {
@@ -401,7 +408,6 @@ function empty_wishlist() {
 // checks an item panel
 function add_info(appid) {
 	var handle_app_page = function (txt) {
-		setValue(appid, true); // Set appid to true to indicate we have data on it.
 		if (txt.search(/<div class="game_area_already_owned">/) > 0) {
 			setValue(appid + "owned", true);
 		}
@@ -418,6 +424,8 @@ function add_info(appid) {
 
 				if (app_data.data.friendswant) setValue(appid + "friendswant", app_data.data.friendswant.length);
 			}
+			// Time updated, for caching.
+			setValue(appid, parseInt(Date.now() / 1000, 10));
 			deferred.resolve();
 		});
 	};
@@ -457,8 +465,43 @@ function find_purchase_date(appname) {
 }
 
 // Adds a link to options to the global menu (where is Install Steam button)
-function add_enhanced_steam_options_link() {
-	document.getElementById("global_action_menu").insertAdjacentHTML("afterend", '<div style="float: left; margin-right: 5px;"><a href="' + chrome.extension.getURL("options.html") + '" target="_blank" class="global_action_link">Enhanced Steam</a></div>');
+function add_enhanced_steam_options() {
+	$dropdown = $("<span class=\"pulldown\" id=\"account_pulldown\">Enhanced Steam</span>");
+	$dropdown_options_container = $("<div class=\"popup_block\"><div class=\"popup_body popup_menu\"></div></div>");
+	$dropdown_options = $dropdown_options_container.find(".popup_body");
+	$dropdown_options.css("display", "none");
+
+	$dropdown.click(function(){
+		if ($dropdown_options.css("display") === "none") {
+			$dropdown_options.css("display", "");
+		}
+		else {
+			$dropdown_options.css("display", "none");
+		}
+	});
+
+	$options_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"" + chrome.extension.getURL("options.html") + "\">Options</a>");
+	$website_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"http://www.enhancedsteam.com\">Website</a>");
+	$contribute_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"//github.com/jshackles/Enhanced_Steam\">Contribute (GitHub)</a>");
+
+	$clear_cache_link = $("<a class=\"popup_menu_item\" href=\"\">Clear cached data</a>");
+	$clear_cache_link.click(function(){
+		localStorage.clear();
+		sessionStorage.clear();
+		location.reload();
+	});
+
+	$spacer = $("<div class=\"hr\"></div>");
+
+	$dropdown_options.append($options_link);
+	$dropdown_options.append($clear_cache_link);
+	$dropdown_options.append($spacer);
+	$dropdown_options.append($website_link);
+	$dropdown_options.append($contribute_link);
+
+	$("#global_action_menu")
+		.before($dropdown)
+		.before($dropdown_options_container);
 }
 
 // Removes the "Install Steam" button at the top of each page
@@ -910,7 +953,8 @@ function subscription_savings_check() {
 	// For each app, load its info.
 	$.each($(".tab_row"), function (i, node) {
 		var appid = get_appid(node.querySelector("a").href),
-			price_container = $(node).find(".tab_price")[0].innerText;
+			// Remove children, leaving only text (price or only discounted price, if there are discounts)
+			price_container = $(node).find(".tab_price").children().remove().end().text();
 
 		if (price_container !== "N/A")
 		{
@@ -980,12 +1024,12 @@ function load_app_info(node) {
 				if (!(node.classList.contains("wishlistRow") || node.classList.contains("wishlistRowItem"))) {
 					if (getValue(appid + "wishlisted")) highlight_wishlist(node);
 				}
-				
+
 				if (getValue(appid + "owned")) highlight_owned(node);
 				if (getValue(appid + "gift")) highlight_inv_gift(node);
 				if (getValue(appid + "guestpass")) highlight_inv_guestpass(node);
 				if (getValue(appid + "coupon")) highlight_coupon(node);
-				if (getValue(appid + "friendswant")) add_friends_want_tag(node, appid);
+				if (getValue(appid + "friendswant")) highlight_friends_want(node, appid);
 			});
 		});
 	}
@@ -1020,7 +1064,7 @@ $(document).ready(function(){
 	// Don't interfere with Storefront API requests
 	if (window.location.pathname.startsWith("/api")) return;
 	// On window load...
-	add_enhanced_steam_options_link();
+	add_enhanced_steam_options();
 	remove_install_steam_button();
 	add_spuf_link();
 
