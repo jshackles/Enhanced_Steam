@@ -550,7 +550,7 @@ function empty_wishlist() {
 			var deferred = new $.Deferred();
 			var appid = get_appid_wishlist($obj.id),
 				http = new XMLHttpRequest(),
-				profile = $(".returnLink a")[0].href.replace("http://steamcommunity.com/", "");
+				profile = $(".playerAvatar a")[0].href.replace("http://steamcommunity.com/", "");
 
 			http.onreadystatechange = function () {
 				if (this.readyState == 4 && this.status == 200) {
