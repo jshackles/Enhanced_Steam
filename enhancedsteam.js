@@ -1131,7 +1131,7 @@ function account_total_spent() {
 
 					$('.accountInfoBlock .block_content_inner .accountBalance').after('<div class="accountRow accountBalance accountSpent"></div>');
 					$('.accountSpent').append('<div class="accountData price">' + total_with_symbol + '</div>');
-					$('.accountSpent').append('<div class="accountLabel" style="color: #C00; font-weight: bold; font-size: 100%">Total Spent:</div>');
+					$('.accountSpent').append('<div class="accountLabel">Total Spent:</div>');
 				}
 			}
 		}
