@@ -191,7 +191,7 @@ localization_promise = (function (){
 			region: "Región",
 			all: "Todo",
 			programming: "Programación",
-			translation: "Traducción"
+			translation: "Traducción",
 			custom_background: "Ocultar fondo",
 			custom_background_help: "Todos los usuarios de Enhanced Steam verán este fondo en tu perfil.  Usuarios que no usen Enhanced Steam verán tu fondo regular.",
 			total_size: "Tamaño Total",
