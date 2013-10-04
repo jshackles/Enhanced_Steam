@@ -1757,27 +1757,7 @@ function endless_scrolling() {
 
 // Changes Steam Greenlight pages
 function hide_greenlight_banner() {
-	// insert the "top bar" found on all other Steam games
-	storage.get(function(settings) {
-		if (settings.showgreenlightbanner === undefined) { settings.showgreenlightbanner = false; storage.set({'showgreenlightbanner': settings.showgreenlightbanner}); }
-		if (settings.showgreenlightbanner) {
-			var banner = document.querySelector("#ig_top_workshop.blue");
-			var html;
-			html = '<link href="http://cdn3.store.steampowered.com/public/css/styles_storev5.css" rel="stylesheet" type="text/css">';
-			html = html + '<div id="store_nav_area" style="position: inherit;"><div class="store_nav_bg"><div class="store_nav">';
-			html = html + '<a class="tab " href="http://steamcommunity.com/workshop/browse/?appid=765&section=items"><span>Games</a>';
-			html = html + '<a class="tab " href="http://steamcommunity.com/workshop/browse/?appid=765&section=software"><span>Software</a>';
-			html = html + '<a class="tab " href="http://steamcommunity.com/workshop/browse/?appid=765&section=concepts"><span>Concepts</a>';
-			html = html + '<a class="tab " href="http://steamcommunity.com/workshop/browse/?appid=765&section=collections"><span>Collections</a>';
-			html = html + '<a class="tab " href="http://steamcommunity.com/workshop/discussions/?appid=765"><span>Discussions</a>';
-			html = html + '<a class="tab " href="http://steamcommunity.com/workshop/about/?appid=765&section=faq"><span>About Greenlight</a>';
-			html = html + '<a class="tab " href="http://steamcommunity.com/workshop/news/?appid=765"><span>News</a>';
-			$("#ig_top_workshop").before(html);
-
-			// now hide the greenlight banner
-			if (banner) { banner.hidden = true;	}
-		}
-	});
+	return;
 }
 
 function add_metracritic_userscore() {
