@@ -40,7 +40,7 @@
             options_profile_links: "Show profile links to",
             options_total_spent: "Show \"Total Spent\" on Account Page",
             options_group_events: "Show Events on Group Overview",
-            options_greenlight_banner: "Replace Steam Greenlight Banner",
+            options_greenlight_banner: "Hide Steam Greenlight Banner",
 			options_hideactivelistings: "Hide all active listings on market homepage by default",
             options_steamcardexchange: "Show SteamCardExchange links on badges",
             options_es_bg: "Set Custom Background on Edit Profile Screen",
