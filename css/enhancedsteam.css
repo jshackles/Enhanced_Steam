@@ -459,13 +459,14 @@ img.platform_small, .platform_img {
 }
 .es_each {
 	text-decoration: none;
-	left:auto;
-	float:right;
+	text-align: center;
+	left: auto;
+	right: auto;
+	float: none;
 	position:relative;
 	font-family: tahoma, helvetica, arial, trebuchet ms, sans-serif;
 	color: #626366;
 	font-size: 11px;
-	right:14px;
 	top:-3px;
 }
 .es_each_price {
