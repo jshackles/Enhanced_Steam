@@ -19,6 +19,13 @@ var appid_promises = {};
 var library_all_games = [];
 
 MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+// Runs script in the context of the current tab
+function runInPageContext(fun){
+    var script  = document.createElement('script');
+	script.textContent = '(' + fun + ')();';
+	document.documentElement.appendChild(script);
+	script.parentNode.removeChild(script);
+}
 
 //Chrome storage functions.
 function setValue(key, value) {
@@ -4289,11 +4296,27 @@ function add_badge_filter() {
 
 		$('.profile_badges_header').append(html);
 
+		var resetLazyLoader = function() { runInPageContext(function() { 
+				// Clear registered image lazy loader watchers (CScrollOffsetWatcher is found in shared_global.js)
+				CScrollOffsetWatcher.sm_rgWatchers = [];
+				
+				// Recreate registered image lazy loader watchers
+				$J('div[id^=image_group_scroll_badge_images_gamebadge_]').each(function(i,e){
+					// LoadImageGroupOnScroll is found in shared_global.js
+					LoadImageGroupOnScroll(e.id, e.id.substr(19));
+				});
+			});
+		};
+		
 		$('#es_badge_all').on('click', function() {
-			$('.is_link').css('display', 'block');
+			resetLazyLoader();
+			
+			$('.is_link').css('display', 'block');			
 		});
 
 		$('#es_badge_drops').on('click', function() {
+			resetLazyLoader();
+			
 			$('.is_link').each(function () {
 				if ($(this).html().match(/progress_info_bold">\D/)) {
 					$(this).css('display', 'none');
