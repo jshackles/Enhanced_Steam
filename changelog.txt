@@ -1,3 +1,7 @@
+v5.6
+-----
++ Added sort option to badge page to sort by number of card drops remaining
+
 v5.5
 -----
 + Added "Early Access" image banners to Early Access games on Steam

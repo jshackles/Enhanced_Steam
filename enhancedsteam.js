@@ -1,4 +1,4 @@
-// version 5.5
+// version 5.6
 var storage = chrome.storage.sync;
 var apps;
 var info = 0;
@@ -1160,8 +1160,9 @@ function add_library_menu() {
 						$(".es_library_app[data-appid='" + settings.librarylastappid + "']").addClass('es_library_selected');
 						$("#es_library_list").data("appid-selected", settings.librarylastappid);
 						// scroll if found in the app list
-						if ($(".es_library_app[data-appid='" + settings.librarylastappid + "']").length != 0) {
-							$(".es_library_app[data-appid='" + settings.librarylastappid + "']")[0].scrollIntoView();
+						var selected = $(".es_library_app[data-appid='" + settings.librarylastappid + "']");
+						if (selected.length != 0) {
+							selected[0].scrollIntoViewIfNeeded();
 						}
 					}
 
@@ -1181,10 +1182,6 @@ function add_library_menu() {
 			else if (window.location.hash.startsWith("#library/app/")) {
 				showAppInLibrary();
 			}
-
-			$(".es_library_app").bind("click", function() {
-				showAppInLibrary();
-			});
 
 			$(window).bind("hashchange", function() {
 				if (window.location.hash == "#library") {
@@ -2808,11 +2805,20 @@ function inventory_market_helper(response) {
 				var url = "http://steamcommunity.com/market/listings/" + global_id + "/" + rewrite_string(hash_name, true);
 		}
 		get_http(url, function (txt) {
-			var item_price = $(txt).find('.market_listing_row:has(.market_listing_buy_button a):first .market_listing_price.market_listing_price_with_fee:first').text().trim();
-			if (item_price != "")
-				$("#es_item" + item).html(localized_strings[language].lowest_price + " " + item_name + ": " + item_price + "<br><a href=\"" + url + "\" target='_blank' class='btn_grey_grey btn_medium'><span>" + localized_strings[language].view_marketplace + "</span></a>");
-			else
-				$("#es_item" + item).html(localized_strings[language].no_results_found);
+			var item_price = txt.match(/<span class="market_listing_price market_listing_price_with_fee">\r\n(.+)<\/span>/g);
+			var item_to_get;
+			if (item_price) { 
+				$(item_price).each(function(index, value) {
+					if (!(value.match(/\!/))) { 
+						item_to_get = value.match(/<span class="market_listing_price market_listing_price_with_fee">\r\n(.+)<\/span>/); 
+						return false;
+					}
+				});
+				
+				$("#es_item" + item).html(localized_strings[language].lowest_price + " for " + item_name + ": " + item_to_get[1].trim() + "<br><a href=\"" + url + "\" target='_blank' class='btn_grey_grey btn_medium'><span>" + localized_strings[language].view_marketplace + "</span></a>");
+			} else { 
+				$("#es_item" + item).html(localized_strings[language].no_results_found); 
+			}
 		});
 	}
 	
@@ -2826,6 +2832,92 @@ function inventory_market_helper(response) {
 			load_inventory_market_prices(item, item_name, global_id);
 			break;
 	}
+}
+
+function add_inventory_gotopage(){
+	$("#es_gotopage").remove();
+	$("#es_pagenumber").remove();
+	$("#gotopage_btn").remove();
+	$("#pagebtn_first").remove();
+	$("#pagebtn_last").remove();
+	var es_gotopage = document.createElement("script");
+	es_gotopage.type = "text/javascript";
+	es_gotopage.id = "es_gotopage";
+	es_gotopage.textContent =
+		["g_ActiveInventory.GoToPage = function(page){",
+		 "	var iCurPage = this.pageCurrent;",
+		 "	var iNextPage = Math.min(Math.max(0, --page), this.pageTotal-1);",
+		 "	this.pageList[iCurPage].hide();",
+		 "	this.pageList[iNextPage].show();",
+		 "	this.pageCurrent = iNextPage;",
+		 "	this.LoadPageImages(this.pageList[iNextPage]);",
+		 "	this.PreloadPageImages(iNextPage);",
+		 "	this.UpdatePageCounts();",
+		 "}",
+		 "function InventoryLastPage(){",
+		 "	g_ActiveInventory.GoToPage(g_ActiveInventory.pageTotal);",
+		 "}",
+		 "function InventoryFirstPage(){",
+		 "	g_ActiveInventory.GoToPage(1);",
+		 "}",
+		 "function InventoryGoToPage(){",
+		 "	var page = $('es_pagenumber').value;",
+		 "	if (isNaN(page)) return;",
+		 "	g_ActiveInventory.GoToPage(parseInt(page));",
+		 "}"].join('\n');
+
+	document.documentElement.appendChild(es_gotopage);
+
+	// Go to first page
+	var firstpage = document.createElement("a");
+	firstpage.textContent = "<<";
+	firstpage.id = "pagebtn_first";
+	firstpage.classList.add("pagecontrol_element");
+	firstpage.classList.add("pagebtn");
+	firstpage.href = "javascript:InventoryFirstPage();";
+	$("#pagebtn_previous").after(firstpage);
+
+	// Go to last page
+	var lastpage = document.createElement("a");
+	lastpage.textContent = ">>";
+	lastpage.id = "pagebtn_last";
+	lastpage.classList.add("pagecontrol_element");
+	lastpage.classList.add("pagebtn");
+	lastpage.href = "javascript:InventoryLastPage();";
+	$("#pagebtn_next").before(lastpage);
+
+	$(".pagebtn").css({
+		"padding": "0",
+		"width": "32px",
+		"margin": "0 3px"
+	});
+
+	// Page number box
+	var pagenumber = document.createElement("input");
+	pagenumber.type = "number";
+	pagenumber.value="1";
+	pagenumber.classList.add("filter_search_box"); //Steam's input theme
+	pagenumber.autocomplete = "off";
+	pagenumber.placeholder = "page #";
+	pagenumber.id = "es_pagenumber";
+	pagenumber.style.width = "50px";
+	pagenumber.min = 1;
+	pagenumber.max = $("#pagecontrol_max").text();
+	$("#inventory_pagecontrols").before(pagenumber);
+
+	var goto_btn = document.createElement("a");
+	goto_btn.textContent = "Go";
+	goto_btn.id = "gotopage_btn";
+	goto_btn.classList.add("pagebtn");
+	goto_btn.href = "javascript:InventoryGoToPage();";
+	goto_btn.style.width = "32px";
+	goto_btn.style.padding = "0";
+	goto_btn.style.margin = "0 6px";
+	goto_btn.style.textAlign = "center";
+	$("#inventory_pagecontrols").before(goto_btn);
+
+	//TODO: Maybe use &laquo; or &#8810; for first/last button text?
+	//TODO: Disable buttons when already on first/last page?
 }
 
 function subscription_savings_check() {
@@ -3054,14 +3146,30 @@ function dlc_data_for_app_page() {
 
 function add_app_badge_progress(appid) {
 	if ($(".icon").find('img[src$="/ico_cards.png"]').length > 0) {
-		$(".communitylink .block_content:last").append("<div class='rule'></div><div class='block_content_inner'><link rel='stylesheet' type='text/css' href='http://cdn.steamcommunity.com/public/css/skin_1/badges.css'><div class='es_badge_progress'></div><div style='clear: left;'></div></div>");
+		$(".communitylink .block_content:last").append("<div class='rule'></div><div class='block_content_inner'><link rel='stylesheet' type='text/css' href='http://cdn.steamcommunity.com/public/css/skin_1/badges.css'><div class='es_badge_progress'></div><div class='es_foil_badge_progress'></div></div><div style=\"clear: both\"></div>");
 		$(".es_badge_progress").load("http://steamcommunity.com/my/gamecards/" + appid + "/ .badge_current", function(responseText) {
 			if ($(responseText).find(".friendPlayerLevelNum").length != 1) {
-				$(".communitylink .block_content:last").append("<div class='block_content_inner' style='padding-top: 2px; padding-bottom: 2px; color: #5491cf;'>" + $(responseText).find(".progress_info_bold").text() + "</div>");
-				$(".communitylink .block_content:last").append("<div class='block_content_inner' style='padding-top: 2px; padding-bottom: 2px;'><a class='linkbar' href='http://steamcommunity.com/my/gamecards/" + appid + "/'><div class='rightblock'><img src='http://cdn4.store.steampowered.com/public/images/ico/ico_cards.png' width=24 height=16 border=0 align=top></div>" + localized_strings[language].badge_progress + "</a></div>");
+				$(".communitylink .block_content:last").append("<div class='block_content_inner' style='padding-top: 10px; padding-bottom: 2px; color: #5491cf;'>" + $(responseText).find(".progress_info_bold").text() + "</div>");
+         		$(".communitylink .block_content:last").append("<div class='block_content_inner' style='padding-top: 2px; padding-bottom: 2px;'><a class='linkbar' href='http://steamcommunity.com/my/gamecards/" + appid + "/'><div class='rightblock'><img src='http://cdn4.store.steampowered.com/public/images/ico/ico_cards.png' width=24 height=16 border=0 align=top></div>" + localized_strings[language].badge_progress + "</a></div>");
+         		$(".es_badge_progress .badge_empty_circle").css({"margin":"0px 46px 14px 8px","border-radius":"46px"});
+				$(".es_badge_progress .badge_empty_right div:last-child").remove();
+				$(".es_badge_progress .badge_empty_right").append("<div class=\"badge_empty_name\">" + localized_strings[language].badge_not_unlocked + "</div>").append("<div style=\"clear: both\"></div>");
 			} else {
 				$(".es_badge_progress").remove();
 				$(".communitylink .rule:last").remove();
+			}
+		});
+		$(".es_foil_badge_progress").load("http://steamcommunity.com/my/gamecards/" + appid + "/?border=1 .badge_current", function(responseText) {
+			if ($(responseText).find(".friendPlayerLevelNum").length != 1) {
+				if ($(responseText).find(".badge_empty_circle").length != 1) {					
+					$(".es_foil_badge_progress .badge_empty_circle").css({"margin":"0px 46px 14px 8px","border-radius":"46px"});
+					$(".es_foil_badge_progress .badge_empty_right div:last-child").remove()
+					$(".es_foil_badge_progress .badge_empty_right").append("<div style=\"clear: both\"></div>");
+				} else {
+					$(".es_foil_badge_progress").remove();
+				}
+			} else {
+				$(".es_foil_badge_progress").remove();
 			}
 		});
 	}
@@ -3586,10 +3694,12 @@ function bind_ajax_content_highlighting() {
 
 				if (node.classList && node.classList.contains("inventory_page")) {
 					inventory_market_prepare();
+					add_inventory_gotopage();
 				}
 
 				if (node.classList && node.classList.contains("tab_row")) {					
 					start_highlighting_node(node);
+					check_early_access(node, "ea_184x69.png", 0);
 				}
 
 				// Winter sale 2013
@@ -4506,6 +4616,61 @@ function add_badge_filter() {
 	}
 }
 
+function add_badge_sort() {
+	if ($(".profile_badges_sortoptions").find("a[href$='sort=r']").length > 0) {
+		$(".profile_badges_sortoptions").find("a[href$='sort=r']").after("&nbsp;&nbsp;<a class='badge_sort_option whiteLink' id='es_badge_sort_drops'>" + localized_strings[language].most_drops + "</a>");
+	}
+
+	var resetLazyLoader = function() { runInPageContext(function() { 
+			// Clear registered image lazy loader watchers (CScrollOffsetWatcher is found in shared_global.js)
+			CScrollOffsetWatcher.sm_rgWatchers = [];
+			
+			// Recreate registered image lazy loader watchers
+			$J('div[id^=image_group_scroll_badge_images_gamebadge_]').each(function(i,e){
+				// LoadImageGroupOnScroll is found in shared_global.js
+				LoadImageGroupOnScroll(e.id, e.id.substr(19));
+			});
+		});
+	};
+
+	$("#es_badge_sort_drops").on("click", function() {
+		var badgeRows = [];
+		$('.badge_row').each(function () {
+			var push = new Array();
+			if ($(this).html().match(/progress_info_bold".+\d/)) {
+				push[0] = this.outerHTML;
+				push[1] = $(this).find(".progress_info_bold").html().match(/\d+/)[0];
+			} else {
+				push[0] = this.outerHTML;
+				push[1] = "0";
+			}
+			badgeRows.push(push);
+			this.parentNode.removeChild(this);
+		});
+
+		badgeRows.sort(function(a,b) {
+			var dropsA = parseInt(a[1],10);
+			var dropsB = parseInt(b[1],10);
+
+			if (dropsA < dropsB) {
+				return 1;
+			} else {
+				return -1;
+			}	
+		});
+
+		$('.badge_row').each(function () { $(this).css("display", "none"); });
+
+		$(badgeRows).each(function() {
+			$(".badges_sheet:first").append(this[0]);
+		});
+
+		$(".active").removeClass("active");
+		$(this).addClass("active");
+		resetLazyLoader();
+	});	
+}
+
 function add_badge_view_options() {
 	var html  = "<div style='text-align: right;'><span>" + localized_strings[language].view + ": </span>";
 		html += "<label class='badge_sort_option whiteLink es_badges' id='es_badge_view_default'><input type='radio' name='es_badge_view' checked><span>" + localized_strings[language].theworddefault + "</span></label>";
@@ -4571,18 +4736,51 @@ function add_badge_view_options() {
 }
 
 function add_gamecard_foil_link() {
-	if ($(".progress_info_bold").length > 0) {
-		$(".gamecards_inventorylink").append("<a class='btn_grey_grey btn_small_thin' href='" + window.location + "?border=1'><span>View Foil Badge Progress</span></a>");
+	var foil;
+	var foil_index;
+	var url_search = window.location.search;
+	var url_parameters_array = url_search.replace("?","").split("&");
+
+	$.each(url_parameters_array,function(index,url_parameter){
+		if(url_parameter=="border=1"){
+			foil=true;
+			foil_index=index;
+		}
+	});
+	if (foil) {
+		if(url_parameters_array.length>1){
+			url_parameters_array.splice(foil_index,1);
+			var url_parameters_out = url_parameters_array.join("&");
+			$(".gamecards_inventorylink").append("<a class='btn_grey_grey btn_small_thin' href='" + window.location.origin + window.location.pathname + "?"+url_parameters_out+"'><span>"+localized_strings[language].view_normal_badge+"</span></a>");
+		}
+		else {
+			$(".gamecards_inventorylink").append("<a class='btn_grey_grey btn_small_thin' href='" + window.location.origin + window.location.pathname + "'><span>"+localized_strings[language].view_normal_badge+"</span></a>");
+		}
+	}
+	else {
+		if(url_parameters_array.length>0){
+			url_parameters_array.push("border=1");
+			var url_parameters_out = url_parameters_array.join("&");
+			$(".gamecards_inventorylink").append("<a class='btn_grey_grey btn_small_thin' href='" + window.location.origin + window.location.pathname + "?"+url_parameters_out+"'><span>"+localized_strings[language].view_foil_badge+"</span></a>");
+		}
+		else {
+			$(".gamecards_inventorylink").append("<a class='btn_grey_grey btn_small_thin' href='" + window.location.origin + window.location.pathname + "?border=1'><span>"+localized_strings[language].view_foil_badge+"</span></a>");
+		}
 	}
 }
 
 function add_gamecard_market_links(game) {
 	var foil;
-	if ($(".badge_info_title:first,.badge_empty_name:first").text() !== "Snow Globe 2013") {
-		foil = $(".progress_info_bold").length - 1;
-	}
+	var url_search = window.location.search;
+	var url_parameters_array = url_search.replace("?","").split("&");
 
-	$(".badge_card_set_card, .badge_card_to_collect_info").each(function() {
+	$.each(url_parameters_array,function(index,url_parameter){
+		if(url_parameter=="border=1"){
+			foil=true;
+		}
+	});
+
+	$(".badge_card_set_card").each(function() {
 		var cardname = $(this).html().match(/(.+)<div style=\"/)[1].trim();
 		if (cardname == "") { cardname = $(this).html().match(/<div class=\"badge_card_set_text\">(.+)<\/div>/)[1].trim(); }
 
@@ -4605,10 +4803,9 @@ function add_gamecard_market_links(game) {
 				}
 			}
 
-			var html = $(node).children("div:contains('" + cardname + "')").html().replace("&amp;", "&");
-			html = html.replace(cardname, "<a href='" + marketlink + "' target='_blank'>" + cardname + "</a>");
+			var html = "<a class=\"es_card_search\" href=\""+marketlink+"\">"+localized_strings[language].search_market+"</a>";
 
-			$(node).children("div:contains('" + cardname + "')").replaceWith(html);
+			$(node).children("div:contains('" + cardname + "')").parent().append(html);
 		});
 	});
 }
@@ -4832,6 +5029,7 @@ $(document).ready(function(){
 					case /^\/(?:id|profiles)\/.+\/inventory/.test(window.location.pathname):
 						bind_ajax_content_highlighting();
 						inventory_market_prepare();
+						add_inventory_gotopage();
 						break;
 
 					case /^\/(?:id|profiles)\/(.+)\/games/.test(window.location.pathname):
@@ -4847,6 +5045,7 @@ $(document).ready(function(){
 						add_total_drops_count();
 						add_cardexchange_links();
 						add_badge_filter();
+						add_badge_sort();
 						add_badge_view_options();
 						break;
 
