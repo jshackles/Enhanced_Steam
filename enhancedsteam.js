@@ -153,10 +153,12 @@ function highlight_owned(node) {
 		if (settings.highlight_owned === undefined) { settings.highlight_owned = true; storage.set({'highlight_owned': settings.highlight_owned}); }
 		if (settings.hide_owned === undefined) { settings.hide_owned = false; chrome.storage.sync.set({'hide_owned': settings.hide_owned}); }
 		if (settings.hide_owned_homepage === undefined) { settings.hide_owned_homepage = false; chrome.storage.sync.set({'hide_owned_homepage': settings.hide_owned_homepage}); }
+		if (settings.hide_owned_tags === undefined) { settings.hide_owned_tags = false; chrome.storage.sync.set({'hide_owned_tags': settings.hide_owned_tags}); }
 
 		if (settings.highlight_owned) highlight_node(node, settings.highlight_owned_color);
 		if (settings.hide_owned) hide_node(node);
 		if (settings.hide_owned_homepage) hide_node(node);
+		if (settings.hide_owned_tags) hide_node(node);
 
 		if (settings.tag_owned === undefined) { settings.tag_owned = false; storage.set({'tag_owned': settings.tag_owned}); }
 		if (settings.tag_owned_color === undefined) { settings.tag_owned_color = "#5c7836";	storage.set({'tag_owned_color': settings.tag_owned_color}); }
@@ -312,9 +314,10 @@ function hide_node(node) {
 	storage.get(function(settings) {
 		if (settings.hide_owned === undefined) { settings.hide_owned = false; chrome.storage.sync.set({'hide_owned': settings.hide_owned}); }
 		if (settings.hide_owned_homepage === undefined) { settings.hide_owned_homepage = false; chrome.storage.sync.set({'hide_owned_homepage': settings.hide_owned_homepage}); }
+		if (settings.hide_owned_tags === undefined) { settings.hide_owned_tags = false; chrome.storage.sync.set({'hide_owned_tags': settings.hide_owned_tags}); }
 		if (settings.hide_dlcunownedgames === undefined) { settings.hide_dlcunownedgames = false; chrome.storage.sync.set({'hide_dlcunownedgames': settings.hide_dlcunownedgames}); }
 
-		if ($(node).hasClass("info") || $(node).hasClass("dailydeal") || $(node).hasClass("spotlight_content")) { node = $(node).parent()[0]; }
+		if ($(node).hasClass("info") || $(node).hasClass("dailydeal") || $(node).hasClass("spotlight_content") || $(node).hasClass("browse_tag_game_cap")) { node = $(node).parent()[0]; }
 
 		if (settings.hide_owned) {
 			if (node.classList.contains("search_result_row") || node.classList.contains("game_area_dlc_row") || node.classList.contains("item") || node.classList.contains("cluster_capsule")) {
@@ -323,6 +326,12 @@ function hide_node(node) {
 				if ($(document).height() <= $(window).height()) {
 					load_search_results();
 				}
+			}
+		}
+
+		if (settings.hide_owned_tags) {
+			if (node.classList.contains("browse_tag_game") || node.classList.contains("tab_row") || node.classList.contains("cluster_capsule")) {
+				$(node).css("visibility", "hidden");
 			}
 		}
 
@@ -347,6 +356,8 @@ function hide_the_node(node) {
 function hide_early_access_node(node) {
 	storage.get(function(settings) {
 		if (settings.hide_early_access === undefined) { settings.hide_early_access = false; chrome.storage.sync.set({'hide_early_access': settings.hide_early_access}); }
+
+		if ($(node).hasClass("info") || $(node).hasClass("dailydeal") || $(node).hasClass("spotlight_content") || $(node).hasClass("browse_tag_game_cap")) { node = $(node).parent()[0]; }
 
 		if (settings.hide_early_access) {
 			var href = ($(node).find("a").attr("href") || $(node).attr("href"));
@@ -382,6 +393,11 @@ function hide_early_access() {
 							break;
 						case /^\/search\/.*/.test(window.location.pathname):
 							$(".search_result_row").each(function(index, value) { hide_early_access_node(this); });
+							break;
+						case /^\/tag\/.*/.test(window.location.pathname):
+							$(".cluster_capsule").each(function(index, value) { hide_early_access_node(this); });
+							$(".tab_row").each(function(index, value) { hide_early_access_node(this); });
+							$(".browse_tag_game_cap").each(function(index, value) { hide_early_access_node(this); });
 							break;
 						case /^\/$/.test(window.location.pathname):
 							$(".tab_row").each(function(index, value) { hide_early_access_node(this); });
@@ -3725,6 +3741,11 @@ function add_overlay() {
 							$(".game_capsule_area").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", $(this).position().left + 8); });
 							$(".game_capsule").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", $(this).position().left); });
 							break;
+						case /^\/tag\/.*/.test(window.location.pathname):
+							$(".cluster_capsule").each(function(index, value) { check_early_access($(this), "ea_467x181.png", 0); });
+							$(".tab_row").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 0); });
+							$(".browse_tag_game_cap").each(function(index, value) { check_early_access($(this), "ea_292x136.png", $(this).position().left); });
+							break;  
 						case /^\/$/.test(window.location.pathname):					
 							$(".tab_row").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", 0); });
 							$(".small_cap").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 0); });
@@ -4259,7 +4280,8 @@ function start_highlights_and_tags(){
 		"div.sale_page_purchase_item", // Sale pages
 		"div.item",				// Sale page / featured page
 		"div.home_area_spotlight",	// midweek and weekend deals
-		"div.insert_season_here_sale_dailydeal_ctn"		// Valve Sthap!
+		"div.insert_season_here_sale_dailydeal_ctn",		// Valve Sthap!
+		"div.browse_tag_game",	// Tagged game
 	];
 
 	// Get all appids and nodes from selectors.
@@ -5618,6 +5640,22 @@ $(document).ready(function(){
 
 					case /^\/sale\/.*/.test(window.location.pathname):
 						show_regional_pricing();
+						break;
+
+					// Tag Pages only
+					case /^\/tag\/.*/.test(window.location.pathname):
+						$(".tag_browse_tag").each(function() {
+							this.addEventListener("click", function() {
+								$(document).bind("DOMNodeInserted", function(e) {
+									var element = e.target;
+									if($(element).is(".browse_tag_games")) {
+										add_overlay();
+										start_highlights_and_tags();
+										hide_early_access();
+									}
+								});
+							});
+						});
 						break;
 
 					// Storefront-front only
