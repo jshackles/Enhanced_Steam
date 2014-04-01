@@ -2285,6 +2285,7 @@ function add_community_profile_links() {
 	storage.get(function(settings) {
 		if (settings.profile_steamgifts === undefined) { settings.profile_steamgifts = true; chrome.storage.sync.set({'profile_steamgifts': settings.profile_steamgifts}); }
 		if (settings.profile_steamtrades === undefined) { settings.profile_steamtrades = true; chrome.storage.sync.set({'profile_steamtrades': settings.profile_steamtrades}); }
+		if (settings.profile_dotabuff === undefined) { settings.profile_dotabuff = true; chrome.storage.sync.set({'profile_dotabuff': settings.profile_dotabuff}); }
 		if (settings.profile_steamrep === undefined) { settings.profile_steamrep = true; chrome.storage.sync.set({'profile_steamrep': settings.profile_steamrep}); }
 		if (settings.profile_steamdbcalc === undefined) { settings.profile_steamdbcalc = true; chrome.storage.sync.set({'profile_steamdbcalc': settings.profile_steamdbcalc}); }
 		if (settings.profile_astats === undefined) { settings.profile_astats = true; chrome.storage.sync.set({'profile_astats': settings.profile_astats}); }
@@ -2297,6 +2298,12 @@ function add_community_profile_links() {
 		if (settings.api_key == false||settings.api_key==""||settings.api_key===undefined){ settings.profile_api_info = false; chrome.storage.sync.set({'profile_api_info': settings.profile_api_info});}
 
 		var htmlstr = '';
+		if (settings.profile_dotabuff) {
+			htmlstr += '<div class="profile_count_link"><a href="http://dotabuff.com/players/' + steamID + '" target="_blank"><span class="count_link_label">Dotabuff</span>&nbsp;<span class="profile_count_link_total">';
+			if (settings.show_profile_link_images!="false"){htmlstr += '<img src="' + chrome.extension.getURL('img/ico/dotabuff.png') + '" class="profile_link_icon">';}
+			else {htmlstr += '&nbsp;'}
+			htmlstr += '</span></a></div>';
+		}
 		if (settings.profile_steamrep) {
 			htmlstr += '<div class="profile_count_link"><a href="http://steamrep.com/profiles/' + steamID + '" target="_blank"><span class="count_link_label">SteamRep</span>&nbsp;<span class="profile_count_link_total">';
 			if (settings.show_profile_link_images!="false"){htmlstr += '<img src="' + chrome.extension.getURL('img/ico/steamrep'+icon_color+'.png') + '" class="profile_link_icon'+profile_link_icon_background+'">';}
