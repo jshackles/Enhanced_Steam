@@ -1,9 +1,9 @@
 {
   "name": "Enhanced Steam",
-  "version": "6.2",
+  "version": "6.0",
   "description": "Enhances the Steam Experience",
   "icons": { "128": "img/enhancedsteam.png" },
-  "manifest_version": 2,
+  "manifest_version": 3,
   "options_page": "options.html",
   "permissions": [
     "storage",
