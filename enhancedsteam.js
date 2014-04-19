@@ -1302,7 +1302,7 @@ function add_enhanced_steam_options() {
 	});
 
 	$options_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\""+chrome.extension.getURL("options.html")+"\">"+localized_strings[language].thewordoptions+"</a>")
-	$website_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"http://www.enhancedsteam.com\">" + localized_strings[language].website + "</a>");
+	$website_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"http://www.enhancedsteam.com\">" + localized_strings[language].website + "</a>");	
 	$contribute_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"//github.com/jshackles/Enhanced_Steam\">" + localized_strings[language].contribute + "</a>");
 	$translate_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"//translation.enhancedsteam.com\">" + localized_strings[language].translate + "</a>");
 	$bug_feature_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"//github.com/jshackles/Enhanced_Steam/issues\">" + localized_strings[language].bug_feature + "</a>");
@@ -1315,13 +1315,23 @@ function add_enhanced_steam_options() {
 		sessionStorage.clear();
 		location.reload();
 	});
-
+  
+	$dev_branch_link = $("<a class=\"popup_menu_item\" href=\"\">Download the dev branch</a>");
+	$dev_branch_link.click(function(){
+		var dev_branch_popup = confirm('After you download and unpack the archive, open the Chrome menu (three lines), select Tools and click on Extensions and remove the current version using the bin icon (THIS WILL DELETE YOUR ENHANCED STEAM SETTINGS). Then enable Developer mode and load the unpacked archive using the "Load unpacked extension" button. This version does not update automatically, you need to repeat these steps every time you want to download a new dev version.\nWARNING: This is a work in progress version, which can stop working at any time. We are not responsible for any damage done to your browser, computer, cat etc.');
+		if (dev_branch_popup==true)
+		{
+			window.location.assign("https://github.com/jshackles/Enhanced_Steam/archive/dev.zip");
+		}
+  });
+  
 	$spacer = $("<div class=\"hr\"></div>");
 
 	$dropdown_options.append($options_link);
 	$dropdown_options.append($clear_cache_link);
 	$dropdown_options.append($spacer.clone());
 	$dropdown_options.append($contribute_link);
+  $dropdown_options.append($dev_branch_link);
 	$dropdown_options.append($translate_link);
 	$dropdown_options.append($bug_feature_link);
 	$dropdown_options.append($spacer.clone());
