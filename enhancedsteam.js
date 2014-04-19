@@ -1302,7 +1302,7 @@ function add_enhanced_steam_options() {
 	});
 
 	$options_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\""+chrome.extension.getURL("options.html")+"\">"+localized_strings[language].thewordoptions+"</a>")
-	$website_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"http://www.enhancedsteam.com\">" + localized_strings[language].website + "</a>");	
+	$website_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"http://www.enhancedsteam.com\">" + localized_strings[language].website + "</a>");
 	$contribute_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"//github.com/jshackles/Enhanced_Steam\">" + localized_strings[language].contribute + "</a>");
 	$translate_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"//translation.enhancedsteam.com\">" + localized_strings[language].translate + "</a>");
 	$bug_feature_link = $("<a class=\"popup_menu_item\" target=\"_blank\" href=\"//github.com/jshackles/Enhanced_Steam/issues\">" + localized_strings[language].bug_feature + "</a>");
@@ -1331,7 +1331,7 @@ function add_enhanced_steam_options() {
 	$dropdown_options.append($clear_cache_link);
 	$dropdown_options.append($spacer.clone());
 	$dropdown_options.append($contribute_link);
-  $dropdown_options.append($dev_branch_link);
+	$dropdown_options.append($dev_branch_link);
 	$dropdown_options.append($translate_link);
 	$dropdown_options.append($bug_feature_link);
 	$dropdown_options.append($spacer.clone());
