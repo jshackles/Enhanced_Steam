@@ -6212,10 +6212,10 @@ function add_birthday_celebration() {
 	});
 }
 
-function bypass_got_steam() {
+function skip_got_steam() {
 	storage.get(function(settings) {
-		if (settings.bypassgotsteam === undefined) { settings.bypassgotsteam = true; storage.set({'bypassgotsteam': settings.bypassgotsteam}); }
-		if (settings.bypassgotsteam) {
+		if (settings.skip_got_steam === undefined) { settings.skip_got_steam = false; storage.set({'skip_got_steam': settings.skip_got_steam}); }
+		if (settings.skip_got_steam) {
 			var href_attribute;
 			$(".download_btn[href^='javascript:showGotSteamModal'], .game_area_demo_btn[href^='javascript:showGotSteamModal'], .btn_addtocart_content[href^='javascript:showGotSteamModal']").each(function() {
 				$(this).attr("href",$(this).attr("href").split("', '")[1]);
@@ -6287,7 +6287,7 @@ $(document).ready(function(){
 						add_achievement_section(appid);
 
 						show_regional_pricing();
-						bypass_got_steam();
+						skip_got_steam();
 						break;
 
 					case /^\/sub\/.*/.test(window.location.pathname):
