@@ -6287,7 +6287,7 @@ $(document).ready(function(){
 						add_achievement_section(appid);
 
 						show_regional_pricing();
-            bypass_got_steam();
+						bypass_got_steam();
 						break;
 
 					case /^\/sub\/.*/.test(window.location.pathname):
