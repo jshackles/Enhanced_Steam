@@ -5818,7 +5818,7 @@ function add_badge_view_options() {
 			$(this).find("div[class$='badge_progress_info']").css("width", "auto");
 			$(this).find("div[class$='badge_title']").css("font-size", "12px");
 			$(this).find("div[class$='badge_title']").css("line-height", "26px");
-      		$(this).find("div[class$='badge_title']").html($(this).find("div[class$='badge_title']").html().slice(0,-9));
+			$(this).find("div[class$='badge_title']").html($(this).find("div[class$='badge_title']").html().slice(0,-9));
 			$(this).find("div[class$='badge_title_row']").css("padding-top", "0px");
 			$(this).find("div[class$='badge_title_row']").css("padding-right", "4px");
 			$(this).find("div[class$='badge_title_row']").css("padding-left", "4px");
@@ -6212,6 +6212,18 @@ function add_birthday_celebration() {
 	});
 }
 
+function bypass_got_steam() {
+	storage.get(function(settings) {
+		if (settings.bypassgotsteam === undefined) { settings.bypassgotsteam = true; storage.set({'bypassgotsteam': settings.bypassgotsteam}); }
+		if (settings.bypassgotsteam) {
+			var href_attribute;
+			$(".download_btn[href^='javascript:showGotSteamModal'], .game_area_demo_btn[href^='javascript:showGotSteamModal'], .btn_addtocart_content[href^='javascript:showGotSteamModal']").each(function() {
+				$(this).attr("href",$(this).attr("href").split("', '")[1]);
+			});
+		}
+	});
+}
+
 $(document).ready(function(){
 	is_signed_in();
 
@@ -6275,6 +6287,7 @@ $(document).ready(function(){
 						add_achievement_section(appid);
 
 						show_regional_pricing();
+            bypass_got_steam();
 						break;
 
 					case /^\/sub\/.*/.test(window.location.pathname):
