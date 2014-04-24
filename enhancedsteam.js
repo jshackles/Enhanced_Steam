@@ -6217,7 +6217,7 @@ function skip_got_steam() {
 		if (settings.skip_got_steam === undefined) { settings.skip_got_steam = false; storage.set({'skip_got_steam': settings.skip_got_steam}); }
 		if (settings.skip_got_steam) {
 			var href_attribute;
-			$(".download_btn[href^='javascript:showGotSteamModal'], .game_area_demo_btn[href^='javascript:showGotSteamModal'], .btn_addtocart_content[href^='javascript:showGotSteamModal']").each(function() {
+			$("a[href^='javascript:showGotSteamModal']").each(function() {
 				$(this).attr("href",$(this).attr("href").split("', '")[1]);
 			});
 		}
@@ -6298,6 +6298,11 @@ $(document).ready(function(){
 						add_steamdb_links(subid, "sub");						
 
 						show_regional_pricing();
+						skip_got_steam();
+						break;
+
+					case /^\/video\/.*/.test(window.location.pathname):
+						skip_got_steam();
 						break;
 
 					case /^\/agecheck\/.*/.test(window.location.pathname):
