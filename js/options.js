@@ -1,4 +1,3 @@
-
 // Saves options to localStorage.
 function save_options() {
 	// Store Options
@@ -680,6 +679,7 @@ function load_translation() {
 			$("#store_steamchart_info_text").text(localized_strings[settings.language].options.show_steamchart_info);
 			$("#store_carousel_descriptions_text").text(localized_strings[settings.language].options.carousel_description);
 			$("#show_early_access_text").text(localized_strings[settings.language].options.show_early_access_text);
+			$("#skip_got_steam_text").text(localized_strings[settings.language].options.skip_got_steam_text);
 			
 			$("#lowestprice_stores_text").text(localized_strings[settings.language].stores);
 			$("#lowestprice_stores_all_text").text(localized_strings[settings.language].options.stores_all);
