@@ -6363,6 +6363,19 @@ function search_in_names_only(calledbyajax) {
 	}
 }
 
+// Add a textbox for switching to a certain page in market
+function add_go_to_page_in_market() {
+	var html = '<input class="filter_search_box" id="go_to_page_market"><button onclick="g_oSearchResults.GoToPage(document.getElementById(\'go_to_page_market\').value-1,false)" id="go_to_page_market_button"></button>';
+	$("#searchResults_controls").prepend(html);
+	$("#go_to_page_market").change(function() {
+		if($.isNumeric($(this).val()))
+		{
+			$("#go_to_page_market_button").click();
+			$(this).val("");
+		}
+	});
+}
+
 $(document).ready(function(){
 	is_signed_in();
 
@@ -6586,6 +6599,7 @@ $(document).ready(function(){
 						add_active_total();
 						minimize_active_listings();
 						add_market_adv_search();
+						add_go_to_page_in_market();
 						break;
 
 					case /^\/app\/.*/.test(window.location.pathname):
