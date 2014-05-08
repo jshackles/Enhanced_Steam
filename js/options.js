@@ -145,9 +145,11 @@ function save_options() {
 	profile_api_info = $("#profile_api_info").prop('checked');
 	api_key = $("#api_key").val();
 	profile_permalink = $("#profile_permalink").prop('checked');
+	
 	show_profile_link_images = $("#profile_link_images_dropdown").val();
 	
 	steamcardexchange = $("#steamcardexchange").prop('checked');
+	show_go_to_page_in_market = $("#show_go_to_page_in_market").prop('checked');
 
 	chrome.storage.sync.set({
 		'highlight_owned_color': highlight_owned_color,
@@ -247,7 +249,8 @@ function save_options() {
 		'profile_permalink': profile_permalink,
 		'show_profile_link_images': show_profile_link_images,
 		
-		'steamcardexchange': steamcardexchange
+		'steamcardexchange': steamcardexchange,
+		'show_go_to_page_in_market': show_go_to_page_in_market
 	});
 	$("#saved").stop(true,true).fadeIn().delay(600).fadeOut();
 }
@@ -480,6 +483,7 @@ function load_options() {
 		if (settings.api_key == false||settings.api_key==""||settings.api_key===undefined){ settings.profile_api_info = false; chrome.storage.sync.set({'profile_api_info': settings.profile_api_info});}
 		if (settings.profile_permalink === undefined) { settings.profile_permalink = true; chrome.storage.sync.set({'profile_permalink': settings.profile_permalink}); }
 		if (settings.steamcardexchange == undefined) { settings.steamcardexchange = true; chrome.storage.sync.set({'steamcardexchange': settings.steamcardexchange}); }
+		if (settings.show_go_to_page_in_market == undefined) { settings.show_go_to_page_in_market = true; chrome.storage.sync.set({'show_go_to_page_in_market': settings.show_go_to_page_in_market}); }
 		
 		// Load Store Options
 		$("#highlight_owned_color").val(settings.highlight_owned_color);
@@ -588,6 +592,7 @@ function load_options() {
 		$("#api_key").val(settings.api_key)
 		$("#profile_permalink").prop('checked', settings.profile_permalink);
 		$("#steamcardexchange").prop('checked', settings.steamcardexchange);
+		$("#show_go_to_page_in_market").prop('checked', settings.show_go_to_page_in_market);
 		
 		if(!changelog_loaded) {		
 			jQuery.get('changelog.txt', function(data) {
@@ -705,6 +710,7 @@ function load_translation() {
 			$("#show_spamcommentregex").text(localized_strings[settings.language].options.customizespamcommentregex);
 			$("#steamcardexchange_text").text(localized_strings[settings.language].options.steamcardexchange);
 			$("#wlbuttoncommunityapp_text").text(localized_strings[settings.language].options.wlbuttoncommunityapp);
+			$("#show_go_to_page_in_market_text").text(localized_strings[settings.language].options.show_go_to_page_in_market);
 
 			$("#highlight_owned_default").text(localized_strings[settings.language].theworddefault);
 			$("#highlight_wishlist_default").text(localized_strings[settings.language].theworddefault);
