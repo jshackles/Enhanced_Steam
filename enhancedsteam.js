@@ -6,7 +6,7 @@ console.log.apply(console,console_info);
 
 var storage = chrome.storage.sync;
 var apps;
-var inFo = 0;
+var info = 0;
 var isSignedIn = false;
 var signedInChecked = false;
 var search_threshhold = $(window).height() - 80;
