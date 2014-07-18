@@ -6193,6 +6193,18 @@ function search_in_names_only(calledbyajax) {
 	}
 }
 
+function skip_got_steam() {
+	storage.get(function(settings) {
+		if (settings.skip_got_steam === undefined) { settings.skip_got_steam = false; storage.set({'skip_got_steam': settings.skip_got_steam}); }
+		if (settings.skip_got_steam) {
+			var href_attribute;
+			$("a[href^='javascript:showGotSteamModal']").each(function() {
+				$(this).attr("href",$(this).attr("href").split("', '")[1]);
+			});
+		}
+	});
+}
+
 $(document).ready(function(){
 	is_signed_in();
 
@@ -6260,6 +6272,7 @@ $(document).ready(function(){
 						add_achievement_completion_bar(appid);
 
 						show_regional_pricing();
+						skip_got_steam();
 						break;
 
 					case /^\/sub\/.*/.test(window.location.pathname):
@@ -6271,6 +6284,11 @@ $(document).ready(function(){
 						add_steamdb_links(subid, "sub");						
 
 						show_regional_pricing();
+						skip_got_steam();
+						break;
+						
+					case /^\/video\/.*/.test(window.location.pathname):
+						skip_got_steam();
 						break;
 
 					case /^\/agecheck\/.*/.test(window.location.pathname):
