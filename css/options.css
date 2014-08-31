@@ -106,13 +106,16 @@ body {
 	border: 1px solid #8bc53f;
 	color: #8bc53f;
 	
-	width: 78px;
 	height: 21px;
 	margin-left:3px;
 	font-size: 11px;
 	text-align: center;
 	
 	cursor: pointer;
+}
+
+.btn {
+	padding:1px 22px;
 }
 
 .colorbutton {
@@ -127,7 +130,7 @@ body {
 	text-align:left;
 }
 
-select, textarea {
+select, textarea, input[type=text] {
 	background-color: #262626;
 	color: #B8B6B4;
 	border: 1px solid #8bc53f;
@@ -140,8 +143,11 @@ ul {
 	padding:0;
 }
 li {
-	height:25px;
 	padding-left:10px;
+	padding-bottom:5px;
+}
+#region_selects li {
+	padding-bottom:0px;
 }
 .header {
 	font-weight: bold;
@@ -149,17 +155,14 @@ li {
 	margin-top:5px;
 	padding:0;
 }
-.translator,.language {
-	display:inline-block;
-}
-.language {
-	width:90px;
-}
 .settings_color, .settings_check {
 	display:inline-block;
 }
 .settings_check {
 	width:365px;
+}
+.settings_color {
+	padding-bottom:3px;
 }
 .help {
 	height:18px;
@@ -220,4 +223,13 @@ a:hover {
 }
 #regional_price_li {
 	height:35px;
+}
+#api_key_block {
+	padding-left:35px;
+}
+.translation {
+	margin-left:10px;
+}
+.language {
+	padding-right:8px;
 }

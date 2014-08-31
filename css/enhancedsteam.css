@@ -40,7 +40,7 @@ img.platform_small, .platform_img {
 	margin-right: 1px;
 }
 
-#es_library_list, #es_library_search {
+#es_library_list, #es_library_search, #es_library_categories,#es_library_genres {
 	padding-left: 10px;
 	overflow: scroll;
 	overflow-y: scroll;
@@ -57,7 +57,7 @@ img.platform_small, .platform_img {
 	background: url('http://cdn3.store.steampowered.com/public/images/v5/store_header_search.png?v=2') no-repeat;
 	color: #a6a5a2;
 	width: 253px;
-	height: 35px;
+    height: 35px;
 	margin-left: 20px;
 	overflow: hidden;
 }
@@ -72,8 +72,46 @@ img.platform_small, .platform_img {
 	width: 206px;
 }
 
-#es_library_list {
+#es_library_categories {
 	top: 145px;
+	color: #a6a5a2;
+	width: 253px;
+    height: 35px;
+	margin-left: 10px;
+	overflow: hidden;
+}
+
+#es_library_category_select {
+	width: 250px;
+	border: none;
+	background-color: #82807c;
+	color: #cdcac1;
+	margin-top: 5px;
+	outline: none;
+	width: 206px;
+}
+#es_library_genres {
+	top: 180px;
+	color: #a6a5a2;
+	width: 253px;
+    height: 35px;
+	margin-left: 10px;
+	overflow: hidden;
+}
+
+#es_library_genre_select {
+	width: 250px;
+	border: none;
+	background-color: #82807c;
+	color: #cdcac1;
+	margin-top: 5px;
+	outline: none;
+	width: 206px;
+}
+
+
+#es_library_list {
+	top: 215px;
 	width: 280px;
 }
 
@@ -100,7 +138,7 @@ img.platform_small, .platform_img {
 #es_library_right {
 	margin-left: 280px;
 	position: absolute;
-	width: 60%;
+	width: 80%;
 	top: 105px;
 	bottom: 0px;
 }
@@ -170,6 +208,11 @@ img.platform_small, .platform_img {
 #es_library_list_loading img {
 	margin-right: 10px;
 	vertical-align: middle;
+}
+
+#es_library_list_loading span {
+	vertical-align: top;
+	line-height: 32px;
 }
 
 #es_library_list::-webkit-scrollbar {
@@ -368,10 +411,9 @@ img.platform_small, .platform_img {
 #es_permalink_text {
 	color: #EBEBEB;
 	height:29px;
-	vertical-align:bottom;
 }
 #es_permalink {
-	margin:9px 0 0 5px;
+	margin: 8px 0px 0px 6px;
 	direction:rtl;
 }
 .search_result_row .tags a {
@@ -392,22 +434,13 @@ img.platform_small, .platform_img {
 }
 .es_regional_container {
 	display: none;
-	z-index:99;	
+	z-index:999;	
 	position:absolute;
 	background: linear-gradient(to bottom, #33425A 5%,#282F3D 95%);
 	padding: 7px 8px;
 	box-shadow: 5px 5px 5px rgba(0,0,0,0.8);
 	border:1px solid black;
 	margin-top:-25px;
-}
-.es_regional_sale {
-	margin-top:-18px;
-}
-.es_regional_sub {
-	margin-top:-55px;
-}
-.es_regional_dailydeal {
-	margin-top:auto;
 }
 .es_regional_price {
 	margin-right:8px;
@@ -450,7 +483,12 @@ img.platform_small, .platform_img {
 	margin-bottom:5px;
 	margin-top:auto;
 }
-
+.es_regional_sale {
+	margin-bottom:55px;
+}
+.es_regional_dailydeal {
+	margin-top:auto;
+}
 .es_regional_unavailable {
 	font-size:12px;
 }
@@ -476,4 +514,419 @@ img.platform_small, .platform_img {
 	height:31px;
 	float:left;
 	margin-left:3px;
+}
+
+.es_btn_systemreqs {
+	margin-bottom: 10px;
+}
+
+.es_overlay {
+	position: absolute;
+	z-index: 0;
+}
+.es_card_search {
+	padding:0px 2px;
+	margin-top: 2px;
+	display:block;
+	width:220px;
+}
+.es_text_input {
+	background-color: #4d4b49;
+	border: 1px solid #82807c;
+	color: #ffffff;
+	height: 18px;
+	padding: 2px 4px 3px 4px;
+}
+input[type=checkbox].es_dlc_selection {
+	position: absolute; 
+	overflow: hidden; 
+	clip: rect(0 0 0 0); 
+	height:1px; 
+	width:1px; 
+	margin:-1px; 
+	padding:0;
+	border:0;
+}
+
+input[type=checkbox].es_dlc_selection + label {
+	padding-left:20px;
+	height:13px; 
+	display:inline-block;
+	line-height:13px;
+	background-repeat:no-repeat;
+	background-position: 0 0;
+	vertical-align:middle;
+	cursor:default;
+	z-index: 99;
+}
+
+input[type=checkbox].es_dlc_selection:checked + label {
+	background-position: 0 -13px;
+}
+
+.es_review_image {
+	vertical-align: middle;
+	border: 0px;
+}
+
+.es_review_text {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#es_dlc_option_button {
+	float: right;
+	font-weight: bold;
+	color: #ffffff;
+}
+
+#es_dlc_option_button:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+#es_dlc_option_panel {
+    background: url(http://cdn.steamcommunity.com/public/images/profile/profile_header_bg_texture.jpg);    
+    border-bottom: 1px solid black;
+}
+
+.es_dlc_option {
+	display: inline-block;
+	margin-right: 10px;
+	margin-top: 5px;
+	font-size: 11px;
+	color: #ffffff;
+}
+
+.es_dlc_option:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+#es_price_range {
+	-webkit-appearance:none; 
+	-moz-apperance:none; 
+	width:100%; 
+	height:4px;
+	margin-top: 10px;
+}
+
+.es_price_range_slider::-webkit-slider-thumb{
+	-webkit-appearance:none; -moz-apperance:none; width:10px; height:18px; 
+	background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0, #fefefe), color-stop(0.49, #dddddd), color-stop(0.51, #d1d1d1), color-stop(1, #a1a1a1) );
+}
+#store_nav_search_term::-webkit-input-placeholder, #term::-webkit-input-placeholder {
+	font-style: italic;
+}
+.es_lowest_price {
+	padding: 5px 0 5px 46px;
+	height: auto !important;
+	border: 1px solid #4d4b49;
+	border-bottom: 0;
+	background-image: none;
+	padding-left: 46px;
+	position: relative;
+	font-size: 12px;
+	color: #626366;
+	background-color: #1d252e;
+}
+
+.es_lowest_price a {
+	color: #b0aeac;
+}
+
+.es_lowest_price .gift_icon {
+	left: 17px; 
+	position: absolute;
+}
+
+.es_wishlist_remove {
+	cursor: pointer;
+	color: #ebebeb;
+}
+
+.es_wishlist_remove:hover {
+	text-decoration: underline;
+}
+.ea_app_overlay {
+	top:15px;
+	left:22px;
+}
+
+.es_communitylink_achievement_images {
+	background-color: #1a1a1a;
+	padding: 4px 0px 4px 4px;
+	overflow: hidden;
+	margin-bottom: 5px;
+	width: 268px;
+}
+
+.es_communitylink_achievement {
+	float: left;
+	width: 64px;
+	height: 64px;
+	margin-right: 3px;
+}
+
+#achievement_sort_options {
+	text-align: right;
+	margin-top: 8px;
+	margin-right: 15px;
+	font-size: 14px;
+	color: #939393;
+}
+
+#achievement_sort_options span {
+	margin-left: 8px;
+	color: #B0AEAC;
+}
+
+.es_achievement_sort_link {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.browse_tag_game_cap img {
+	margin-left: 8px;
+}
+
+.browse_tag_game_name {
+	margin-left: 8px;
+}
+
+.browse_tag_game_price {
+	margin-left: 8px;
+}
+
+.browse_tag_game {
+	margin-bottom: 4px;
+}
+
+#es_cards_worth {
+	float: right;
+	width: 280px;
+	text-align: center;
+	margin-right: 38px;
+	color: #fff;
+}
+#es_popup .hr{
+	margin-top:2px;
+	margin-bottom:2px;
+}
+.dailydeal .timer {
+	background:#222;
+	border-radius:2px;
+	padding: 0 2px;
+}
+.dailydeal {
+	border-radius: 2px;
+}
+.es_newrelease_loading {
+	text-align: center;
+	margin-top: 20px;
+}
+.es_active_total {
+	float: right;
+	text-align: center;
+	padding-top: 4px;
+	font-size: 12px;
+}
+.birthday {
+	 position: absolute;
+	 top: 105px;
+	 left: 0;
+	 width: 100%;
+	 height: 100%;
+	 background-repeat: repeat-x;
+}
+.es_review_score span, .es_newrelease_loading span, #es_market_summary span, .es_loading span {  
+	vertical-align: top;
+	line-height: 32px;
+	margin-left: 5px;
+}
+#game_background {
+	height: 700px !important;
+	background-size: 100%;
+	display: none;
+}
+#es_background_gradient {
+	height: 700px;
+	position: absolute;
+	width: 100%;
+	background: -webkit-linear-gradient(rgba(255,255,255,0),rgba(255,255,255,0),rgba(0,0,0,1));
+	z-index: 999;
+}
+.es_market_summary_item {
+	float: right;
+	line-height: inherit !important;
+}
+.es_item_action {
+	height: 60px;
+}
+.es_drm_warning {
+	display: table; 
+	width: 100%; 
+	padding: 0px !important;
+}
+.es_drm_warning span {
+	display: table-cell; 
+	vertical-align: middle; 
+	line-height: normal; 
+	padding-left: 15px;
+}
+#es_progress {
+	display: block;
+	float: right;
+	margin-top: 55px;
+	-webkit-appearance: none;
+	border: none;
+	-webkit-transition: width 1s ease-in-out;
+    -moz-transition: width 1s ease-in-out;
+    -o-transition: width 1s ease-in-out;
+    transition: width 1s ease-in-out;
+}
+#es_progress.error, #es_progress.complete {
+	width:14px;
+}
+#es_progress::-webkit-progress-bar { 
+	background: black; 
+	border-radius: 8px;
+	box-shadow: 0 1px 0px 0 rgba(255, 255, 255, 0.2);
+}
+#es_progress::-webkit-progress-value { 
+	background: #5c7836;
+	border-radius: 8px;
+	box-shadow: 0 1px 0px 0 rgba(255, 255, 255, 0.2);
+}
+#es_progress.error::-webkit-progress-value { 
+	background: #B31414;
+	border-radius: 0px;
+	box-shadow: 0 1px 0px 0 rgba(255, 255, 255, 0.2);
+}
+#es-lightbox {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,.4);
+	text-align: center;
+	z-index: 9000;
+}
+#es-lightbox p {
+	text-align:right; 
+	color: #fff;
+	margin-right: 20px;
+	margin-top: 10px;
+	font-size: 12px;
+	font-weight: bold;
+	cursor: pointer;
+}
+#es-lightbox img {
+	box-shadow:0 0 25px #111;
+	-webkit-box-shadow:0 0 25px #111;
+	max-width: 90%;
+	max-height: 90%;
+	border: 3px solid white;
+	border-radius: 15px;
+}
+#es-lightbox-content {
+	position: absolute;
+	left: 0;
+	right: 0;
+}
+.es-nav { display: none; }
+.es-prev, .es-next { 
+	position: absolute;
+	top: 50%;
+	background: #869791;
+	opacity: 0.5;
+	padding: 5px 10px;
+	color: #fff;
+	font-size: 18px;
+	border-radius: 30px;
+}
+.es-prev:hover, .es-next:hover {
+	opacity: 1;
+	text-decoration: none;
+}
+.es-next { right: 14px; }
+.es-prev { left: 14px; }
+.es_bad_comment_num {
+	cursor: pointer;
+}
+.es_wishlist_note {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	width: 455px;
+	height: 13px;
+	font-style: italic;
+	margin-top: -3px;
+}
+.es_game_purchase_action_bg {
+	height: 34px;	
+	background-color: #3c3d3e;
+	padding: 3px 3px 3px 0px;
+	border-radius: 3px;
+}
+.es_game_purchase_action .es_game_purchase_price, 
+.es_game_purchase_action .es_game_purchase_discount,
+.es_game_purchase_action .es_game_purchase_action_bg {
+	float: left;
+	margin-left: 3px;
+}
+.es_game_purchase_action .es_game_purchase_price {
+	background-color: #000000;
+	font-size: 13px;
+	padding-top: 8px;
+	padding-left: 12px;
+	padding-right: 12px;
+	height: 26px;
+}
+.es_game_purchase_discount {
+	height: 34px;
+}
+.es_game_purchase_discount .es_discount_pct {
+	position: absolute;
+	left: 0px;
+	width: 69px;
+	height: 34px;
+	line-height: 34px;
+	font-size: 25px;
+	text-align: center;
+}
+.es_game_purchase_discount .es_discount_original_price {
+	position: absolute;
+	left: 76px;
+	top: 2px;
+	font-size: 11px;
+}
+.es_game_purchase_discount .es_discount_final_price {
+	padding-left: 76px;
+	padding-top: 13px;
+	padding-right: 6px;
+	font-size: 14px;
+}
+.es_price, .es_match_price {
+	font-family:tahoma, helvetica, arial, trebuchet ms, sans-serif;
+	font-size: 11px;
+	color: #b0aeac;
+}
+.es_discount_block {
+	position: relative;
+	background-color: #000000;
+}
+.es_discount_pct {
+	background-color: #4c6b22;
+	color: #ffffff;
+}
+.es_discount_original_price {
+	font-family:tahoma, helvetica, arial, trebuchet ms, sans-serif;
+	color: #626366;
+	text-decoration: line-through;
+}
+.es_discount_final_price {
+	font-family:tahoma, helvetica, arial, trebuchet ms, sans-serif;
+	color: #d6d7d8;
 }

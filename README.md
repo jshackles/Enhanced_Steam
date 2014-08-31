@@ -1,12 +1,26 @@
 Enhanced Steam
 ==============
 
-Enhanced Steam is a Google Chrome browser extension.  This is the open-source development repository.
+Enhanced Steam is a Google Chrome browser extension.  This is the open-source development repository.  Please fork and direct your pull requests to the :dev branch of this repository.
+
+
+If you have issues with the Firefox, Safari or standalone version, please submit them to
+
+https://github.com/jshackles/Enhanced_Steam_Firefox,
+
+https://github.com/jshackles/Enhanced_Steam_Safari or
+
+https://github.com/jshackles/Enhanced_Steam_Standalone, respectively.
 
 Installation
 ------------
 
 You can install this yourself by putting Google Chrome into "developer mode" on the Extensions tab.
+
+Translators
+-------
+
+Please head over to http://translation.enhancedsteam.com to help out with translation!
 
 License
 -------

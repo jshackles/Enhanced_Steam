@@ -1,6 +1,214 @@
-v5.4
+v6.7
 -----
 
+
+v6.6
+-----
++ Added support for Japanese Yen in regional price comparison feature
++ Added Yen support for wishlist totals
++ Added Yen support for pack split calculations
++ Added Yen support for custom wallet amounts
++ Added Yen support for coupon messages
++ Added Yen support for calculating your bundle savings based on games you own
++ Added Yen support for badge pages
++ Re-wrote total account spent feature to accommodate purchases in multiple currencies
+: Fixed a bug that caused DLC checkboxes not to work correctly due to a change made by Valve
+: Fixed a bug that caused highlighting to break for users with private profiles
+: Fixed an issue where cached inventory data would persist past its expiration
+: Fixed a bug with active market totals for some users with certain currencies
+: Fixed a bug where achievement sorting wouldn't work under certain circumstances
+: Fixed a bug which caused the regional price comparison feature not to work on the daily deal
+
+v6.5
+-----
++ Added the ability to add notes to games on your wishlist
++ Added current price data when viewing a Steam gift in inventory
++ Added "Visit Trading Forum" link to badge pages when you get level to level 5 of that badge
++ Added a button to view hidden spam comments on Steam Workshop and community pages
+: Fixed a bug that caused achievement sorting not to work correctly
+: Fixed active market listing total to work with new data format
+: Fixed a bug that would sometimes cause you not to be able to remove an item from your wishlist
+: Updated highlighting code to be more robust
+- Removed button to delete owned games from wishlist, as Steam now does this automatically
+- Removed "Remove from wishlist" link on store pages, due to change in Valve's servers
+
+v6.4.1
+-----
+: Fixed a bug where SteamCardExchange links weren't showing properly 
+: Fixed a bug where sometimes a user's wishlist wouldn't load properly 
+: Fixed a bug that would cause highlighting to not work correctly for some users 
+: Fixed a bug that caused PCGamingWiki links not to show correctly
+
+v6.4
+-----
++ Added a progress bar to the header that indicates if Enhanced Steam is processing requests
++ Added a "lightbox" effect to app page screenshots
++ Increased Early Access detection speed (thanks henryg!)
+: Fixed the number of API requests to conform with Valve's throttling limits
+- Removed ability to hide DLC from unowned games, as it is no longer feasible with new API limits
+- Removed the "friends own/want/reviewed" tags, to conform with API throttling limits
+
+v6.3.5
+-----
++ Added platform icons to the summer sale homepage
+: Fixed scoreboard scaling to account for live updates
+
+v6.3.4
+-----
++ Rewrote regional price comparision to increase speed and pull data from our own API server
+
+v6.3.3
+-----
+- Removed a feature that caused many people's wishlist to load slowly
+
+v6.3.2
+-----
++ Added Early Access banners to Summer Sale homepage
++ Added ability to sort Summer Sale team rankings to scale
+: Fixed a bug where scrolling on the home page would cause items not to highlight correctly
+
+v6.3.1
+-----
++ Buy orders will now be totaled on the market homepage
++ Added highlighting to the homepage of the Steam Summer Sale
+: Fixed a bug where tags would sometimes be hidden behind the price on DLC lists
+: Fixed a bug where active marketplace totals were incorrect for some currencies
+
+v6.3
+-----
++ Added an information dialog to app pages that are excluded from Family Sharing
++ Steam user review scores are now loaded more quickly
+: Multiple DRM warnings now display in a single warning banner
+: Fixed a bug where some market links were not showing up on certain badge pages
+: Fixed several bugs caused by Valve's CDN name change
+
+v6.2.1
+-----
++ Added inventory market data to other user's inventories
++ Added avg price of 3 cards to booster packs in inventory
+
+v6.2
+-----
++ Added option to set which homepage tab displays by default
++ Rewrote custom profile background selection dialog
++ Added a link to a game's AStats page in the achievement section on app pages
++ Added support for Humble Widgets in price comparisons
+: Fixed a bug where Legend of Grimrock store page could inadvertently show incorrect DRM warnings
+- Removed market data on inventory items, as this feature was implemented by Valve
+- Removed achievement section on app pages, as this was re-implemented by Valve
+
+v6.1.1
+-----
+: Fixed a bug with account total not being correct for Russian currencies
+: Fixed a bug on homepage layout due to a change made by Valve
+: Fixed a bug where the "popular" tab wouldn't always show correctly
+: Fixed a bug where the market summary would display incorrectly due to a change made by Valve
+
+v6.1
+-----
++ Added a "Popular" tab on the homepage to browse the most-played games on Steam
++ Store pages now display a full size background
++ Gift transactions are now separated out in total spent section of account page
++ Selecting booster packs in your inventory now shows the average price of three cards for that game
++ Added option to only search within product names
++ Added inventory marketplace support for Battleblock Theater items
++ Added a loading dialog to custom profile background selection
++ Added price history support for Gameolith and Fireflower Games, removed Beamdog support
++ Added a secret...
+: Fixed a bug that caused price comparison overlays to be partially hidden in some circumstances
+: Fixed a bug that sometimes caused purchase date to be incorrect after buying the game as a gift
+: Fixed a bug which would cause CS:GO items not to get market data in non-English languages
+
+v6.0.1
+-----
++ Added filter to the new release section that will filter out older games (thanks TotalBiscuit!)
+: Fixed a bug on wishlist pages where price history would remain after making changes
+: Fixed a bug on the market page caused by layout changes
+: Fixed a bug on sub pages that caused price history not to display
+
+v6.0
+-----
++ Added warning dialog when browsing Steam in a language other than your preferred language
++ Added price history information to the wishlist page when hovering over a game
++ Added option to display store page videos using HTML5 player instead of Flash
++ Added library filtering options by genre and by category
++ Added coupon discount percentage to display on coupon tags
++ Added your personal achievement stats back to app pages in the "My Activity" box
+: Fixed a bug that caused Early Access overlays to incorrectly show on games with coupons
+: Fixed header links inserted by Enhanced Steam not displaying due to a change made by Valve
+: Fixed a bug in some languages where badge filtering didn't work properly
+: Fixed a bug in entering custom amounts into Steam wallet page
+: Enhanced Steam will now display the highest % off coupon you have available on app pages
+
+v5.9
+-----
++ Added a link on user profiles to their wishlist
++ Added back the achievement section to app pages that Valve mysteriously removed
++ Added sorting options to achievement pages, and the ability to sort by date unlocked
++ Added option to hide all Early Access games on the homepage and search results
++ Added badge completion and value of card drops to badges page based on avg card price
++ Added badge page sorting option to sort by highest estimated drop value
++ Added Enhanced Steam features to Steam Tag pages
+: Fixed a bug that caused hiding DLC for unowned games not to work under certain circumstances
+: Fixed homepage "Featured" section being incorrectly sized due to layout changes
+
+v5.8
+-----
++ Added extended options for DLC checkboxes that are accessible by clicking "Options ▾".
++ Added price options to search results pages letting you easily filter results by price
++ Added speech input option to search boxes on store pages
++ Incorporated coupon codes into lowest price data
++ The "Remove" links on the wishlist no longer require the page to reload
++ Added an option to disable Early Access image overlays
+: Fixed a bug in market transaction total caused by change in API by Valve
+- Removed language selection dropdown in options page to reduce confusion
+
+v5.7
+-----
++ Adds Steam review percentage of most helpful positive and negative reviews on app pages
++ "Hide -> DLC for games you do not own" now works with the new releases section on the homepage
++ Added new option to hide owned games on the homepage
++ Added Square Enix and Bundle Stars sites to price history information
+: Price history now shows for all apps on a store page, not just the first
+: Fixed a bug that caused early access banners on the "featured" section to not position correctly
+: Fixed a bug that caused regional pricing on sale pages to sometimes display incorrectly
+: Fixed a bug that broke formatting on badge page when crafting badges in certain situations 
+
+v5.6.1
+-----
+: Fix Early Access overlays on Steam homepage
+
+v5.6
+-----
++ Added ability to add a custom amount to your Steam wallet
++ Added checkboxes to DLC list on app pages, letting you select certain DLC and add to cart easily
++ Added sort option to badge page to sort by number of card drops remaining
++ Added card prices to market links on badge pages
++ Added "cost to complete badge" to unobtained badges
++ Added option to display advanced navigation on inventory pages
++ Added foil badge and foil badge progress to app pages
+: Updated Early Access banner graphics (thanks SolventSnake!)
+- Removed function to add all unowned DLC to cart on app pages due to conflicts with new feature
+
+v5.5
+-----
++ Added "Early Access" image banners to Early Access games on Steam
++ Added a list of friends that own a game on the "friends that own" page
++ Added badge progress and remaining card drops to app pages
+: Fixed bug where badge filter wasn't working with some languages
+: Fixed bug in wishlist sorting that would cause it to fail if a game had no price displayed
+: Fixed bug that caused wishlist not to highlight under certain circumstances
+
+v5.4
+-----
++ Added option to hide DLC for games you do not own
++ Added option to add button on app pages to test your system requirements in Steam (experimental!)
++ Sorting wishlist by discount now additionally subsorts by price (lowest -> highest)
+: Fixed inventory market price check displaying "Sold!" when looking up prices
+: Fixed bug where inventory market price check wasn't displaying for some users
+: Fixed bug where Holiday Snow Globes weren't highlighting in the marketplace
+: Fixed bug where DRM warnings weren't displaying under certain conditions
+: Fixed bug where holiday snowglobe background was displaying in Library mode
 
 v5.3.3
 -----
