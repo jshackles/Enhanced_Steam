@@ -1175,6 +1175,38 @@ function add_wishlist_notes() {
 	}
 }
 
+// Fixes the sortable routine so that the price discounts will also move along with the wishlist item
+function fix_wishlist_sortable() {
+
+    // wrap all wishlist item elements into the new sortable container
+    $('#wishlist_items .wishlistRow').wrap(function () {
+        // Sortable requires a unique id on elements
+        return '<div id="es_wrapped_' + get_appid_wishlist(this.id) + '" class="sortableRow es_sortable_wishlist"></div>'
+    });
+
+    runInPageContext(function () {
+
+        if (!Sortable || !Sortable.sortables || !Sortable.sortables.wishlist_items)
+            return;
+
+        var wls = Sortable.sortables.wishlist_items
+
+        // create a new sortable, using the properties from the previous sortable
+        Sortable.create($('wishlist_items'),
+            {
+                only: 'es_sortable_wishlist', //only difference will be that we target only the wrapper
+                tag: wls.tag,
+                scroll: wls.scroll,
+                onUpdate: wls.onUpdate,
+                starteffect: wls.starteffect,
+                endeffect: wls.endeffect
+            }
+        );
+    });
+
+}
+
+
 // Removes all items from the user's wishlist
 function empty_wishlist() {
 	var conf_text = "Are you sure you want to empty your wishlist?\n\nThis action cannot be undone!";
@@ -6368,6 +6400,7 @@ $(document).ready(function(){
 						add_wishlist_ajaxremove();
 						add_wishlist_pricehistory();
 						add_wishlist_notes();
+                        fix_wishlist_sortable();
 
 						// Wishlist highlights
 						start_highlights_and_tags();
