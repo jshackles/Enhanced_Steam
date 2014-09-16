@@ -1473,6 +1473,7 @@ function add_header_links() {
 			var user = $("#supernav").find("a[href$='/home/']").attr("data-tooltip-content");
 			var insertAt = user.match(/\/home\/">(.+)<\/a>/);
 			user = user.substr(0, (insertAt.index + insertAt[0].length)) + '<a class="submenuitem" href="http://steamcommunity.com/my/games/">' + localized_strings[language].games + '</a>' + user.substr(insertAt.index + insertAt[0].length);
+			user = user + '<a class="submenuitem" href="http://steamcommunity.com/my/tradeoffers/">' + localized_strings[language].tradeoffers + '</a>';
 			user = user + '<a class="submenuitem" href="http://steamcommunity.com/my/recommended/">' + localized_strings[language].reviews + '</a>';
 			$("#supernav").find("a[href$='/home/']").attr("data-tooltip-content", user);
 		}
