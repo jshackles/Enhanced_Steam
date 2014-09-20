@@ -1,3 +1,14 @@
+v6.7
+-----
+
+
+v6.6.1
+-----
++ Added SteamCardExchange link to applicable app pages
++ Added basic support for upcomming store currencies
+: Updated SteamDB icon on store page buttons
+: Fixed a bug caused by Steam_Language cookie not being present for all users
+
 v6.6
 -----
 + Added support for Japanese Yen in regional price comparison feature
