@@ -1,5 +1,5 @@
-// Version 6.6
-var version = "6.6"
+// Version 6.7
+var version = "6.7"
 
 var console_info=["%c Enhanced %cSteam v"+version+" by jshackles %c http://www.enhancedsteam.com ","background: #000000;color: #7EBE45", "background: #000000;color: #ffffff",""];
 console.log.apply(console,console_info);
@@ -15,7 +15,13 @@ var total_requests = 0;
 var processed_requests = 0;
 
 var cookie = document.cookie;
-var language = cookie.match(/language=([a-z]{3})/i)[1];
+
+if (cookie.match(/steam_language=([a-z]{3})/i)) {
+	var language = cookie.match(/steam_language=([a-z]{3})/i)[1];
+} else {
+	var language = "eng";
+}
+
 if (localized_strings[language] === undefined) { language = "eng"; }
 
 // Set language for options page
@@ -87,6 +93,48 @@ function formatCurrency(number, type) {
 		case "JPY":
 			places = 0; symbol = "¥ "; thousand = ","; decimal = "."; right = false;
 			break;
+		case "MYR":
+			places = 2; symbol = "RM"; thousand = ","; decimal = "."; right = false;
+			break;
+		case "NOK":
+			places = 2; symbol = " kr"; thousand = "."; decimal = ","; right = true;
+			break;
+		case "IDR":
+			places = 2; symbol = "Rp "; thousand = ""; decimal = "."; right = false;
+			break;
+		case "PHP":
+			places = 2; symbol = "P"; thousand = ","; decimal = "."; right = false;
+			break;
+		case "SGD":
+			places = 2; symbol = "S$"; thousand = ","; decimal = "."; right = false;
+			break;
+		case "THB":
+			places = 2; symbol = "฿"; thousand = ","; decimal = "."; right = false;
+			break;
+		case "VND":
+			places = 2; symbol = "₫"; thousand = ","; decimal = "."; right = false;
+			break;
+		case "KRW":
+			places = 2; symbol = "₩"; thousand = ","; decimal = "."; right = false;
+			break;
+		case "TRY":
+			places = 2; symbol = " TL"; thousand = ""; decimal = ","; right = true;
+			break;
+		case "UAH":
+			places = 2; symbol = "₴"; thousand = ""; decimal = ","; right = true;
+			break;
+		case "MXN":
+			places = 2; symbol = "Mex$ "; thousand = ","; decimal = "."; right = false;
+			break;
+		case "CAD":
+			places = 2; symbol = "C$ "; thousand = ","; decimal = "."; right = false;
+			break;
+		case "AUD":
+			places = 2; symbol = "A$ "; thousand = ","; decimal = "."; right = false;
+			break;
+		case "NZD":
+			places = 2; symbol = "NZ$ "; thousand = ","; decimal = "."; right = false;
+			break;
 		default:
 			places = 2; symbol = "$"; thousand = ","; decimal = "."; right = false;
 			break;
@@ -114,9 +162,45 @@ function currency_symbol_to_type (currency_symbol) {
 			return "BRL";
 		case "¥":
 			return "JPY";
+		case "kr":
+			return "NOK";
+		case "Rp":
+			return "IDR";
+		case "RM":
+			return "MYR";
+		case "P":
+			return "PHP";
+		case "S$":
+			return "SGD";
+		case "฿":
+			return "THB";
+		case "₫":
+			return "VND";
+		case "₩":
+			return "KRW";
+		case "TL":
+			return "TRY";
+		case "₴":
+			return "UAH";
+		case "Mex$":
+			return "MXN";
+		case "C$":
+			return "CAD";
+		case "A$":
+			return "AUD";
+		case "NZ$":
+			return "NZD";
 		default:
 			return "USD";
 	}
+}
+
+function currency_symbol_from_string (string_with_symbol) {
+	var return_string = "";
+	if (string_with_symbol.match(/(?:R\$|S\$|\$|RM|kr|Rp|€|¥|£|฿|pуб|P|₫|₩|TL|₴|Mex\$|C\$|A\$|NZ\$)/)) {
+		return_string = string_with_symbol.match(/(?:R\$|S\$|\$|RM|kr|Rp|€|¥|£|฿|pуб|P|₫|₩|TL|₴|Mex\$|C\$|A\$|NZ\$)/)[0];
+	}
+	return return_string;
 }
 
 function escapeHTML(str) {
@@ -917,7 +1001,7 @@ function add_wishlist_total() {
 	function calculate_node(node, search) {
 		price = parseFloat($(node).find(search).text().trim().replace(",", ".").replace(/[^0-9\.]+/g,""));
 		if (price) {
-			currency_symbol = $(node).find(search).text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+			currency_symbol = currency_symbol_from_string($(node).find(search).text().trim());
 			gamelist += $(node).find("h4").text().trim() + ", ";
 			items += 1;
 			total += price;
@@ -1218,7 +1302,7 @@ function pack_split(node, ways) {
 		comma = true;
 		price_text = price_text.replace(",", ".");
 	}
-	var currency_symbol = price_text.match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+	var currency_symbol = currency_symbol_from_string(price_text);
 	var currency_type = currency_symbol_to_type(currency_symbol);
 	var price = (Number(price_text.replace(/[^0-9\.]+/g,""))) / ways;
 	price = (Math.ceil(price * 100) / 100);
@@ -1405,7 +1489,10 @@ function add_language_warning() {
 	storage.get(function(settings) {
 		if (settings.showlanguagewarning === undefined) { settings.showlanguagewarning = true; storage.set({'showlanguagewarning': settings.showlanguagewarning}); }
 		if (settings.showlanguagewarning) {
-			var currentLanguage = cookie.match(/language=([a-z]+)/i)[1];
+			var currentLanguage = "English";
+			if (cookie.match(/language=([a-z]+)/i)) {
+				currentLanguage = cookie.match(/language=([a-z]+)/i)[1];
+			}
 			currentLanguage = currentLanguage.charAt(0).toUpperCase() + currentLanguage.slice(1);
 
 			function make_language_pretty(language_string) {
@@ -1501,7 +1588,7 @@ function add_custom_wallet_amount() {
 	$(addfunds).find(".btn_addtocart_content").addClass("es_custom_button");
 	$(addfunds).find("h1").text(localized_strings[language].wallet.custom_amount);
 	$(addfunds).find("p").text(localized_strings[language].wallet.custom_amount_text.replace("__minamount__", $(addfunds).find(".price").text().trim()));
-	var currency_symbol = $(addfunds).find(".price").text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+	var currency_symbol = currency_symbol_from_string($(addfunds).find(".price").text().trim());
 	var minimum = $(addfunds).find(".price").text().trim().replace(/(?:R\$|\$|€|¥|£|pуб)/, "");
 	var formatted_minimum = minimum;
 	switch (currency_symbol) {
@@ -2029,7 +2116,7 @@ function display_coupon_message(appid) {
 	var $price_div = $("[itemtype=\"http://schema.org/Offer\"]"),
 		cart_id = $(document).find("[name=\"subid\"]")[0].value,
 		actual_price_container = $price_div.find("[itemprop=\"price\"]")[0].innerText,		
-		currency_symbol = actual_price_container.match(/(?:R\$|\$|€|¥|£|pуб)/)[0], // Lazy but effective
+		currency_symbol = currency_symbol_from_string(actual_price_container),
 		currency_type = currency_symbol_to_type(currency_symbol),
 		comma = actual_price_container.search(/,\d\d(?!\d)/);
 
@@ -2987,7 +3074,7 @@ function add_steamreview_userscore(appid) {
 			var pos_percent = ((positive / (positive + negative)) * 100).toFixed(0),
 				neg_percent = ((negative / (positive + negative)) * 100).toFixed(0);
 			if (!isNaN(pos_percent) && !isNaN(neg_percent)) {
-				$("#es_review_score").html('<div style="display: inline-block; margin-right: 25px;"><img src="http://cdn.steamcommunity.com/public/shared/images/userreviews/icon_thumbsUp.png" width="24" height="24" class="es_review_image"><span class="es_review_text"> ' + pos_percent + '%</span></div><div style="display: inline-block;"><img src="http://cdn.steamcommunity.com/public/shared/images/userreviews/icon_thumbsDown.png" width="24" height="24" class="es_review_image"><span class="es_review_text"> ' + neg_percent + '%</span></div><div style="clear: both;"></div>');
+				$("#es_review_score").html('<div style="display: inline-block; margin-right: 25px;"><img src="http://store.akamai.steamstatic.com/public/shared/images/userreviews/icon_thumbsUp_v6.png" width="24" height="24" class="es_review_image"><span class="es_review_text"> ' + pos_percent + '%</span></div><div style="display: inline-block;"><img src="http://store.akamai.steamstatic.com/public/shared/images/userreviews/icon_thumbsDown_v6.png" width="24" height="24" class="es_review_image"><span class="es_review_text"> ' + neg_percent + '%</span></div><div style="clear: both;"></div>');
 			} else {
 				$("#es_review_score").remove();
 			}
@@ -3044,6 +3131,18 @@ function add_pcgamingwiki_link(appid) {
 			});
 		}
 	});
+}
+
+// Add link to Steam Card Exchange
+function add_steamcardexchange_link(appid){
+  storage.get(function(settings) {
+    if (settings.showsteamcardexchange === undefined ){ settings.showsteamcardexchange = false; storage.set({'showsteamcardexchange': settings.showsteamcardexchange}); }
+    if (settings.showsteamcardexchange) {
+    	if ($(".icon").find('img[src$="/ico_cards.png"]').length > 0) {
+      		$("#demo_block").find('.block_content_inner').prepend('<div class="demo_area_button"><a class="game_area_wishlist_btn" target="_blank" href="http://www.steamcardexchange.net/index.php?gamepage-appid-' + appid + '" style="background-image:url(' + chrome.extension.getURL("img/steamcardexchange.png") + ')">' + localized_strings[language].view_in + ' Steam Card Exchange</a></div>');
+      	}
+    }
+  });
 }
 
 // Display widescreen support information from wsgf.org
@@ -3225,7 +3324,7 @@ function add_market_total() {
 				function get_market_data(txt) {
 					var data = JSON.parse(txt);
 					market = data['results_html'];
-					if (!currency_symbol) currency_symbol = $(market).find(".market_listing_price").text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+					if (!currency_symbol) currency_symbol = currency_symbol_from_string($(market).find(".market_listing_price").text().trim());
 					
 					pur_totaler = function (p, i) {
 						if ($(p).find(".market_listing_price").length > 0) {
@@ -3313,7 +3412,7 @@ function add_active_total() {
 			var temp = $(this).text().trim().replace(/pуб./g,"").replace(/,(\d\d(?!\d))/g, ".$1").replace(/[^0-9(\.]+/g,"").split("(");
 			total += Number(temp[0]);
 			total_after += Number(temp[1]);
-			currency_symbol = $(this).text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+			currency_symbol = currency_symbol_from_string($(this).text().trim());
 		});
 		
 		if (total != 0) {
@@ -3328,7 +3427,7 @@ function add_active_total() {
 		$(".my_listing_section:nth-child(2)").find(".market_listing_row").find(".market_listing_my_price:first").each(function() {
 			var qty = $(this).parent().find(".market_listing_my_price:last").text().trim();
 			total += Number($(this).text().trim().replace(/pуб./g,"").replace(/,(\d\d(?!\d))/g, ".$1").replace(/[^0-9\.]+/g,"")) * Number(qty);
-			currency_symbol = $(this).text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+			currency_symbol = currency_symbol_from_string($(this).text().trim());
 		});
 		
 		if (total != 0) {
@@ -3359,13 +3458,12 @@ function account_total_spent() {
 		if (settings.showtotal === undefined) { settings.showtotal = true; storage.set({'showtotal': settings.showtotal}); }
 		if (settings.showtotal) {
 			if ($('.transactionRow').length !== 0) {
-				var available_currencies = ["USD","GBP","EUR","BRL","RUB","JPY"];
+				var available_currencies = ["USD","GBP","EUR","BRL","RUB","JPY","NOK","IDR","MYR","PHP","SGD","THB","VND","KRW","TRY","UAH","MXN","CAD","AUD","NZD"];
 				var currency_symbol;
 
 				// Get user's Steam currency
-				if ($(".accountBalance").text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)) {
-					currency_symbol = $(".accountBalance").text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
-				} else { return; }
+				currency_symbol = currency_symbol_from_string($(".accountBalance").text().trim());
+				if (currency_symbol == "") { return; }
 				local_currency = currency_symbol_to_type(currency_symbol);
 
 				var complete = 0;
@@ -3403,7 +3501,7 @@ function account_total_spent() {
 						if ($(p).find(".transactionRowPrice")) {
 							var price = $(p).find(".transactionRowPrice").text().match(/(\d+[.,]?\d+)/);
 							if (price !== null) {
-								var currency = currency_symbol_to_type($(p).find(".transactionRowPrice").text().match(/(?:R\$|\$|€|¥|£|pуб)/)[0]);
+								var currency = currency_symbol_to_type(currency_symbol_from_string($(p).find(".transactionRowPrice").text()));
 								var tempprice = price[0].toString();
 								tempprice = tempprice.replace(/,(\d\d)$/, ".$1");
 								tempprice = tempprice.replace(/,/g, "");
@@ -3544,7 +3642,7 @@ function inventory_market_helper(response) {
 		} else {
 			if (hash_name && hash_name.match(/Booster Pack/g)) {
 				setTimeout(function() {
-					var currency_symbol = $("#iteminfo" + item + "_item_market_actions").text().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+					var currency_symbol = currency_symbol_from_string($("#iteminfo" + item + "_item_market_actions").text());
 					var currency_type = currency_symbol_to_type(currency_symbol);
 					var api_url = "http://api.enhancedsteam.com/market_data/average_card_price/?appid=" + appid + "&cur=" + currency_type.toLowerCase();
 
@@ -3673,7 +3771,7 @@ function subscription_savings_check() {
 		if (price_container !== "N/A" && price_container !== "Free") {
 			if (price_container) {
 				itemPrice = parseFloat(price_container.match(/([0-9]+(?:(?:\,|\.)[0-9]+)?)/)[1]);
-				if (!currency_symbol) currency_symbol = price_container.match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+				if (!currency_symbol) currency_symbol = currency_symbol_from_string(price_container);
 				if (!comma) comma = (price_container.search(/,\d\d(?!\d)/));
 			} else {
 				itemPrice = 0;
@@ -4226,14 +4324,13 @@ function show_regional_pricing() {
 			var sale;
 			var sub;
 			var region_appended=0;
-			var available_currencies = ["USD","GBP","EUR","BRL","RUB","JPY"];
-			var conversion_rates = [1, 1, 1, 1, 1, 1];
+			var available_currencies = ["USD","GBP","EUR","BRL","RUB","JPY","NOK","IDR","MYR","PHP","SGD","THB","VND","KRW","TRY","UAH","MXN","CAD","AUD","NZD"];
+			var conversion_rates = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 			var currency_symbol;
 
 			// Get user's Steam currency
-			if ($(".price:first, .discount_final_price:first").text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)) {
-				currency_symbol = $(".price:first, .discount_final_price:first").text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
-			} else { return; }
+			currency_symbol = currency_symbol_from_string($(".price:first, .discount_final_price:first").text().trim());
+			if (currency_symbol == "") { return; }
 			local_currency = currency_symbol_to_type(currency_symbol);
 
 			var complete = 0;
@@ -5889,7 +5986,7 @@ function add_gamecard_market_links(game) {
 	});
 
 	get_http("http://store.steampowered.com/app/220/", function(txt) {
-		var currency_symbol = $(txt).find(".price, .discount_final_price").text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+		var currency_symbol = currency_symbol_from_string($(txt).find(".price, .discount_final_price").text().trim());
 		var currency_type = currency_symbol_to_type(currency_symbol);
 
 		get_http("http://api.enhancedsteam.com/market_data/card_prices/?appid=" + game, function(txt) {
@@ -5988,7 +6085,7 @@ function add_gamecard_market_links(game) {
 function add_badge_completion_cost() {
 	$(".profile_xp_block_right").after("<div id='es_cards_worth'></div>");
 	get_http("http://store.steampowered.com/app/220/", function(txt) {
-		var currency_symbol = $(txt).find(".price, .discount_final_price").text().trim().match(/(?:R\$|\$|€|¥|£|pуб)/)[0];
+		var currency_symbol = currency_symbol_from_string($(txt).find(".price, .discount_final_price").text().trim());
 		var currency_type = currency_symbol_to_type(currency_symbol);		
 		var total_worth = 0, count = 0;
 		$(".badge_row").each(function() {
@@ -6272,6 +6369,7 @@ $(document).ready(function(){
 						add_widescreen_certification(appid);
 						add_hltb_info(appid);
 						add_pcgamingwiki_link(appid);
+						add_steamcardexchange_link(appid);
 						add_app_page_highlights(appid);
 						add_steamdb_links(appid, "app");
 						add_familysharing_warning(appid);
