@@ -1394,6 +1394,23 @@ function add_system_requirements_check(appid) {
 	});	
 }
 
+// adds tooltips with full quotes to "recommended by curators" section of game page
+function add_curators_minis_tooltips() {
+    // get curator links
+    var els = $('.steam_curator_icon');
+    els.each(function(index, item){
+        if(item.classList.contains('small')) {
+            var originalText = item.getAttribute('data-store-tooltip');
+            var link = $('a', item).attr('href');
+            // fetch data from link
+            $.get(link, function(data) {
+                var text = originalText + '<br/><hr/>' + $('.highlighted_recommendation_desc', data).text();
+                item.setAttribute('data-store-tooltip', text);
+            });
+        }
+    });
+};
+
 // Automatically send age verification when requested
 function send_age_verification() {
 	storage.get(function(settings) {
@@ -6009,6 +6026,7 @@ $(document).ready(function(){
 						fix_achievement_icon_size();
 						add_astats_link(appid);
 						add_achievement_completion_bar(appid);
+						add_curators_minis_tooltips();
 
 						show_regional_pricing();
 						break;
