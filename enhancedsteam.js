@@ -6197,7 +6197,6 @@ function skip_got_steam() {
 	storage.get(function(settings) {
 		if (settings.skip_got_steam === undefined) { settings.skip_got_steam = false; storage.set({'skip_got_steam': settings.skip_got_steam}); }
 		if (settings.skip_got_steam) {
-			var href_attribute;
 			$("a[href^='javascript:showGotSteamModal']").each(function() {
 				$(this).attr("href",$(this).attr("href").split("', '")[1]);
 			});
