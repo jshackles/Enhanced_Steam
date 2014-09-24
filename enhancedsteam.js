@@ -1397,15 +1397,26 @@ function add_system_requirements_check(appid) {
 // adds tooltips with full quotes to "recommended by curators" section of game page
 function add_curators_minis_tooltips() {
     // get curator links
-    var els = $('.steam_curator_icon');
+    var els = $(".steam_curator_icon");
     els.each(function(index, item){
-        if(item.classList.contains('small')) {
-            var originalText = item.getAttribute('data-store-tooltip');
-            var link = $('a', item).attr('href');
-            // fetch data from link
-            $.get(link, function(data) {
-                var text = originalText + '<br/><hr/>' + $('.highlighted_recommendation_desc', data).text();
-                item.setAttribute('data-store-tooltip', text);
+        if(item.classList.contains("small")) {
+        	var $item = $(item);
+            var originalText = $item.attr("data-store-tooltip");
+            var link = $("a", item).attr("href");
+            var loadingText = originalText + "<br/><hr/>" + "<img src='http://cdn.steamcommunity.com/public/images/login/throbber.gif' style='max-height: 16px; margin-top: 5px; margin-right: 5px;'><span>" + localized_strings[language].loading + "</span>";
+            $item.attr("data-store-tooltip", loadingText);
+            item.addEventListener("mouseover", function loadTooltip(e) {
+            	// remove event
+            	item.removeEventListener("mouseover", loadTooltip);
+            	// fetch data from link
+	            $.get(link, function(data) {
+	            	var text = originalText + "<br/><hr style=\"margin-top: 2px; margin-bottom: 5px;\"/>" + $(".highlighted_recommendation_desc", data).text();
+	                $item.data("storeTooltip", text);
+	                var activeTooltip = $item.data("tooltip.element");
+	                if(activeTooltip) {
+	                	activeTooltip.html(text);
+	                }
+	            });
             });
         }
     });
