@@ -1,8 +1,10 @@
+@import url("http://store.akamai.steamstatic.com/public/shared/css/motiva_sans.css?v=ful_LJT3NQYl");
+
 body {
 	background: -webkit-linear-gradient(top,  #000000 0%,#0b1821 100%); /* Chrome10+,Safari5.1+ */
 	margin-left: 0px;
 	color: #efffef;
-	font-family:"Arial" sans-serif;
+	font-family:"Motiva Sans", "Arial", "Helvetica" sans-serif;
 }
 
 #side_bar {
