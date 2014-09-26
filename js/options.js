@@ -847,3 +847,26 @@ $(document).ready(function(){
 
 	steam_credits();
 });
+
+// Sticky Navbar
+
+var stickyNavTop = $('nav').offset().top;
+
+$(window).scroll(function() {  
+    if ($(window).scrollTop() > stickyNavTop) {
+        $('nav').addClass('navbar-fixed-top');
+    }
+    else {
+        $('nav').removeClass('navbar-fixed-top');
+    }  
+});
+
+// Smoothscroll Anchors
+
+$('a').click(function(){
+    $('html, body').animate({
+        scrollTop: $( $.attr(this, 'href') ).offset().top-50
+    }, 500);
+    return false;
+});
+
