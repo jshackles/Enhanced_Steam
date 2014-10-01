@@ -1,6 +1,6 @@
 {
     "name": "Enhanced Steam",
-    "version": "6.7.1",
+    "version": "6.7.2",
     "description": "Enhances the Steam Experience",
     "icons": {
         "128": "img/enhancedsteam.png"
@@ -9,7 +9,8 @@
     "options_page": "options.html",
     "permissions": [
         "storage",
-        "http://*.steampowered.com/"
+        "http://*.steampowered.com/",
+        "https://www.playfire.com/a/rewards?format=application/json"
     ],
     "web_accessible_resources": [
         "img/game_area_warning.png",
