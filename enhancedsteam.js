@@ -5941,8 +5941,6 @@ function add_birthday_celebration() {
 }
 
 function get_playfire_rewards(appid) {
-	var console_info=["%c Playfire Rewards v"+pf_version+" by mouse0270 %c https://www.playfire.com/ ","background: rgb(66, 66, 66);color: rgb(255, 188, 43)", ""];
-	console.log.apply(console,console_info);
 
 	get_http("https://www.playfire.com/a/rewards?format=application/json", function(data) {
 		var rewards = JSON.parse(data),
@@ -5971,8 +5969,13 @@ function get_playfire_rewards(appid) {
 			}
 		}
 
-		$rewards.find('ul').after('<span class="chart-footer">Powered by <a href="https://www.playfire.com/" target="_blank">playfire.com</a></span>');
-		$('#game_area_description').closest('.game_page_autocollapse_ctn').before($rewards);
+		if ($rewards.text().length > 21) {
+			var console_info = ["%c Playfire Rewards v"+pf_version+" by mouse0270 %c https://www.playfire.com/ ","background: rgb(66, 66, 66);color: rgb(255, 188, 43)", ""];
+			console.log.apply(console,console_info);
+
+			$rewards.find('ul').after('<span class="chart-footer">Powered by <a href="https://www.playfire.com/" target="_blank">playfire.com</a></span>');
+			$('#game_area_description').closest('.game_page_autocollapse_ctn').before($rewards);
+		}
 	})
 }
 
