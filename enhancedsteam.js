@@ -1,4 +1,5 @@
-var version = "6.7.1"
+var version = "6.7.2",
+	pf_version = "1.0.0"
 
 var console_info=["%c Enhanced %cSteam v"+version+" by jshackles %c http://www.enhancedsteam.com ","background: #000000;color: #7EBE45", "background: #000000;color: #ffffff",""];
 console.log.apply(console,console_info);
@@ -5939,6 +5940,42 @@ function add_birthday_celebration() {
 	});
 }
 
+function get_playfire_rewards(appid) {
+	var console_info=["%c Playfire Rewards v"+pf_version+" by mouse0270 %c https://www.playfire.com/ ","background: rgb(66, 66, 66);color: rgb(255, 188, 43)", ""];
+	console.log.apply(console,console_info);
+
+	get_http("https://www.playfire.com/a/rewards?format=application/json", function(data) {
+		var rewards = JSON.parse(data),
+			$rewards = $('<div class="game_area_rewards_section" />');
+
+		$rewards.html('<h2>Rewards from Playfire</h2>');
+		$rewards.append('<ul>');
+
+		for (iLoop = 0; iLoop <= Object.keys(rewards.current).length - 1; iLoop++) {
+			if (appid == rewards.current[iLoop]["0"]["0"]) {
+				for (jLoop = 0; jLoop <= Object.keys(rewards.current[iLoop]["1"]).length - 1; jLoop++) {
+					var reward = rewards.current[iLoop]["1"][jLoop],
+						$li = $('<li class="reward-detail-item">');
+					
+					if (reward.is_earned === true) {
+						reward.prize = "Earned: "+ reward.prize
+						$li.addClass('completed')
+					}
+
+					$li.append('<div class="reward-img"><img src="'+reward.icon+'" class="actual" alt="'+reward.name+'"></div>');
+					$li.append('<div class="left-side"><span class="title tooltip-truncate">'+reward.name+'</span><span class="text">'+reward.description+'</span><span class="validity">Valid: '+reward.starts+' - '+reward.ends+'</span></div>');
+					$li.append('<div class="game_purchase_action"><div class="game_purchase_action_bg"><div class="game_purchase_price price">'+reward.prize+'</div></div></div>');
+					
+					$rewards.find('ul').append($li);
+				}
+			}
+		}
+
+		$rewards.find('ul').after('<span class="chart-footer">Powered by <a href="https://www.playfire.com/" target="_blank">playfire.com</a></span>');
+		$('#game_area_description').closest('.game_page_autocollapse_ctn').before($rewards);
+	})
+}
+
 $(document).ready(function(){
 	is_signed_in();
 
@@ -6004,6 +6041,8 @@ $(document).ready(function(){
 						add_achievement_completion_bar(appid);
 
 						show_regional_pricing();
+
+						get_playfire_rewards(appid);
 						break;
 
 					case /^\/sub\/.*/.test(window.location.pathname):
