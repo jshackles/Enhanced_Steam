@@ -39,6 +39,30 @@ function runInPageContext(fun){
 	script.parentNode.removeChild(script);
 }
 
+// Get variables from context of the current tab
+function getPageContextVariables(vars) {
+    var fun = '', ret = [], single = false;
+
+    if (typeof vars !== typeof []) {
+        vars = [vars];
+        single = true;
+    }
+
+    for (var i = 0; i < vars.length; i++) {
+        fun += " jQuery('body').attr('data-es-var-" + i + "'," + vars[i] + "); ";
+    }
+
+    runInPageContext("function () { " + fun + " }");
+
+    var $b = $('body');
+
+    for (var i = 0; i < vars.length; i++) {
+        ret.push($b.attr('data-es-var-' + i));
+        $b.removeAttr('data-es-var-' + i);
+    }
+    return single ? ret[0] : ret;
+}
+
 // Chrome storage functions
 function setValue(key, value) {
 	localStorage.setItem(key, JSON.stringify(value));
@@ -3137,97 +3161,190 @@ function fix_profile_image_not_found() {
 	}
 }
 
+function ensure_exchange_rates_loaded(local_currency) {
+    var $deferred = $.Deferred();
+
+    var available_currencies = ["USD", "GBP", "EUR", "BRL", "RUB", "JPY", "NOK", "IDR", "MYR", "PHP", "SGD", "THB", "VND", "KRW", "TRY", "UAH", "MXN", "CAD", "AUD", "NZD"];
+
+    var completed_calls = 0;
+    for (var i = 0; i < available_currencies.length - 1; i++) {
+        var target_currency = available_currencies[i];
+        if (target_currency === local_currency) {
+            completed_calls++;
+            continue;
+        }
+
+        var key = target_currency + "to" + local_currency;
+
+        var cached = getValue(key);
+        if (cached) {
+            var expire_time = (+new Date() / 1000) - 24 * 60 * 60; // One day ago
+            var last_updated = getValue(key + "_time") || expire_time - 1;
+            if (last_updated < expire_time)
+                cached = null;
+        }
+
+        if (!cached) {
+
+            (function (target_currency, local_currency) {
+
+                var cb = function (txt) {
+                    var key = target_currency + "to" + local_currency;
+
+                    setValue(key, parseFloat(txt));
+                    setValue(key + "_time", (+new Date() / 1000));
+
+                    if (available_currencies.length - 1 === ++completed_calls)
+                        $deferred.resolve();
+                }
+
+                get_http("//firefox.enhancedsteam.com/api/currency/?" + target_currency.toLowerCase() + "=1&local=" + local_currency.toLowerCase(), cb);
+
+            })(target_currency, local_currency);
+
+        }
+        else {
+            if (available_currencies.length - 1 === ++completed_calls)
+                $deferred.resolve();
+        }
+
+    }
+
+    return $deferred.promise();
+}
+
 function add_market_total() {
-	storage.get(function(settings) {
-		if (settings.showmarkettotal === undefined) { settings.showmarkettotal = true; storage.set({'showmarkettotal': settings.showmarkettotal}); }
-		if (settings.showmarkettotal) {
-			if (window.location.pathname.match(/^\/market\/$/)) {
-				$("#moreInfo").before('<div id="es_summary"><div class="market_search_sidebar_contents"><h2 class="market_section_title">'+ localized_strings[language].market_transactions +'</h2><div class="market_search_game_button_group" id="es_market_summary" style="width: 238px"><img src="http://cdn.steamcommunity.com/public/images/login/throbber.gif"><span>'+ localized_strings[language].loading +'</span></div></div></div>');
+    storage.get(function (settings) {
+        if (settings.showmarkettotal === undefined) { settings.showmarkettotal = true; storage.set({ 'showmarkettotal': settings.showmarkettotal }); }
+        if (settings.showmarkettotal) {
+            if (window.location.pathname.match(/^\/market\/$/)) {
+                $("#moreInfo").before('<div id="es_summary"><div class="market_search_sidebar_contents"><h2 class="market_section_title">' + localized_strings[language].market_transactions + '</h2><div class="market_search_game_button_group" id="es_market_summary" style="width: 238px"><img src="http://cdn.steamcommunity.com/public/images/login/throbber.gif"><span>' + localized_strings[language].loading + '</span></div></div></div>');
 
-				var pur_total = 0.0;
-				var sale_total = 0.0;
-				var currency_symbol = "";
+                var cvars = getPageContextVariables([
+                    'window.GetCurrencyCode(g_rgWalletInfo["wallet_currency"])',
+                    'window.GetCurrencySymbol(GetCurrencyCode(g_rgWalletInfo["wallet_currency"]))'
+                ]);
 
-				function get_market_data(txt) {
-					var data = JSON.parse(txt);
-					market = data['results_html'];
-					if (!currency_symbol) currency_symbol = currency_symbol_from_string($(market).find(".market_listing_price").text().trim());
-					
-					pur_totaler = function (p, i) {
-						if ($(p).find(".market_listing_price").length > 0) {
-							if (p.innerHTML.match(/\+.+<\/div>/)) {
-								var price = $(p).find(".market_listing_price").text().trim().match(/(\d+[.,]?\d+)/);
-								if (price !== null) {
-									var tempprice = price[0].toString();
-									tempprice = tempprice.replace(/,(\d\d)$/, ".$1");
-									tempprice = tempprice.replace(/,/g, "");
-									return parseFloat(tempprice);
-								}
-							}
-						}
-					};
+                var local_currency_symbol = cvars[1],
+                    local_currency_code = cvars[0],
+                    gain = 0.0,
+                    loss = 0.0;
 
-					sale_totaler = function (p, i) {
-						if ($(p).find(".market_listing_price").length > 0) {
-							if (p.innerHTML.match(/-.+<\/div>/)) {
-								var price = $(p).find(".market_listing_price").text().trim().match(/(\d+[.,]?\d+)/);
-								if (price !== null) {
-									var tempprice = price[0].toString();
-									tempprice = tempprice.replace(/,(\d\d)$/, ".$1");
-									tempprice = tempprice.replace(/,/g, "");
-									return parseFloat(tempprice);
-								}
-							}
-						}
-					};
+                var exchange_rates = {};
 
-					pur_prices = jQuery.map($(market), pur_totaler);
-					sale_prices = jQuery.map($(market), sale_totaler);
+                function get_market_data(txt) {
+                    var data = JSON.parse(txt);
+                    var market = data['results_html'];
 
-					jQuery.map(pur_prices, function (p, i) { pur_total += p; });
-					jQuery.map(sale_prices, function (p, i) { sale_total += p; });
-				}
+                    var price_regex = /([^\d]*)?\s?(\d+[.,]?\d+)/;
 
-				function show_results() {
-					var currency_type = currency_symbol_to_type(currency_symbol);
-					var net = sale_total - pur_total;
+                    $.map($(market), function (p, i) {
 
-					var html = localized_strings[language].purchase_total + ":<span class='es_market_summary_item'>" + formatCurrency(parseFloat(pur_total), currency_type) + "</span><br>";
-					html += localized_strings[language].sales_total + ":<span class='es_market_summary_item'>" + formatCurrency(parseFloat(sale_total), currency_type) + "</span><br>";
-					if (net > 0) {
-						html += localized_strings[language].net_gain + ":<span class='es_market_summary_item' style='color: green;'>" + formatCurrency(parseFloat(net), currency_type) + "</span>";
-					} else {
-						html += localized_strings[language].net_spent + ":<span class='es_market_summary_item' style='color: red;'>" + formatCurrency(parseFloat(net), currency_type) + "</span>";
-					}
+                        var $p = $(p),
+                            ptext = $p.find('.market_listing_price').text().trim();
 
-					$("#es_market_summary").html(html);
-				}
 
-				var start = 0;
-				var count = 1000;
-				var i = 1;
-				get_http("http://steamcommunity.com/market/myhistory/render/?query=&start=0&count=1", function (last_transaction) {
-					var data = JSON.parse(last_transaction);
-					var total_count = data["total_count"];
-					var loops = Math.ceil(total_count / count);
+                        if (!ptext || ptext === '')
+                            return;
 
-					if (loops) {
-						while ((start + count) < (total_count + count)) {
-							get_http("http://steamcommunity.com/market/myhistory/render/?query=&start=" + start + "&count=" + count, function (txt) {
-								txt = txt.replace(/[ ]src=/g," data-src=");
-								get_market_data(txt);
-								if (i == loops) { show_results(); }
-								i++;
-							});
-							start += count;
-						}
-					} else {
-						show_results();
-					}
-				});
-			}
-		}
-	});
+                        var matches = price_regex.exec(ptext);
+
+                        if (matches === null)
+                            debugger;
+
+
+                        var isGain = $p.children('.market_listing_gainorloss').text().trim() === "+",
+                            currency_symbol = matches[1].trim(),
+                            currency_code = currency_symbol_to_type(currency_symbol).trim(),
+                            price = parseFloat(matches[2]);
+
+                        if (local_currency_symbol !== currency_symbol) {
+                            if (!exchange_rates[currency_code])
+                                exchange_rates[currency_code] = getValue(currency_code + 'to' + local_currency_code);
+
+                            price *= exchange_rates[currency_code];
+                        }
+
+                        if (isGain)
+                            gain += price;
+                        else
+                            loss += price;
+
+                    });
+
+
+
+                }
+
+
+                function show_results() {
+                    var currency_type = currency_symbol_to_type(currency_symbol);
+                    var net = gain - loss;
+
+                    var html = localized_strings[language].purchase_total + ":<span class='es_market_summary_item'>" + formatCurrency(parseFloat(loss), local_currency_code) + "</span><br>";
+                    html += localized_strings[language].sales_total + ":<span class='es_market_summary_item'>" + formatCurrency(parseFloat(gain), local_currency_code) + "</span><br>";
+                    if (net > 0) {
+                        html += localized_strings[language].net_gain + ":<span class='es_market_summary_item' style='color: green;'>" + formatCurrency(parseFloat(net), local_currency_code) + "</span>";
+                    } else {
+                        html += localized_strings[language].net_spent + ":<span class='es_market_summary_item' style='color: red;'>" + formatCurrency(parseFloat(net), local_currency_code) + "</span>";
+                    }
+
+                    $("#es_market_summary").html(html);
+                }
+
+                var start = 0;
+                var count = 1000;
+                var i = 1;
+
+                ensure_exchange_rates_loaded(local_currency_code)
+                .done(function () {
+                    get_http("http://steamcommunity.com/market/myhistory/render/?query=&start=0&count=1", function (last_transaction) {
+                        var data = JSON.parse(last_transaction);
+                        var total_count = data["total_count"];
+                        var loops = Math.ceil(total_count / count);
+
+                        var on_complete = function () {
+                            show_results();
+
+                            setValue('add-market-total', {
+                                total_count: total_count,
+                                gain: gain,
+                                loss: loss
+                            });
+                        }
+
+
+                        // has the user's history changed since the last run? 
+                        var last_data = getValue('add-market-total');
+                        if (last_data && last_data.total_count === total_count) {
+                            gain = last_data.gain;
+                            loss = last_data.loss;
+                            show_results();
+                        }
+                        else {
+
+                            if (loops) {
+                                while ((start + count) < (total_count + count)) {
+                                    get_http("http://steamcommunity.com/market/myhistory/render/?query=&start=" + start + "&count=" + count, function (txt) {
+                                        txt = txt.replace(/[ ]src=/g, " data-src=");
+                                        get_market_data(txt);
+                                        if (i == loops) {
+                                            on_complete();
+                                        }
+                                        i++;
+                                    });
+                                    start += count;
+                                }
+                            } else {
+                                on_complete();
+
+                            }
+                        }
+                    });
+                });
+            }
+        }
+    });
 }
 
 function add_active_total() {
