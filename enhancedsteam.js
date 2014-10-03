@@ -3249,10 +3249,6 @@ function add_market_total() {
 
                         var matches = price_regex.exec(ptext);
 
-                        if (matches === null)
-                            debugger;
-
-
                         var isGain = $p.children('.market_listing_gainorloss').text().trim() === "+",
                             currency_symbol = matches[1].trim(),
                             currency_code = currency_symbol_to_type(currency_symbol).trim(),
