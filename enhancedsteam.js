@@ -4642,6 +4642,7 @@ function customize_home_page() {
 		if (settings.show_homepage_tabs === undefined) { settings.show_homepage_tabs = true; storage.set({'show_show_homepage_tabs': settings.show_homepage_tabs}); }
 		if (settings.show_homepage_specials === undefined) { settings.show_homepage_specials = true; storage.set({'show_show_homepage_specials': settings.show_homepage_specials}); }
 		if (settings.show_homepage_sidebar === undefined) { settings.show_homepage_sidebar = true; storage.set({'show_show_homepage_sidebar': settings.show_homepage_sidebar}); }
+		if (settings.show_homepage_under_ten_eur === undefined) { settings.show_homepage_under_ten_eur = true; storage.set({'show_show_homepage_under_ten_eur': settings.show_homepage_under_ten_eur}); }
 
 		var html = "<div class='home_viewsettings_popup' style='display: none; z-index: 12; right: 18px;'><div class='home_viewsettings_instructions' style='font-size: 12px;'>" + localized_strings[language].apppage_sections + "</div>"
 
@@ -4747,6 +4748,17 @@ function customize_home_page() {
 				$(".home_page_body_ctn").css("margin-left", "0px");
 				$(".home_page_content").css("padding-left", "0px");
 				$(".has_takeover").find(".page_background_holder").css("margin-left", "-202px");
+			}
+		}		
+    
+		// Under 10€
+		$(".home_rightcol:last h2:last, .home_rightcol:last .home_specials_grid:last, .home_rightcol:last .home_block_footer:last").addClass("es-under-ten-eur");
+		if ($(".es-under-ten-eur").length > 0) {
+			text = $("h2.es-under-ten-eur").text();
+			if (settings.show_homepage_under_ten_eur) { html += "<div class='home_viewsettings_checkboxrow ellipsis' id='show_homepage_under_ten_eur'><div class='home_viewsettings_checkbox checked'></div><div class='home_viewsettings_label'>" + text + "</div></div>"; }
+			else {
+				html += "<div class='home_viewsettings_checkboxrow ellipsis' id='show_homepage_under_ten_eur'><div class='home_viewsettings_checkbox'></div><div class='home_viewsettings_label'>" + text + "</div></div>";
+				$(".es-under-ten-eur").hide();
 			}
 		}
 
@@ -4914,6 +4926,18 @@ function customize_home_page() {
 				$(".has_takeover").find(".page_background_holder").css("margin-left", "0px");
 			}
 			storage.set({'show_homepage_sidebar': settings.show_homepage_sidebar});
+		});
+		$("#show_homepage_under_ten_eur").click(function() {
+			if (settings.show_homepage_under_ten_eur) {
+				settings.show_homepage_under_ten_eur = false;
+				$(".es-under-ten-eur").hide();
+				$(this).find(".home_viewsettings_checkbox").removeClass("checked");
+			} else {
+				settings.show_homepage_under_ten_eur = true;
+				$(".es-under-ten-eur").show();
+				$(this).find(".home_viewsettings_checkbox").addClass("checked");
+			}
+			storage.set({'show_homepage_under_ten_eur': settings.show_homepage_under_ten_eur});
 		});
 	});
 }
