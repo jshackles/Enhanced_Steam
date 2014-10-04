@@ -205,8 +205,16 @@ function matchAll(re, str) {
 	return r;
 }
 
-function get_http_bulk(list, listDelim, limit, urlBuilder, combiner, callback) {
+function get_http_bulk(list, url, callback, options) {
     // creates an array of deferred calls to get_http, broken up into batches, and combines the results before calling the passed in callback
+
+    var defaults = {
+        listDelim: ',',
+        limit: 100,
+        combiner: function (combData, newData) { return $.extend(combData, JSON.parse(newData)); }
+    };
+
+    options = $.extend({}, defaults, options);
 
     var defers = [];
     var combinedData;
@@ -214,14 +222,14 @@ function get_http_bulk(list, listDelim, limit, urlBuilder, combiner, callback) {
     var c = 0;
 
     while (list.length > 0) {
-        sb += (sb.length > 0 ? listDelim : '') + list.pop();
+        sb += (sb.length > 0 ? options.listDelim : '') + list.pop();
 
-        if (++c >= limit || list.length === 0) {
-            var url = urlBuilder(sb);
+        if (++c >= options.limit || list.length === 0) {
+            var builtUrl = url + sb;
 
             defers.push(new $.Deferred(function (defer) {
 
-                get_http(url, function (d) {
+                get_http(builtUrl, function (d) {
                     defer.resolve(d);
                 });
 
@@ -231,15 +239,14 @@ function get_http_bulk(list, listDelim, limit, urlBuilder, combiner, callback) {
             c = 0;
         }
     }
-
-
+    
     $.when.apply($, defers)
         .then(function () {
 
             // each time we call defer.resolve, that data is added to an array which is provided as the arguments for this function
             // so, we need to do our processing and extension here.
             for (var i = 0; i < arguments.length; i++) {
-                combinedData = combiner(combinedData, arguments[i]);
+                combinedData = options.combiner(combinedData, arguments[i]);
             }
 
             callback(combinedData);
@@ -2597,10 +2604,7 @@ function appdata_on_wishlist() {
 
 	}
 
-	get_http_bulk(apps, ',', 100,
-        function (s) { return '//store.steampowered.com/api/appdetails/?appids=' + s; },
-        function (combData, newData) { return $.extend(combData, JSON.parse(newData)); },
-        callback);
+	get_http_bulk(apps, '//store.steampowered.com/api/appdetails/?appids=', callback);
 
 }
 
