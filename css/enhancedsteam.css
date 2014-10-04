@@ -350,6 +350,10 @@ img.platform_small, .platform_img {
 	display: block !important;
 }
 
+#chart-heading {
+	background-color: rgba(0,0,0,0);
+}
+
 #chart-heading img {
 	vertical-align: middle;
 }
@@ -436,7 +440,7 @@ img.platform_small, .platform_img {
 	display: none;
 	z-index:999;	
 	position:absolute;
-	background: linear-gradient(to bottom, #33425A 5%,#282F3D 95%);
+	background: linear-gradient(to bottom, #33425A 5%,#282F3D 100%);
 	padding: 7px 8px;
 	box-shadow: 5px 5px 5px rgba(0,0,0,0.8);
 	border:1px solid black;
@@ -518,11 +522,12 @@ img.platform_small, .platform_img {
 
 .es_btn_systemreqs {
 	margin-bottom: 10px;
+	margin-top: 10px;
 }
 
 .es_overlay {
 	position: absolute;
-	z-index: 0;
+	z-index: 4;
 }
 .es_card_search {
 	padding:0px 2px;
@@ -576,12 +581,10 @@ input[type=checkbox].es_dlc_selection:checked + label {
 
 #es_dlc_option_button {
 	float: right;
-	font-weight: bold;
-	color: #ffffff;
+	text-decoration: none;
 }
 
 #es_dlc_option_button:hover {
-	text-decoration: underline;
 	cursor: pointer;
 }
 
@@ -621,14 +624,13 @@ input[type=checkbox].es_dlc_selection:checked + label {
 .es_lowest_price {
 	padding: 5px 0 5px 46px;
 	height: auto !important;
-	border: 1px solid #4d4b49;
 	border-bottom: 0;
 	background-image: none;
 	padding-left: 46px;
 	position: relative;
 	font-size: 12px;
 	color: #626366;
-	background-color: #1d252e;
+	background-color: rgba( 0, 0, 0, 0.2 );
 }
 
 .es_lowest_price a {
@@ -713,6 +715,12 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	margin-top:2px;
 	margin-bottom:2px;
 }
+#es_popular {
+	margin-left: 3px;
+}
+#es_allreleases {
+	margin-left: 3px;
+}
 .dailydeal .timer {
 	background:#222;
 	border-radius:2px;
@@ -744,18 +752,6 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	line-height: 32px;
 	margin-left: 5px;
 }
-#game_background {
-	height: 700px !important;
-	background-size: 100%;
-	display: none;
-}
-#es_background_gradient {
-	height: 700px;
-	position: absolute;
-	width: 100%;
-	background: -webkit-linear-gradient(rgba(255,255,255,0),rgba(255,255,255,0),rgba(0,0,0,1));
-	z-index: 999;
-}
 .es_market_summary_item {
 	float: right;
 	line-height: inherit !important;
@@ -766,7 +762,9 @@ input[type=checkbox].es_dlc_selection:checked + label {
 .es_drm_warning {
 	display: table; 
 	width: 100%; 
-	padding: 0px !important;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	min-height: 38px;
 }
 .es_drm_warning span {
 	display: table-cell; 
@@ -929,4 +927,85 @@ input[type=checkbox].es_dlc_selection:checked + label {
 .es_discount_final_price {
 	font-family:tahoma, helvetica, arial, trebuchet ms, sans-serif;
 	color: #d6d7d8;
+}
+.game_area_rewards_section {
+	margin-top: 30px;
+	margin-bottom: 36px;
+}
+.reward-detail-item {
+	position: relative;
+	height: 64px;
+	display: block;
+	margin-bottom: 30px;
+	color: rgb(66, 66, 66);
+	background: -moz-linear-gradient(-60deg, rgba(97,100,101,0.3) 0%, rgba(226,244,255,0.3) 100%);
+	background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,rgba(97, 100, 101, 0.3)), color-stop(100%,rgba(226, 244, 255, 0.3)));
+	background: -webkit-linear-gradient(-60deg, rgba(97, 100, 101, 0.3) 0%,rgba(226, 244, 255, 0.3) 100%);
+	background: -o-linear-gradient(-60deg, rgba(97,100,101,0.3) 0%,rgba(226,244,255,0.3) 100%);
+	background: -ms-linear-gradient(-60deg, rgba(97,100,101,0.3) 0%,rgba(226,244,255,0.3) 100%);
+	background: linear-gradient(135deg, rgba(97, 100, 101, 0.3) 0%,rgba(226, 244, 255, 0.3) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4d616465', endColorstr='#4de2f4ff',GradientType=1 );
+}
+.reward-detail-item.completed {
+	opacity: 0.40;
+}
+.reward-detail-item > .reward-img {
+	position: relative;
+	display: inline-block;
+	width: 64px;
+	height: 64px;
+	overflow: hidden;
+	float: left;
+	margin-right: 10px;
+}
+
+.reward-detail-item > .reward-img > img {
+	position: absolute;
+	height: 64px;
+	width: 64px;
+	-webkit-transition-property: opacity;
+	-moz-transition-property: opacity;
+	-o-transition-property: opacity;
+	transition-property: opacity;
+	-webkit-transition-duration: .4s;
+	-moz-transition-duration: .4s;
+	-o-transition-duration: .4s;
+	transition-duration: .4s;
+	-webkit-transition-timing-function: ease-out;
+	-moz-transition-timing-function: ease-out;
+	-o-transition-timing-function: ease-out;
+	transition-timing-function: ease-out;
+}
+
+.reward-detail-item > .left-side {
+	display: inline-block;
+	position: relative;
+	width: calc(100% - 74px);
+}
+.reward-detail-item > .left-side > .title {
+	display: block;
+	color: rgb(255, 255, 255);
+	font-size: 1.5em;
+	margin-top: 7px;
+}
+.reward-detail-item > .left-side > .text {
+	display: block;
+	color: #8f98a0;
+	font-size: 12px;
+}
+.reward-detail-item > .left-side > .validity {
+	display: block;
+	color: rgb(176, 174, 172);
+	font-size: 0.8em;
+	position: absolute;
+	top: 3px;
+	right: 3px;
+}
+.reward-detail-item .game_purchase_action {
+	position: absolute;
+	right: 16px;
+	bottom: -17px;
+}
+.reward-detail-item .price {
+	color: rgb(137, 138, 140);
 }
