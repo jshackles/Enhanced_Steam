@@ -40,7 +40,6 @@ v6.6.1
 + Added basic support for upcomming store currencies
 : Updated SteamDB icon on store page buttons
 : Fixed a bug caused by Steam_Language cookie not being present for all users
->>>>>>> origin/dev
 
 v6.6
 -----
