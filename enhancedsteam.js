@@ -207,6 +207,54 @@ function matchAll(re, str) {
 	return r;
 }
 
+function get_http_bulk(list, url, callback, options) {
+    // creates an array of deferred calls to get_http, broken up into batches, and combines the results before calling the passed in callback
+
+    var defaults = {
+        listDelim: ',',
+        limit: 100,
+        combiner: function (combData, newData) { return $.extend(combData, JSON.parse(newData)); }
+    };
+
+    options = $.extend({}, defaults, options);
+
+    var defers = [];
+    var combinedData;
+    var sb = '';
+    var c = 0;
+
+    while (list.length > 0) {
+        sb += (sb.length > 0 ? options.listDelim : '') + list.pop();
+
+        if (++c >= options.limit || list.length === 0) {
+            var builtUrl = url + sb;
+
+            defers.push(new $.Deferred(function (defer) {
+
+                get_http(builtUrl, function (d) {
+                    defer.resolve(d);
+                });
+
+            }).promise());
+
+            sb = '';
+            c = 0;
+        }
+    }
+    
+    $.when.apply($, defers)
+        .then(function () {
+
+            // each time we call defer.resolve, that data is added to an array which is provided as the arguments for this function
+            // so, we need to do our processing and extension here.
+            for (var i = 0; i < arguments.length; i++) {
+                combinedData = options.combiner(combinedData, arguments[i]);
+            }
+
+            callback(combinedData);
+        });
+}
+
 function get_http(url, callback) {
 	total_requests += 1;
 	$("#es_progress").attr({"max": 100, "title": localized_strings[language].ready.loading});
@@ -1000,7 +1048,6 @@ function add_wishlist_total() {
 	var gamelist = "";
 	var items = 0;
 	var currency_symbol;
-	var apps = "";
 
 	function calculate_node($node, search) {
 		var parsed = parse_currency($node.find(search).text().trim());
@@ -1010,7 +1057,6 @@ function add_wishlist_total() {
 			gamelist += $node.find("h4").text().trim() + ", ";
 			items ++;
 			total += parsed.value;
-			apps += get_appid($node.find("a[class='btn_visit_store']")[0].href) + ",";
 		}
 	}
 
@@ -2521,28 +2567,41 @@ function add_supporter_badges() {
 }
 
 function appdata_on_wishlist() {
-	jQuery('a.btn_visit_store').each(function (index, node) {
-		var app = get_appid(node.href);
-		get_http('//store.steampowered.com/api/appdetails/?appids=' + app, function (data) {
-			var storefront_data = JSON.parse(data);
-			$.each(storefront_data, function(appid, app_data) {
-				if (app_data.success) {
-					// Add platform information
-					if (app_data.data.platforms) {
-						var htmlstring = "";
-						var platforms = 0;
-						if (app_data.data.platforms.windows) { htmlstring += "<span class='platform_img win'></span>"; platforms += 1; }
-						if (app_data.data.platforms.mac) { htmlstring += "<span class='platform_img mac'></span>"; platforms += 1; }
-						if (app_data.data.platforms.linux) { htmlstring += "<span class='platform_img linux'></span>"; platforms += 1; }
 
-						if (platforms > 1) { htmlstring = "<span class='platform_img steamplay'></span>" + htmlstring; }
+    var apps = [];
 
-						$(node).parent().parent().parent().find(".bottom_controls").append(htmlstring);
-					}
-				}
-			});
-		});
-	});
+    jQuery('a.btn_visit_store').each(function (index, node) {
+        apps.push(get_appid(node.href));
+    });
+
+	var callback = function (data) {
+	    var $btns = jQuery('a.btn_visit_store');
+
+	    $.each(data, function (appid, app_data) {
+
+	        if (!app_data.success)
+	            return;
+            
+	        var $node = $btns.filter(':appid(' + appid + ')');
+
+            // Add platform information
+	        if (app_data.data.platforms) {
+	            var htmlstring = "";
+	            var platforms = 0;
+	            if (app_data.data.platforms.windows) { htmlstring += "<span class='platform_img win'></span>"; platforms += 1; }
+	            if (app_data.data.platforms.mac) { htmlstring += "<span class='platform_img mac'></span>"; platforms += 1; }
+	            if (app_data.data.platforms.linux) { htmlstring += "<span class='platform_img linux'></span>"; platforms += 1; }
+
+	            if (platforms > 1) { htmlstring = "<span class='platform_img steamplay'></span>" + htmlstring; }
+
+	            $node.parent().parent().parent().find(".bottom_controls").append(htmlstring);
+	        }
+	    });
+
+	}
+
+	get_http_bulk(apps, '//store.steampowered.com/api/appdetails/?appids=', callback);
+
 }
 
 var processing = false;
@@ -6482,7 +6541,19 @@ function get_playfire_rewards(appid) {
 	});
 }
 
+function extend_jquery() {
+    jQuery.expr.pseudos.appid = jQuery.expr.createPseudo(function (id) {
+        return function (elem) {
+            if (!elem.href)
+                return false;
+
+            return elem.href.match(new RegExp('(?:store\.steampowered|steamcommunity)\.com\/app\/' + id + '\/?', 'gi'));
+        };
+    });
+}
+
 $(document).ready(function(){
+    extend_jquery();
 	is_signed_in();
 
 	localization_promise.done(function(){
