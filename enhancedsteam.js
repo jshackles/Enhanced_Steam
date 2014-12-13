@@ -6736,6 +6736,14 @@ function get_playfire_rewards(appid) {
 	});
 }
 
+function add_boosters_prices() {
+	$('#booster_game_selector option').each(function(index) {
+        if ($(this).val()) {
+            $(this).append(" - " + CBoosterCreatorPage.sm_rgBoosterData[$(this).val()].price + " Gems");
+        }
+    });
+}
+
 $(document).ready(function(){
 	signed_in_promise.done(function(){
 	localization_promise.done(function(){
@@ -6977,6 +6985,10 @@ $(document).ready(function(){
 					case /^\/$/.test(window.location.pathname):
 						hide_spam_comments();
 						hide_trademark_symbols(true);
+						break;
+						
+					case /^\/tradingcards\/boostercreator/.test(window.location.pathname):
+						add_boosters_prices();
 						break;
 				}
 				break;
