@@ -6726,8 +6726,8 @@ function add_chat_link() {
 			{
 				$(".menuitem.username").after('<a class="menuitem es_chat_item" style="cursor: pointer" onclick="window.open(\'https://steamcommunity.com/chat/\', \'SteamWebChat\', \'height=790,width=1015,resize=yes,scrollbars=yes\')"> CHAT	</a>');
 			}
-		});
-	}
+		}
+	});
 }
 
 $(document).ready(function(){
