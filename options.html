@@ -2,6 +2,7 @@
 <script src="js/jQuery.min.js"></script>
 <script src="js/localization.js"></script>
 <script src="js/options.js"></script>
+<link href="css/select2.css" rel="stylesheet" type="text/css">
 <link href="css/options.css" rel="stylesheet" type="text/css">
 <link href="css/es_flags.css" rel="stylesheet" type="text/css">
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
@@ -170,6 +171,7 @@
 					<select id="homepage_tab_selection">
 						<option value="remember">Remember Previous</option>
 						<option value="tab_newreleases_content_trigger">Popular New Releases</option>
+						<option value="es_allreleases">All New Releases</option>
 						<option value="tab_topsellers_content_trigger">Top Sellers</option>
 						<option value="tab_upcoming_content_trigger">Upcoming</option>
 						<option value="tab_specials_content_trigger">Specials</option>
@@ -186,6 +188,7 @@
 				<li><input type="checkbox" id="html5video"><label for="html5video" id="html5video_text">Show videos using HTML5 instead of Flash</label></li>
 				<li><input type="checkbox" id="contscroll"><label for="contscroll" id="contscroll_text">Enable continuous scrolling of search results</label></li>
 				<li><input type="checkbox" id="showdrm"><label for="showdrm" id="store_drm_text">Show 3rd party DRM warnings</label><a href="http://enhancedsteam.com/featuredetail.php?id=3" class="help"></a></li>
+				<li><input type="checkbox" id="showacrtag"><label for="showacrtag" id="store_acrtag_text">Show warnings on items where cross region trading is disabled</label></li>
 				<li><input type="checkbox" id="showmcus"><label for="showmcus" id="store_metacritic_text">Show Metacritic user scores</label><a href="http://enhancedsteam.com/featuredetail.php?id=10" class="help"></a></li>
 				<li><input type="checkbox" id="showhltb"><label for="showhltb" id="store_hltb_text">Show HowLongToBeat.com information</label></li>
 				<li><input type="checkbox" id="showsteamdb"><label for="showsteamdb" id="store_steamdb_text">Show SteamDB links</label></li>
@@ -244,7 +247,7 @@
 							<td><input type="checkbox" id="getgames"><label for="getgames">GetGames</label></td>
 						</tr>
 						<tr>
-							<td><input type="checkbox" id="gameolith"><label for="gameolith">Gameolith</label></td>
+							<td><input type="checkbox" id="newegg"><label for="newegg">Newegg</label></td>							
 							<td><input type="checkbox" id="adventureshop"><label for="adventureshop">Adventure Shop</label></td>
 							<td><input type="checkbox" id="nuuvem"><label for="nuuvem">Nuuvem</label></td>
 						</tr>
@@ -261,6 +264,10 @@
 						<tr>
 							<td><input type="checkbox" id="fireflower"><label for="fireflower">FireFlower</label></td>
 							<td><input type="checkbox" id="gametap"><label for="gametap">GamesTap</label></td>
+							<td><input type="checkbox" id="gameolith"><label for="gameolith">Gameolith</label></td>
+						</tr>
+						<tr>
+							<td><input type="checkbox" id="gamesrepublic"><label for="gamesrepublic">GamesRepublic</label></td>
 						</tr>
 					</table>
 					<li class="header" id="store_regionalprice_header">Regional Price Comparison</li>
@@ -274,34 +281,7 @@
 					</li>
 					<li id="regional_price_hideworld"><input type="checkbox" id="regional_hideworld"><label for="regional_hideworld" id="regional_hideworld_text">Hide globe indicator</label></li>			
 					<div id='region_selects'>
-						<li>
-							<span class="es_flag" id="es_flag_1"></span><select id="regional_country_1" class="regional_country"></select>
-						</li>	
-						<li>
-							<span class="es_flag" id="es_flag_2"></span><select id="regional_country_2" class="regional_country"></select>
-						</li>
-						<li>
-							<span class="es_flag" id="es_flag_3"></span><select id="regional_country_3" class="regional_country"></select>
-						</li>
-						<li>
-							<span class="es_flag" id="es_flag_4"></span><select id="regional_country_4" class="regional_country"></select>
-						</li>
-						<li>
-							<span class="es_flag" id="es_flag_5"></span><select id="regional_country_5" class="regional_country"></select>
-						</li>
-						<li>
-							<span class="es_flag" id="es_flag_6"></span><select id="regional_country_6" class="regional_country"></select>
-						</li>
-						<li>
-							<span class="es_flag" id="es_flag_7"></span><select id="regional_country_7" class="regional_country"></select>
-						</li>
-						<li>
-							<span class="es_flag" id="es_flag_8"></span><select id="regional_country_8" class="regional_country"></select>
-						</li>
-						<li>
-							<span class="es_flag" id="es_flag_9"></span><select id="regional_country_9" class="regional_country"></select>
-						</li>
-						<div style='margin-top: 15px; margin-left: 32px;'><button id="reset_countries" class="btn">Default</button></div>
+						<div style='margin-top: 15px; margin-left: 32px;'><button id="add_another_region" class="btn">Add</button><button id="reset_countries" class="btn">Default</button></div>
 					</div>
 				</ul>
 			</div>
@@ -318,6 +298,9 @@
 						<a href="http://enhancedsteam.com/featuredetail.php?id=16" class="help"></a>
 					</li>
 					<li>
+						<input type="checkbox" id="showsteamrepapi"><label for="showsteamrepapi" id="steamrep_api_text">Show SteamRep status on profile pages</label>						
+					</li>
+					<li>
 						<input type="checkbox" id="showinvnav"><label for="showinvnav" id="inventory_nav_text">Show advanced navigation on inventory page</label>
 					</li>
 					<li>
@@ -327,6 +310,9 @@
 					<li>
 						<input type="checkbox" id="showallachievements"><label for="showallachievements" id="allachievements_text">Show achievement stats on "All Games" page</label>
 						<a href="http://enhancedsteam.com/featuredetail.php?id=18" class="help"></a>
+					</li>
+					<li>
+						<input type="checkbox" id="showcomparelinks"><label for="showcomparelinks" id="showcomparelinks_text">Show "Compare" links for achievements on friend activity feed</label>
 					</li>
 					<li>
 						<input type="checkbox" id="showgreenlightbanner"><label for="showgreenlightbanner" id="greenlight_banner_text">Replace Steam Greenlight banner</label>
@@ -410,15 +396,11 @@
 				<li>Rob '<a href="http://steamcommunity.com/profiles/76561197989222171" id="rjackson_steam">rjacksonm1</a>' Jackson</li>
 				<li>Tomáš '<a href="http://steamcommunity.com/profiles/76561198020275445" id="tomas_steam">Timmy</a>' Duda</li>				
 			</ul>
-			<ul class="credits">
-				<li class="header" id="graphics_text">Graphics</li>
-				<li>SolventSnake</li>
-			</ul>
 			<div class="header" id="translation_text">Translation</div>
 			<table class="translation">
 				<tr>
 					<td class="language">Portuguese-Brazil:</td>
-					<td>Berna, Mougevit, Ricci, Rubens Vinícius, Scopel, Titoncio, Yachagon, xAranda (NO AUDIO)</td>
+					<td>Berna, Mougevit, Ricci, Rubens Vinícius, Scopel, Titoncio, Yachagon, xAranda (NO AUDIO), 級 Happy</td>
 				</tr>
 				<tr>
 					<td class="language">Bulgarian:</td>
@@ -426,59 +408,59 @@
 				</tr>
 				<tr>
 					<td class="language">Czech:</td>
-					<td>Arcane, Martin005[CZ], dapil</td>
+					<td>Arcane, Bezdak, Martin005[CZ], benetti32|cz, chriss01cz, dapil, xXx_Pá$0v€cXVI_xXx</td>
 				</tr>
 				<tr>
 					<td class="language">Danish:</td>
-					<td>Cake!, Redzdaz, Saturate, SnoX, UltraSun, XDRosenheim, antim</td>
+					<td>Cake!, Chreddy, Mig_Mikkel [⇄], Redzdaz, Saturate, SnoX, UltraSun, XDRosenheim, antim</td>
 				</tr>
 				<tr>
 					<td class="language">Dutch:</td>
-					<td>Craven, Epicon, FooBar, Justin, Nujj</td>
+					<td>AreUTalking2Meh, Bennievv, Boelens, Craven, Epicon, FooBar, HumanaSays, Justin, Nujj, Yeuxkes</td>
 				</tr>
 				<tr>
 					<td class="language">Finnish:</td>
-					<td>3ventic, Mairo vain..., Major Parsnip, Master Indigo, Nightmare_182, Tumpo, frozen.aerocrane, mkfin</td>
+					<td>3ventic, Elekton, Hilloh, Lumppari, Mairo vain..., Major Parsnip, Master Indigo, Nightmare_182, NikoDaGreat, Tumpo, frozen.aerocrane, mkfin</td>
 				</tr>
 				<tr>
 					<td class="language">French:</td>
-					<td>Clockmaker, Nuator, Yanuut</td>
+					<td>Clockmaker, Nuator, Quaelor, Stumpokapow, Vardex, Yanuut, eucalyptux</td>
 				</tr>
 				<tr>
 					<td class="language">German:</td>
-					<td>FuriousFry, Incredipede, MAGIC, Phenom, Schnitzelfee, Son of Thor, addicT*, dochris.2, |«ScReaM»|</td>
+					<td>Darkbird |, Edward Cullen, FuriousFry, Gatse, Incredipede, Invisi, MAGIC, Phenom, Pilzsuppe, Schnitzelfee, Son of Thor, addicT*, chrisli, dochris.2, larry_ @ DUAS NIMMA HALTEN, red, |«ScReaM»|, À Cookie Jar</td>
 				</tr>
 				<tr>
 					<td class="language">Greek:</td>
-					<td>Pandorian, SeCTeen, Sub-Zero</td>
+					<td>Coccinella, Pandorian, SeCTeen, Sub-Zero</td>
 				</tr>
 				<tr>
 					<td class="language">Hungarian:</td>
-					<td>DonRoland, Mohariczozo_HUN, Noarpe, [T-A!] Underyx x 6, atomcsikk, nArrow, ๖VaHooK</td>
+					<td>DonRoland, Mohariczozo_HUN, Noarpe, Sirpi, [T-A!] Underyx x 6, atomcsikk, french_salad, nArrow, ๖VaHooK</td>
 				</tr>
 				<tr>
 					<td class="language">Italian:</td>
-					<td>Copons, Drake Fazuku, Star1s3, Øktøber</td>
+					<td>Copons, Drake Fazuku, Rasin, Star1s3, Øktøber</td>
 				</tr>
 				<tr>
 					<td class="language">Japanese:</td>
-					<td>sumannnala</td>
+					<td>aoisensi, k725, sumannnala</td>
 				</tr>
 				<tr>
 					<td class="language">Korean:</td>
-					<td>A Sky Yddet with PK Love!, CanNaJun, Daum, Hirano, LJreal, RaWouk, Rasin, fivestar, meyoung, sunk, 하얀군주</td>
+					<td>CanNaJun, Daum, Hirano, LJreal, RaWouk, Rasin, [GF]meyoung, fivestar, sunk, À Cookie Jar, 하얀군주</td>
 				</tr>
 				<tr>
 					<td class="language">Norwegian:</td>
-					<td>Lazberg, Stian, Thomas Bin Morris</td>
+					<td>KappaHD, Lazberg, Morten242, Stian, ⑨ ChocolateShuvuu</td>
 				</tr>
 				<tr>
 					<td class="language">Polish:</td>
-					<td>AciD, Laserman//^^, Parseus, Yobilat, Yocki, devLewy, mahon, skubi07</td>
+					<td>AciD, Bednar, Laserman//^^, Lordomus, Parseus, Xylo, Yobilat, Yocki, devLewy, mahon, skubi07</td>
 				</tr>
 				<tr>
 					<td class="language">Portuguese:</td>
-					<td>Dr. Costa, Matias G. H., MrAltamente, Reckoner, TheScientist, The_Monk, TilenoL</td>
+					<td>Dr. Costa, Ex0tic, Matias G. H., MrAltamente, Reckoner, Sim, SupSuper, TheScientist, The_Monk, TilenoL</td>
 				</tr>
 				<tr>
 					<td class="language">Romanian:</td>
@@ -486,35 +468,35 @@
 				</tr>
 				<tr>
 					<td class="language">Russian:</td>
-					<td>MrFreemanBBQ, Engkariensis, M@gi$te® Y0d@, Mechanic, Robin, ShawNexT</td>
+					<td>Engkariensis, Kosheyaka, M@gi$te® Y0d@, Mechanic, Memfys, MrFreemanBBQ, Robin, Sh1fter, ShawNexT, The Freak, TheMrKochan, delfin_00, dragonsigh</td>
 				</tr>
 				<tr>
 					<td class="language">Simplified Chinese:</td>
-					<td>Iuy, Mr. Error, MyLittleWarhammer, Rabbitism Bomb, Rasin, i7killpii, yuccatoo</td>
+					<td>Aslike2, Deparsoul, FelinaeEbony, Gold, Iuy, M@nkey, Mr. Error, MyLittleWarhammer, Rabbitism Bomb, Rasin, [CN]Johnson, i7killpii, mjy, ssenkrad, yuccatoo</td>
 				</tr>
 				<tr>
 					<td class="language">Spanish:</td>
-					<td>00HiZaM, Alien8, Digmin3, Mr.Avocado, Robotnick, kalprestito, kulapik, wasakakero, xGreg</td>
+					<td>#SG# Sharkiller, 00HiZaM, Alien8, Digmin3, ItsMarukka, Kharn Nete, MλXX [PA-D], Profesor Pistacho, Robotnick, Silence, \\Vince, giraam, kalprestito, kulapik, p0tat0, wasakakero, xGreg</td>
 				</tr>
 				<tr>
 					<td class="language">Swedish:</td>
-					<td>Chainsawkitten, Deques, [MG] Rubiin, 전주 0x3 제</td>
+					<td>Chainsawkitten, Death King, Deques, Lumppari, [MG] Rubiin, 전주 0x3 제</td>
 				</tr>
 				<tr>
 					<td class="language">Traditional Chinese:</td>
-					<td>Atraveller, Lex Song, Mr. Error, NOKIA SE, Rasin, omylist</td>
+					<td>Atraveller, JD OwO, Lex Song, MoDMeR, Mr. Error, NOKIA SE, Rasin, omylist, tonyli1357, 破曉之殤丶Revelation</td>
 				</tr>
 				<tr>
 					<td class="language">Thai:</td>
-					<td>Likecyber [FARMING CARDS], Magnative, Radius, [LPG] 7-elephant</td>
+					<td>Epicenter, Likecyber, Magnative, Radius, Rasin, [LPG] 7-elephant</td>
 				</tr>
 				<tr>
 					<td class="language">Turkish:</td>
-					<td>Beedle, Eray, Gevanni, Moscheetos, Neadiatre[Trade] #SOMA, Sound of Night, tyyaman</td>
+					<td>Beedle, Dijkstra[TR], Eray, Gevanni, Grievous, Neadiatre[Trade] #SOMA, Sound of Night, Su1ciDe, eayurdaer, tyyaman, veteran, ÖŞEK YALANCI</td>
 				</tr>
 				<tr>
 					<td class="language">Ukranian:</td>
-					<td>Anakin Skywalker, BlackSwan, Dorimi, GreK™, Peacefool Peopel, Smith M.D., Stakan, [BA]zekainhuman</td>
+					<td>Anakin Skywalker, BlackSwan, Dorimi, Gentleneer, GreK™, MoDMeR, NutsUA, Peacefool Peopel, Smith M.D., Stakan, [BA]zekainhuman</td>
 				</tr>
 			</table>
 		</div>

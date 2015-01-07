@@ -1,6 +1,6 @@
 {
     "name": "Enhanced Steam",
-    "version": "6.7",
+    "version": "7.2",
     "description": "Enhances the Steam Experience",
     "icons": {
         "128": "img/enhancedsteam.png"
@@ -42,6 +42,7 @@
         "img/red_banner.png",
         "img/es_btn_browse.png",
         "img/pcgw.png",
+        "img/trading.png",
         "img/gl_banner.jpg",
         "css/enhancedsteam.css",
         "options.html",
@@ -58,6 +59,8 @@
         "img/select2x2.png",
         "img/select2-spinner.png",
         "img/steamcardexchange.png",
+        "img/decline.png",
+        "img/remove.png",
         "img/wsgf/4k-gold.png",
         "img/wsgf/4k-silver.png",
         "img/wsgf/4k-limited.png",

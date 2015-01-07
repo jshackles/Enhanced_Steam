@@ -1,3 +1,91 @@
+v7.2
+-----
++ Added Newegg and GamesRepublic to the price history lookups
++ Added SteamRep status to user's profiles
++ Added button to "1-Click" turning inventory items to Gems (be careful!)
++ Added a search filter that hides games without discounts
++ Added a feature that hides empty inventory tabs (thanks zillazillaaaa!)
++ Added an option to show "Compare" links on friend activity page (disabled by default)
+: Fixed a bug in currency detection for booster pack prices
+- Removed library functionality due to API changes made by Valve
+
+v7.1.1
+-----
+: Fixed badge page sorting options to work with pagination
+: Fixed a bug that caused coupon messages not to display properly
+: Fixed a bug that caused the account total spent feature not to work correctly
+: Fixed the feature that shows achievements on the "All Games" page
+
+v7.1
+-----
++ Added a box to search pages that lets you hide games you own, on your wishlist, or in cart
++ Added ACRTAG warning messages to sub pages
++ Added the ability to remove games from your wishlist from the game's app page
++ Added a button to toggle the "Write a review for this game" section on app pages
+: Fixed drop count calculation to work with new badge page pagination
+: Fixed badge page filtering and sort options to work with pagination
+: Fixed the Library mode to work with the new changes in the Steam web API
+: Fixed a bug in market total calculations introduced by a change in the API
+
+v7.0.1
+-----
+: Fixed an issue where inventory price info was in USD regardless of the user's currency
+: Fixed a bug that would cause items to be tagged as gifts incorrectly under certain conditions
+: Fixed a bug in regional price comparisons introduced by a change in the API
+
+v7.0
+-----
++ Added the ability to set any number of regional price comparisons
++ Added highlighting and tags back to the Friend Activity page
++ Added a button to easily decline trade offers (even invalid ones)
++ Added an option to show a warning on items where cross region trading has been disabled
++ Added UI elements to continuous scrolling feature and the ability to retry when it fails
++ Enhanced Steam will now show bundle savings calculations on bundles with no savings
+: Updated wishlist code to work with the new page layout and design
+: Updated Canadian currency formatting
+: Updated Early Access banners to work with more store sections
+: Fixed a bug in market total calculations
+: Fixed a bug in the home page customization
+
+v6.9
+-----
++ Added a "Customize" button the the "All New Releases" section
++ Added option to hide "Items under $10" section on home page
++ Added a "remove" button to the custom background selection dialog
+: Fixed a bug with Euro price formatting
+: Fixed a bug that caused some packages not to process savings calculations corectly (again)
+: Fixed several bugs with the home page customization options
+
+v6.8
+-----
++ Completely re-wrote how Enhanced Steam handles highlighting to be faster and more accurate
++ Added a "Customize" button to app pages that lets you decide which sections to display
++ Added a "Customize" button to the home page that lets you decide which sections to display
++ Added "Rewards from Playfire" to applicable app pages (thanks mouse0270!)
++ Added an "All New Releases" tab to Steam home page
+: Fixed a memory leak caused by continous scrolling function in some instances
+: Fixed account total spent feature to work with the new account page design
+: Fixed a bug that caused coupon discounts to not display properly on app pages
+: Fixed the placement of regional price comparison box on sale pages
+: Fixed the spacing of the "Popular" tab on the home page
+: Fixed a bug that caused some packages not to process savings calculations corectly
+: Fixed a bug where DLC checkboxes would behave incorrectly if the DLC had no subID
+: Fixed a bug that caused incorrect image opacity on items when highlighting was disabled
+: Updated DLC pages to work with the new store layout including the "add all unowned" button
+- Removed cart buttons on wishlist page due to changes made by Valve
+
+v6.7.1
+-----
++ Added WSGF 4k grading to applicable games
++ Added tooltips on review scores to subsequent results on continuous scrolling feature
+: Fixed a bug where homepage carousel items didn't load correctly before being cachced
+: Fixed a bug that caused search results not to display Early Access banners
+: Updated 3rd Party DRM warning to more closely resemble the original design
+: Fixed a bug that caused regional price comparisons on sub pages to be incorrectly positioned
+: Fixed a bug that caused some SteamDB links to point to incorrect URLs
+: Fixed a bug that caused bundle savings to be incorrectly calculated
+: Updated Indonesian currency formatting
+
 v6.7
 -----
 + Lots of stuff, basically it supports the new store
