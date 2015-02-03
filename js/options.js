@@ -132,6 +132,7 @@ function save_options() {
 	show_profile_link_images = $("#profile_link_images_dropdown").val();
 	
 	steamcardexchange = $("#steamcardexchange").prop('checked');
+	steamcardexchange_inv = $("#steamcardexchange_inv").prop('checked');
 
 	chrome.storage.sync.set({
 		'highlight_owned_color': highlight_owned_color,
@@ -221,7 +222,8 @@ function save_options() {
 		'profile_permalink': profile_permalink,
 		'show_profile_link_images': show_profile_link_images,
 		
-		'steamcardexchange': steamcardexchange
+		'steamcardexchange': steamcardexchange,
+		'steamcardexchange_inv': steamcardexchange_inv
 	});
 	$("#saved").stop(true,true).fadeIn().delay(600).fadeOut();
 }
@@ -418,6 +420,7 @@ function load_options() {
 		if (settings.api_key == false||settings.api_key==""||settings.api_key===undefined){ settings.profile_api_info = false; chrome.storage.sync.set({'profile_api_info': settings.profile_api_info});}
 		if (settings.profile_permalink === undefined) { settings.profile_permalink = true; chrome.storage.sync.set({'profile_permalink': settings.profile_permalink}); }
 		if (settings.steamcardexchange == undefined) { settings.steamcardexchange = true; chrome.storage.sync.set({'steamcardexchange': settings.steamcardexchange}); }
+		if (settings.steamcardexchange_inv == undefined) { settings.steamcardexchange_inv = false; chrome.storage.sync.set({'steamcardexchange_inv': settings.steamcardexchange_inv}); }
 		
 		// Load Store Options
 		$("#highlight_owned_color").val(settings.highlight_owned_color);
@@ -515,6 +518,7 @@ function load_options() {
 		$("#api_key").val(settings.api_key)
 		$("#profile_permalink").prop('checked', settings.profile_permalink);
 		$("#steamcardexchange").prop('checked', settings.steamcardexchange);
+		$("#steamcardexchange_inv").prop('checked', settings.steamcardexchange_inv);
 		
 		if(!changelog_loaded) {		
 			jQuery.get('changelog.txt', function(data) {
@@ -621,6 +625,7 @@ function load_translation() {
 			$("#spamcommentregex_text").text(localized_strings[settings.language].options.spamcommentregex);
 			$("#show_spamcommentregex").text(localized_strings[settings.language].options.customizespamcommentregex);
 			$("#steamcardexchange_text").text(localized_strings[settings.language].options.steamcardexchange);
+			$("#steamcardexchange_inv_text").text(localized_strings[settings.language].options.steamcardexchange_inv);
 			$("#wlbuttoncommunityapp_text").text(localized_strings[settings.language].options.wlbuttoncommunityapp);
 			$("#show1clickgoo_text").text(localized_strings[settings.language].options.show1clickgoo);
 

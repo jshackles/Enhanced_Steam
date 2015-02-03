@@ -5871,12 +5871,18 @@ function get_gamecard(t) {
 function add_cardexchange_links(game) {
 	storage.get(function(settings) {
 		if (settings.steamcardexchange === undefined) { settings.steamcardexchange = true; storage.set({'steamcardexchange': settings.steamcardexchange}); }
+		if (settings.steamcardexchange_inv === undefined) { settings.steamcardexchange_inv = false; storage.set({'steamcardexchange_inv': settings.steamcardexchange_inv}); }
 		if (settings.steamcardexchange) {
 			$(".badge_row").each(function (index, node) {
 				var $node = $(node);
 				var gamecard = game || get_gamecard($node.find(".badge_row_overlay").attr('href'));
 				if(!gamecard) return;
-				$node.prepend('<div style="position: absolute; z-index: 3; top: 12px; right: 12px;" class="es_steamcardexchange_link"><a href="http://www.steamcardexchange.net/index.php?gamepage-appid-' + gamecard + '" target="_blank" alt="Steam Card Exchange" title="Steam Card Exchange"><img src="' + chrome.extension.getURL('img/ico/steamcardexchange.png') + '" width="24" height="24" border="0" /></a></div>');
+				if (settings.steamcardexchange_inv) {
+					var url = "http://www.steamcardexchange.net/index.php?inventorygame-appid-" + gamecard;
+				} else {
+					var url = "http://www.steamcardexchange.net/index.php?gamepage-appid-" + gamecard;
+				}
+				$node.prepend('<div style="position: absolute; z-index: 3; top: 12px; right: 12px;" class="es_steamcardexchange_link"><a href="' + url + '" target="_blank" alt="Steam Card Exchange" title="Steam Card Exchange"><img src="' + chrome.extension.getURL('img/ico/steamcardexchange.png') + '" width="24" height="24" border="0" /></a></div>');
 				$node.find(".badge_title_row").css("padding-right", "44px");
 			});
 		}
