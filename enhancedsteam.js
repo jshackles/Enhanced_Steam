@@ -122,7 +122,7 @@ var currency_format_info = {
 	"BRL": { places: 2, hidePlacesWhenZero: false, symbolFormat: "R$ ", thousand: ".", decimal: ",", right: false },
 	"EUR": { places: 2, hidePlacesWhenZero: false, symbolFormat: "€", thousand: " ", decimal: ",", right: true },
 	"GBP": { places: 2, hidePlacesWhenZero: false, symbolFormat: "£", thousand: ",", decimal: ".", right: false },
-	"RUB": { places: 2, hidePlacesWhenZero: true,  symbolFormat: " pуб.", thousand: "", decimal: ",", right: true },
+	"RUB": { places: 2, hidePlacesWhenZero: true,  symbolFormat: " руб.", thousand: "", decimal: ",", right: true },
 	"JPY": { places: 0, hidePlacesWhenZero: false, symbolFormat: "¥ ", thousand: ",", decimal: ".", right: false },
 	"MYR": { places: 2, hidePlacesWhenZero: false, symbolFormat: "RM", thousand: ",", decimal: ".", right: false },
 	"NOK": { places: 2, hidePlacesWhenZero: false, symbolFormat: " kr", thousand: ".", decimal: ",", right: true },
@@ -191,7 +191,7 @@ function parse_currency(str) {
 }
 
 function currency_symbol_to_type (currency_symbol) {
-	return {"pуб": "RUB",
+	return {"руб": "RUB",
 		"€": "EUR",
 		"£": "GBP",
 		"R$": "BRL",
@@ -213,7 +213,7 @@ function currency_symbol_to_type (currency_symbol) {
 }
 
 function currency_symbol_to_number (currency_symbol) {
-	return {"pуб": 5,
+	return {"руб": 5,
 		"€": 3,
 		"£": 2,
 		"R$": 7,
@@ -235,7 +235,7 @@ function currency_symbol_to_number (currency_symbol) {
 }
 
 function currency_symbol_from_string (string_with_symbol) {
-	var re = /(?:R\$|S\$|\$|RM|kr|Rp|€|¥|£|฿|pуб|P|₫|₩|TL|₴|Mex\$|CDN\$|A\$|NZ\$)/;
+	var re = /(?:R\$|S\$|\$|RM|kr|Rp|€|¥|£|฿|руб|P|₫|₩|TL|₴|Mex\$|CDN\$|A\$|NZ\$)/;
 	var match = string_with_symbol.match(re);
 	return match ? match[0] : '';
 }
@@ -1766,11 +1766,11 @@ function add_custom_wallet_amount() {
 	$(addfunds).find("h1").text(localized_strings.wallet.custom_amount);
 	$(addfunds).find("p").text(localized_strings.wallet.custom_amount_text.replace("__minamount__", $(addfunds).find(".price").text().trim()));
 	var currency_symbol = currency_symbol_from_string($(addfunds).find(".price").text().trim());
-	var minimum = $(addfunds).find(".price").text().trim().replace(/(?:R\$|\$|€|¥|£|pуб)/, "");
+	var minimum = $(addfunds).find(".price").text().trim().replace(/(?:R\$|\$|€|¥|£|руб)/, "");
 	var formatted_minimum = minimum;
 	switch (currency_symbol) {
 		case "€":
-		case "pуб":
+		case "руб":
 			$(addfunds).find(".price").html("<input id='es_custom_funds_amount' class='es_text_input' style='margin-top: -3px;' size=4 value='" + minimum +"'> " + currency_symbol);
 			break;
 		default:
@@ -1783,7 +1783,7 @@ function add_custom_wallet_amount() {
 		if (!($("#es_custom_funds_amount").val().match(/(\.|\,)\d\d$/))) { $("#es_custom_funds_amount").val($("#es_custom_funds_amount").val().replace(/\D/g, "")); }
 
 		// Make sure the user entered decimals. If not, add 00 to the end of the number to make the value correct.
-		if (currency_symbol == "€" || currency_symbol == "pуб" || currency_symbol == "R$") {
+		if (currency_symbol == "€" || currency_symbol == "руб" || currency_symbol == "R$") {
 			if ($("#es_custom_funds_amount").val().indexOf(",") == -1) $("#es_custom_funds_amount").val($("#es_custom_funds_amount").val() + ",00");
 		} else {
 			if ($("#es_custom_funds_amount").val().indexOf(".") == -1) $("#es_custom_funds_amount").val($("#es_custom_funds_amount").val() + ".00");
@@ -3253,7 +3253,7 @@ function add_active_total() {
 		var total_after = 0;	
 		
 		$(".my_listing_section:first").find(".market_listing_row").find(".market_listing_my_price").each(function() {
-			var temp = $(this).text().trim().replace(/pуб./g,"").replace(/,(\d\d(?!\d))/g, ".$1").replace(/[^0-9(\.]+/g,"").split("(");
+			var temp = $(this).text().trim().replace(/руб./g,"").replace(/,(\d\d(?!\d))/g, ".$1").replace(/[^0-9(\.]+/g,"").split("(");
 			total += Number(temp[0]);
 			total_after += Number(temp[1]);
 			currency_symbol = currency_symbol_from_string($(this).text().trim());
@@ -3270,7 +3270,7 @@ function add_active_total() {
 		
 		$(".my_listing_section:nth-child(2)").find(".market_listing_row").find(".market_listing_my_price:first").each(function() {
 			var qty = $(this).parent().find(".market_listing_my_price:last").text().trim();
-			total += Number($(this).text().trim().replace(/pуб./g,"").replace(/,(\d\d(?!\d))/g, ".$1").replace(/[^0-9\.]+/g,"")) * Number(qty);
+			total += Number($(this).text().trim().replace(/руб./g,"").replace(/,(\d\d(?!\d))/g, ".$1").replace(/[^0-9\.]+/g,"")) * Number(qty);
 			currency_symbol = currency_symbol_from_string($(this).text().trim());
 		});
 		
