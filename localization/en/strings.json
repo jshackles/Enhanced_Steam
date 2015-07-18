@@ -9,6 +9,7 @@
     "homepage_spotlight": "Spotlight",
     "official_group_url": "steamcommunity.com/groups/enhancedsteam",
     "remove": "Remove",
+    "get_help": "Get Help",
     "add_selected_dlc_to_cart": "Add selected DLC to cart",
     "credits": "Credits",
     "store_transactions": "Store Transactions",
@@ -307,6 +308,7 @@
         "hide_install": "Hide \"Install Steam\" button",
         "lowestprice_coupon": "Include coupon codes in price comparison",
         "greenlight_banner": "Replace Steam Greenlight banner",
+        "dynamicgreenlight": "Use dynamic data while browsing Greenlight",
         "general": "General",
         "show_languagewarning": "Show warning if browsing in a language other than",
         "wishlist": "Items on your wishlist"
@@ -315,6 +317,12 @@
         "errormsg": "Error loading Enhanced Steam data",
         "loading": "Enhanced Steam loading data...",
         "ready": "Enhanced Steam ready"
+    },
+    "twitch": {
+        "now_streaming": "__username__ is live streaming on Twitch",
+        "viewers": "Viewers",
+        "followers": "Followers",
+        "views": "Views"
     },
     "select": {
         "wishlisted_dlc": "Select Wishlisted DLC",

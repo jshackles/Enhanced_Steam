@@ -115,6 +115,7 @@ function save_options() {
 	showallachievements = $("#showallachievements").prop('checked');
 	showcomparelinks = $("#showcomparelinks").prop('checked');
 	showgreenlightbanner = $("#showgreenlightbanner").prop('checked');
+	dynamicgreenlight = $("#dynamicgreenlight").prop('checked');
 	hideactivelistings = $("#hideactivelistings").prop('checked');
 	hidespamcomments = $("#hidespamcomments").prop('checked');
 	spamcommentregex = $("#spamcommentregex").val().trim();
@@ -208,6 +209,7 @@ function save_options() {
 		'showallachievements': showallachievements,
 		'showcomparelinks': showcomparelinks,
 		'showgreenlightbanner': showgreenlightbanner,
+		'dynamicgreenlight': dynamicgreenlight,
 		'hideactivelistings': hideactivelistings,
 		'hidespamcomments': hidespamcomments,
 		'spamcommentregex': spamcommentregex,
@@ -409,6 +411,7 @@ function load_options() {
 		if (settings.showallachievements === undefined) { settings.showallachievements = false; chrome.storage.sync.set({'showallachievements': settings.showallachievements}); }
 		if (settings.showcomparelinks === undefined) { settings.showcomparelinks = false; chrome.storage.sync.set({'showcomparelinks': settings.showcomparelinks}); }
 		if (settings.showgreenlightbanner === undefined) { settings.showgreenlightbanner = false; chrome.storage.sync.set({'showgreenlightbanner': settings.showgreenlightbanner}); }
+		if (settings.dynamicgreenlight === undefined) { settings.dynamicgreenlight = false; chrome.storage.sync.set({'dynamicgreenlight': settings.dynamicgreenlight}); }
 		if (settings.hideactivelistings === undefined) { settings.hideactivelistings = false; chrome.storage.sync.set({'hideactivelistings': settings.hideactivelistings}); }
 		if (settings.hidespamcomments === undefined) { settings.hidespamcomments = false; chrome.storage.sync.set({'hidespamcomments': settings.hidespamcomments}); }
 		if (settings.spamcommentregex === undefined) { settings.spamcommentregex = "[\\u2500-\\u25FF]"; chrome.storage.sync.set({'spamcommentregex': settings.spamcommentregex}); }
@@ -503,6 +506,7 @@ function load_options() {
 		$("#showallachievements").prop('checked', settings.showallachievements);
 		$("#showcomparelinks").prop('checked', settings.showcomparelinks);
 		$("#showgreenlightbanner").prop('checked', settings.showgreenlightbanner);
+		$("#dynamicgreenlight").prop('checked', settings.dynamicgreenlight);
 		$("#hideactivelistings").prop('checked', settings.hideactivelistings);
 		$("#hidespamcomments").prop('checked', settings.hidespamcomments);
 		$("#spamcommentregex").val(settings.spamcommentregex);
@@ -664,8 +668,7 @@ function load_translation() {
 			$("#allachievements_text").text(localized_strings.options.showallachievements);
 			$("#showcomparelinks_text").text(localized_strings.options.showcomparelinks);
 			$("#greenlight_banner_text").text(localized_strings.options.greenlight_banner);
-			$("#hideactivelistings_text").text(localized_strings.options.hideactivelistings);
-			$("#hidespamcomments_text").text(localized_strings.options.hidespamcomments);
+			$("#dynamicgreenlight_text").text(localized_strings.options.dynamicgreenlight);
 			$("#spamcommentregex_text").text(localized_strings.options.spamcommentregex);
 			$("#show_spamcommentregex").text(localized_strings.options.customizespamcommentregex);
 			$("#steamcardexchange_text").text(localized_strings.options.steamcardexchange);
@@ -688,8 +691,6 @@ function load_translation() {
 			$("#tag_friends_rec_color_default").text(localized_strings.theworddefault);
 			$("#reset_countries").text(localized_strings.theworddefault);
 
-			$("#profile_api_info_text").text(localized_strings.options.profile_api_info);
-			$("#api_key_text").text(localized_strings.options.api_key);
 			$("#regional_hideworld_text").text(localized_strings.options.regional_hideworld);
 			
 			$("#es_about_text").html(localized_strings.options.about_text);

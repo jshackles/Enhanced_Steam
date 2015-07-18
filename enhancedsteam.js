@@ -1,4 +1,4 @@
-var version = "7.5"
+var version = "7.6"
 
 var console_info=["%c Enhanced %cSteam v"+version+" by jshackles %c http://www.enhancedsteam.com ","background: #000000;color: #7EBE45", "background: #000000;color: #ffffff",""];
 console.log.apply(console,console_info);
@@ -2127,7 +2127,7 @@ function drm_warnings(type) {
 
 // Remove all items from cart
 function add_empty_cart_button() {
-	addtext = "<a href='javascript:document.cookie=\"shoppingCartGID=0; path=/\";location.reload();' class='es_empty btnv6_green_white_innerfade btn_medium continue' style='float: left;'><span>" + localized_strings.empty_cart + "</span></a>";
+	addtext = "<a href='javascript:document.cookie=\"shoppingCartGID=0; path=/; expires=Thu, 01-Jan-1970 00:00:01 GMT;\" location.reload();' class='es_empty btnv6_green_white_innerfade btn_medium continue' style='float: left;'><span>" + localized_strings.empty_cart + "</span></a>";
 
 	jQuery('.checkout_content').each(function () {
 		$(this).prepend(addtext);
@@ -2257,6 +2257,33 @@ function add_supporter_badges() {
 			runInPageContext(function() { BindCommunityTooltip( $J('[data-community-tooltip]') ); });
 		}
 	});
+}
+
+function add_twitch_info() {
+	$(".profile_customization_area").prepend("<div class='profile_customization' id='es_twitch' style='display: none;'></div>");
+	var search = $(".profile_summary").find("a[href*='twitch.tv/']")[0];
+	if (search) {
+		var twitch_id = $(search).attr("href").match(/twitch\.tv\/(.+)/)[1];
+		if (twitch_id) {
+			twitch_id = twitch_id.replace(/\//g, "");
+			get_http("//api.enhancedsteam.com/twitch/?channel=" + twitch_id, function (txt) {
+				var data = JSON.parse(txt);
+				if (data["streams"].length > 0) {
+					var html = "<div class='profile_customization_header'>" + localized_strings.twitch.now_streaming.replace("__username__", data["streams"][0]["channel"]["display_name"]) + "</div><div class='profile_customization_block'><div class='favoritegame_showcase' id='es_twitch'></div></div></div>";
+					html += "<div class='showcase_content_bg' style='height: 120px;'><div class='favoritegame_showcase_game showcase_slot'><div class='favorite_game_cap'><a class='whiteLink' href='" + data["streams"][0]["channel"]["url"] + "' target='_blank'>";
+					html += "<img style='width: 160px; height: 90px; margin-top: 6px;' src='" + data["streams"][0]["preview"]["template"].replace("{width}", "160").replace("{height}", "90") + "'></a></div><div class='showcase_item_detail_title' style='margin-left: -25px; padding-top: 0px;'>";
+					html += "<a class='whiteLink' href='" + data["streams"][0]["channel"]["url"] + "' target='_blank'>" + data["streams"][0]["channel"]["game"] + "</a></div>";
+					html += "<div class='favoritegroup_description' style='margin-left: -25px; height: 16px; overflow: hidden;'>" + data["streams"][0]["channel"]["status"] + "</div>";
+					html += "<div class='favoritegroup_stats showcase_stats_row' style='position: inherit; margin-left: -25px; margin-top: 8px;'>";
+					html += "<div class='showcase_stat favoritegroup_ingame'><div class='value'>" + data["streams"][0]["viewers"].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</div><div class='label'>" + localized_strings.twitch.viewers + "</div></div>";
+					html += "<div class='showcase_stat favoritegroup_online'><div class='value'>" + data["streams"][0]["channel"]["followers"].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</div><div class='label'>" + localized_strings.twitch.followers + "</div></div>";
+					html += "<div class='showcase_stat'><div class='value'>" + data["streams"][0]["channel"]["views"].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</div><div class='label'>" + localized_strings.twitch.views + "</div></div>";
+					$("#es_twitch").html(html);
+					$("#es_twitch").slideDown();
+				}
+			});
+		}
+	}
 }
 
 function appdata_on_wishlist() {
@@ -2744,6 +2771,43 @@ function hide_greenlight_banner() {
 	});
 }
 
+function preview_greenlight_votes() {
+	storage.get(function(settings) {
+		if (settings.dynamicgreenlight === undefined) { settings.dynamicgreenlight = false; storage.set({'dynamicgreenlight': settings.dynamicgreenlight}); }
+		if (settings.dynamicgreenlight) {
+			$("a").each(function() {
+				if (this.href.match("^[^:]+://steamcommunity\\.com/sharedfiles/filedetails/\\?id=")) {
+					var parent = $(this).parent();
+					if (parent.hasClass("gh_checked") || !parent.hasClass("workshopItem")) return;
+					parent.addClass("gh_checked");
+					$.ajax({
+						url: this.href,
+						context: parent
+					}).done(function (data) {
+						var match_vote = data.match(/<a[^>]*toggled[^>]*id="Vote(Up|Down|Later)Btn"[^>]*>/);
+						if (match_vote) {
+							this.addClass("gh_fade");
+							this.addClass("gh_vote_" + match_vote[1].toLowerCase());
+						}
+						var match_favorited = data.match(/<[^>]*FavoriteItemOptionFavorited[^>]*selected[^>]*[^>]*>([^<]*)</);
+						var match_followed = data.match(/<[^>]*FollowItemOptionFollowed[^>]*selected[^>]*[^>]*>([^<]*)</);
+						if (match_favorited || match_followed) {
+							var indicators_right = $("<div class='gh_indicators gh_indicators_right'></div>");
+							if (match_favorited) {
+								indicators_right.append("<div class='gh_indicators gh_favorited' title='"+match_favorited[1]+"'></div>");
+							}
+							if (match_followed) {
+								indicators_right.append("<div class='gh_indicators gh_followed' title='"+match_followed[1]+"'></div>");
+							}
+							$(this).prepend(indicators_right);
+						}
+					});
+				}
+			});
+		}
+	});
+}
+
 function hide_spam_comments() {
 	storage.get(function(settings) {
 		if (settings.hidespamcomments === undefined) { settings.hidespamcomments = false; storage.set({'hidespamcomments': settings.hidespamcomments}); }
@@ -2856,7 +2920,7 @@ function add_profile_style() {
 	if (steamID === undefined && document.documentElement.outerHTML.match(/steamid"\:"(.+)","personaname/)) { steamID = document.documentElement.outerHTML.match(/steamid"\:"(.+)","personaname/)[1]; }
 
 	get_http("//api.enhancedsteam.com/profile_style/?steam64=" + steamID, function (txt) {
-		var available_styles = ["clear", "green", "holiday2014", "orange", "pink", "purple", "red", "teal", "yellow"];
+		var available_styles = ["clear", "green", "holiday2014", "orange", "pink", "purple", "red", "teal", "yellow", "blue"];
 		if ($.inArray(txt, available_styles) > -1) {
 			switch (txt) {
 				case "holiday2014":
@@ -4067,7 +4131,7 @@ var ea_appids, ea_promise = (function () {
 })();
 
 // Check for Early Access titles
-function check_early_access(node, image_name, image_left, selector_modifier, action) {
+function check_early_access(node, image_left, selector_modifier) {
 	storage.get(function(settings) {
 		if (settings.show_early_access === undefined) { settings.show_early_access = true; storage.set({'show_early_access': settings.show_early_access}); }
 		if (settings.show_early_access) {
@@ -4080,13 +4144,19 @@ function check_early_access(node, image_name, image_left, selector_modifier, act
 					}
 				}
 			}
+			var early_access = JSON.parse(ea_appids);
 			if (early_access) {
-				var early_access = JSON.parse(ea_appids);
 				if (early_access["ea"].indexOf(appid) >= 0) {
 					var selector = "img";
 					if (selector_modifier != undefined) selector += selector_modifier;
-					overlay_img = $("<img class='es_overlay' src='" + chrome.extension.getURL("img/overlay/" + image_name) + "'>");
+					var image_name = "img/overlay/early_access_banner_english.png";
+					if (["brazlian", "french", "italian", "japanese", "koreana", "polish", "portuguese", "russian", "schinese", "spanish", "tchinese", "thai"].indexOf(language) > -1) { image_name = "img/overlay/early_access_banner_" + language + ".png"; }
+					overlay_img = $("<img class='es_overlay' src='" + chrome.extension.getURL(image_name) + "'>");
 					$(overlay_img).css({"left":image_left+"px"});
+					var height = $(node).find(selector.trim()).height() / 1.6;
+					if (height > 120) height = 120;
+					$(overlay_img).css({"height":height+"px"});
+					$(overlay_img).css("width", "initial");
 					$(node).find(selector.trim()).before(overlay_img);
 				}
 			}
@@ -4105,72 +4175,74 @@ function process_early_access() {
 						switch (true) {
 							case /^\/app\/.*/.test(window.location.pathname):
 								$(".game_header_image").append("<a href='" + window.location.href + "'></a>");
-								$(".game_header_image_ctn").each(function(index, value) { check_early_access($(this), "ea_292x136.png", $(this).position().left); });
-								$(".small_cap").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 15); });
+								$(".game_header_image_ctn").each(function(index, value) { check_early_access($(this), $(this).position().left); });
+								$(".small_cap").each(function(index, value) { check_early_access($(this), 15); });
 								break;
 							case /^\/(?:genre|browse|tag)\/.*/.test(window.location.pathname):
-								$(".tab_item").each(function(index, value) { check_early_access($(this), "ea_231x87.png", 0, ":last"); });
-								$(".special_tiny_cap").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", 0); });
-								$(".cluster_capsule").each(function(index, value) { check_early_access($(this), "ea_467x181.png", 0); });
-								$(".game_capsule").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", 0); });
-								$(".dq_item:not(:first-child)").each(function(index, value) { check_early_access($(this), "ea_467x181.png", 0); });
+								$(".tab_item").each(function(index, value) { check_early_access($(this), 0, ":last"); });
+								$(".special_tiny_cap").each(function(index, value) { check_early_access($(this)); });
+								$(".cluster_capsule").each(function(index, value) { check_early_access($(this)); });
+								$(".game_capsule").each(function(index, value) { check_early_access($(this)); });
+								$(".dq_item:not(:first-child)").each(function(index, value) { check_early_access($(this)); });
+								$(".discovery_queue:not(:first-child)").each(function(index, value) { check_early_access($(this)); });
 								break;
 							case /^\/search\/.*/.test(window.location.pathname):
-								$(".search_result_row").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", 0); });
+								$(".search_result_row").each(function(index, value) { check_early_access($(this)); });
 								break;
 							case /^\/recommended/.test(window.location.pathname):
-								$(".friendplaytime_appheader").each(function(index, value) { check_early_access($(this), "ea_292x136.png", $(this).position().left); });
-								$(".header_image").each(function(index, value) { check_early_access($(this), "ea_292x136.png", 0); });
-								$(".appheader").each(function(index, value) { check_early_access($(this), "ea_292x136.png", $(this).position().left); });
-								$(".recommendation_carousel_item").each(function(index, value) { check_early_access($(this), "ea_184x69.png", $(this).position().left + 8); });
-								$(".game_capsule_area").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", $(this).position().left + 8); });
-								$(".game_capsule").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", $(this).position().left); });
-								$(".similar_grid_capsule").each(function(index, value) { check_early_access($(this), "ea_292x136.png", 0); });
+								$(".friendplaytime_appheader").each(function(index, value) { check_early_access($(this), $(this).position().left); });
+								$(".header_image").each(function(index, value) { check_early_access($(this)); });
+								$(".appheader").each(function(index, value) { check_early_access($(this), $(this).position().left); });
+								$(".recommendation_carousel_item").each(function(index, value) { check_early_access($(this), $(this).position().left + 8); });
+								$(".game_capsule_area").each(function(index, value) { check_early_access($(this), $(this).position().left + 8); });
+								$(".game_capsule").each(function(index, value) { check_early_access($(this), $(this).position().left); });
+								$(".similar_grid_capsule").each(function(index, value) { check_early_access($(this)); });
 								break;
 							case /^\/tag\/.*/.test(window.location.pathname):
-								$(".cluster_capsule").each(function(index, value) { check_early_access($(this), "ea_467x181.png", 0); });
-								$(".tab_row").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 0); });
-								$(".browse_tag_game_cap").each(function(index, value) { check_early_access($(this), "ea_292x136.png", $(this).position().left); });
+								$(".cluster_capsule").each(function(index, value) { check_early_access($(this)); });
+								$(".tab_row").each(function(index, value) { check_early_access($(this)); });
+								$(".browse_tag_game_cap").each(function(index, value) { check_early_access($(this), $(this).position().left); });
 								break;
 							case /^\/$/.test(window.location.pathname):
-								$(".home_smallcap").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 15); });
-								$(".cap").each(function(index, value) { check_early_access($(this), "ea_292x136.png", 0); });
-								$(".special").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", 0); });
-								$(".game_capsule").each(function(index, value) { check_early_access($(this), "ea_sm_120.png", 0); });
-								$(".cluster_capsule").each(function(index, value) { check_early_access($(this), "ea_467x181.png", 0); });
-								$(".recommended_spotlight_ctn").each(function(index, value) { check_early_access($(this), "ea_292x136.png", 0); });
-								$(".curated_app_link").each(function(index, value) { check_early_access($(this), "ea_292x136.png", 0); });
-								$(".tab_item").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 0, ":last"); });
-								$(".dailydeal_ctn").find("a").each(function(index, value) { check_early_access($(this), "ea_292x136.png", 0); });
+								$(".home_smallcap").each(function(index, value) { check_early_access($(this), 15); });
+								$(".cap").each(function(index, value) { check_early_access($(this)); });
+								$(".special").each(function(index, value) { check_early_access($(this)); });
+								$(".game_capsule").each(function(index, value) { check_early_access($(this)); });
+								$(".cluster_capsule").each(function(index, value) { check_early_access($(this)); });
+								$(".recommended_spotlight_ctn").each(function(index, value) { check_early_access($(this)); });
+								$(".curated_app_link").each(function(index, value) { check_early_access($(this)); });
+								$(".tab_item").each(function(index, value) { check_early_access($(this), 0, ":last"); });
+								$(".dailydeal_ctn").find("a").each(function(index, value) { check_early_access($(this)); });
 								break;
 						}
 					case "steamcommunity.com":
 						switch(true) {
 							case /^\/(?:id|profiles)\/.+\/wishlist/.test(window.location.pathname):
-								$(".gameLogo").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 4); });
+								$(".gameLogo").each(function(index, value) { check_early_access($(this), 4); });
 								break;
 							case /^\/(?:id|profiles)\/(.+)\/games/.test(window.location.pathname):
-								$(".gameLogo").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 4); });
+								$(".gameLogo").each(function(index, value) { check_early_access($(this), 4); });
 								break;
 							case /^\/(?:id|profiles)\/(.+)\/followedgames/.test(window.location.pathname):
-								$(".gameLogo").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 4); });
+								$(".gameLogo").each(function(index, value) { check_early_access($(this), 4); });
 								break;
 							case /^\/(?:id|profiles)\/.+\/\b(home|myactivity|status)\b/.test(window.location.pathname):
 								$(".blotter_gamepurchase_content").find("a").each(function(index, value) {
-									check_early_access($(this), "ea_231x87.png", $(this).position().left);
+									check_early_access($(this), $(this).position().left);
 								});
 								break;
 							case /^\/(?:id|profiles)\/.+\/\b(reviews|recommended)\b/.test(window.location.pathname):
-								$(".leftcol").each(function(index, value) { check_early_access($(this), "ea_184x69.png", $(this).position().left + 8); });
+								$(".leftcol").each(function(index, value) { check_early_access($(this), $(this).position().left + 8); });
 								break;
 							case /^\/(?:id|profiles)\/.+/.test(window.location.pathname):
-								$(".game_info_cap").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 0); });
-								$(".showcase_slot").each(function(index, value) { check_early_access($(this), "ea_184x69.png", 0); });
+								$(".game_info_cap").each(function(index, value) { check_early_access($(this)); });
+								$(".showcase_slot").each(function(index, value) { check_early_access($(this)); });
 								break;
 							case /^\/app\/.*/.test(window.location.pathname):
 								if ($(".apphub_EarlyAccess_Title").length > 0) {
-									$(".apphub_StoreInfoHeader").css({"position":"relative"})
-									$(".apphub_StoreAppLogo:first").after("<img class='es_overlay ea_app_overlay' src='" + chrome.extension.getURL("img/overlay/ea_292x136.png") + "'>");
+									$(".apphub_StoreAppLogo:first").wrap("<div id='es_ea_apphub'><a href='" + window.location.href + "'></a></div>");
+									check_early_access($("#es_ea_apphub"), $(".apphub_StoreAppLogo:first").position().left + 22);
+									setTimeout(function(){ $("#es_ea_apphub .es_overlay").css("margin-top", "15px"); }, 100);
 								}
 						}
 				}
@@ -4778,6 +4850,10 @@ function customize_app_page() {
 	});
 }
 
+function add_help_button(appid) {
+	$(".game_area_play_stats .already_owned_actions").after("<div class='game_area_already_owned_btn'><a class='btnv6_lightblue_blue btnv6_border_2px btn_medium' href='https://help.steampowered.com/#HelpWithGame/?appid=" + appid + "'><span>" + localized_strings.get_help + "</span></a></div>");
+}
+
 function customize_home_page() {
 	$(".home_page_content:first").append("<div id='es_customize_btn' class='home_actions_ctn' style='margin-bottom: 4px;'><div class='home_btn home_customize_btn' style='z-index: 13;'>" + localized_strings.customize + "</div></div><div style='clear: both;'></div>");
 	$(".home_page_body_ctn:first").css("min-height", "400px");
@@ -5187,7 +5263,7 @@ function bind_ajax_content_highlighting() {
 				if (node.classList && node.classList.contains("tab_item")) {
 					runInPageContext("function() { GDynamicStore.DecorateDynamicItems( jQuery('.tab_item') ) }");
 					start_highlighting_node(node);
-					check_early_access(node, "ea_231x87.png", 0, ":last");
+					check_early_access(node, 0, ":last");
 				}
 
 				if (node.id == "search_result_container") {
@@ -5209,12 +5285,12 @@ function bind_ajax_content_highlighting() {
 
 				if (node.classList && node.classList.contains("match")) { 
 					start_highlighting_node(node);
-					check_early_access(node, "ea_184x69.png", 0);
+					check_early_access(node);
 				}
 
 				if (node.classList && node.classList.contains("search_result_row")) {
 					start_highlighting_node(node);
-					check_early_access(node, "ea_sm_120.png", 0);
+					check_early_access(node);
 				}
 
 				if (node.classList && node.classList.contains("market_listing_row_link")) highlight_market_items();				
@@ -5248,7 +5324,8 @@ function start_highlights_and_tags(){
 		"div.similar_grid_item",			// Items on the "Similarly tagged" pages
 		"div.tab_item",			// Items on new homepage
 		"div.special",			// new homepage specials
-		"div.curated_app_item"	// curated app items!
+		"div.curated_app_item",	// curated app items!
+		"a.summersale_dailydeal" // Summer sale daily deal
 	];
 		
 	setTimeout(function() {
@@ -5513,7 +5590,7 @@ function add_achievement_comparison_link(node) {
 					var html = txt.match(/<a href="(.+)compare">/);
 					if (html) {
 						$(node).find("span:not(.nickname_block,.nickname_name)").css("margin-top", "0px");
-						$(node).find("span:not(.nickname_block,.nickname_name)").append("<br><a href='//www.steamcommunity.com" + html[1] + "compare' class='es_achievement_compare' target='_blank' style='font-size: 10px; float: right; margin-right: 6px;'>(" + localized_strings.compare + ")</a>");
+						$(node).find("span:not(.nickname_block,.nickname_name)").append("<br><a href='//steamcommunity.com" + html[1] + "compare' class='es_achievement_compare' target='_blank' style='font-size: 10px; float: right; margin-right: 6px;'>(" + localized_strings.compare + ")</a>");
 					}
 				});
 			}
@@ -5773,6 +5850,7 @@ function add_es_style_selection() {
 
 		get_http("//api.enhancedsteam.com/profile_style/?steam64=" + steam64, function (txt) {
 			var select_html = "<select name='es_style' id='es_style' class='gray_bevel dynInput'><option value='remove' id='remove'>" + localized_strings.noneselected + "</option>";
+			select_html += "<option id='blue' value='blue'>Blue Theme</option>";
 			select_html += "<option id='clear' value='clear'>Clear Theme</option>";
 			select_html += "<option id='green' value='green'>Green Theme</option>";
 			select_html += "<option id='holiday2014' value='holiday2014'>Holiday Profile 2014</option>";
@@ -6473,12 +6551,13 @@ function add_gamecard_market_links(game) {
 
 		get_http("//api.enhancedsteam.com/market_data/card_prices/?appid=" + game, function(txt) {
 			var data = JSON.parse(txt);
+			var converter=$("<div>");
 			$(".badge_card_set_card").each(function() {
 				var node = $(this);
 				var cardname = $(this).html().match(/(.+)<div style=\"/)[1].trim().replace(/&amp;/g, '&');
 				if (cardname == "") { cardname = $(this).html().match(/<div class=\"badge_card_set_text\">(.+)<\/div>/)[1].trim().replace(/&amp;/g, '&'); }
 
-				var newcardname = cardname.replace(/"/g, "&quot;");
+				var newcardname = converter.text(cardname).html();
 				if (foil) { newcardname += " (Foil)"; }
 
 				for (var i = 0; i < data.length; i++) {
@@ -6518,8 +6597,8 @@ function add_gamecard_market_links(game) {
 // Display the cost estimate of crafting a game badge by purchasing unowned trading cards
 function add_badge_completion_cost() {
 	if ( $(".profile_small_header_texture a")[0].href == $(".user_avatar a")[0].href) {
-		$(".profile_xp_block_right").after("<div id='es_cards_worth'></div>");
-		get_http("store.steampowered.com/app/220/", function(txt) {
+		$(".profile_xp_block_right").html("<div id='es_cards_worth'></div>");
+		get_http("//store.steampowered.com/app/220/", function(txt) {
 			var currency_symbol = currency_symbol_from_string($(txt).find(".price, .discount_final_price").text().trim());
 			var currency_type = currency_symbol_to_type(currency_symbol);
 			var total_worth = 0, count = 0;
@@ -6649,8 +6728,8 @@ function add_total_drops_count() {
 			game_tiles = [];
 
 		if ($(".pagebtn").length > 0) {
-			if (window.location.href.match(/\/$/) || window.location.href.match(/p\=1$/)) {
-				$(".profile_xp_block_right").html("<span id='es_calculations' style='color: #fff;'>" + localized_strings.drop_calc + "</span>").css("cursor", "pointer");
+			if (window.location.href.match(/\/$/) || window.location.href.match(/p\=1$/)) {				
+				$(".profile_xp_block_right").prepend("<span id='es_calculations' style='color: #fff;'>" + localized_strings.drop_calc + "</span>").css("cursor", "pointer");
 
 				$("#es_calculations").click(function() {
 					$(".profile_xp_block_right").css("cursor", "default");
@@ -6659,7 +6738,7 @@ function add_total_drops_count() {
 					// First, get the contents of the first page
 					$(".progress_info_bold").each(function(i, obj) {
 						var parent = $(obj).parent().parent();
-						if (parent.html().trim().match(/^<div class="badge_title_stats">/)) {
+						if ($(parent).find(".progress_info_bold")[0]) {
 							game_tiles.push(parent);
 						}
 					});
@@ -6681,7 +6760,7 @@ function add_total_drops_count() {
 								var html = $.parseHTML(data);
 								$(html).find(".progress_info_bold").each(function(i, obj) {
 									var parent = $(obj).parent().parent();
-									if (parent.html().trim().match(/^<div class="badge_title_stats">/)) {
+									if ($(parent).find(".progress_info_bold")[0]) {
 										game_tiles.push(parent);
 									}
 								});
@@ -6699,7 +6778,7 @@ function add_total_drops_count() {
 		} else {
 			$(".progress_info_bold").each(function(i, obj) {
 				var parent = $(obj).parent().parent();
-				if (parent.html().trim().match(/^<div class="badge_title_stats">/)) {
+				if ($(parent).find(".progress_info_bold")[0]) {
 					game_tiles.push(parent);
 				}
 			});
@@ -6715,7 +6794,7 @@ function add_total_drops_count() {
 				}
 			});
 
-			$(".profile_xp_block_right").html("<span id='es_calculations' style='color: #fff;'>" + localized_strings.card_drops_remaining.replace("__drops__", drops_count) + "<br>" + localized_strings.games_with_drops.replace("__dropsgames__", drops_games) + "</span>");
+			$("#es_calculations").html(localized_strings.card_drops_remaining.replace("__drops__", drops_count) + "<br>" + localized_strings.games_with_drops.replace("__dropsgames__", drops_games));
 
 			get_http("//steamcommunity.com/my/ajaxgetboostereligibility/", function(txt) {
 				var eligible = $.parseHTML(txt);
@@ -6775,6 +6854,41 @@ function add_friends_that_play() {
 				(document.body || document.head || document.documentElement).appendChild(script);
 			});
 		}
+	});
+}
+
+function add_friends_playtime_sort() {
+	$("#memberList").find(".mainSectionHeader").eq(1).append(" (<span id='es_default_sort' style='text-decoration: underline; cursor: pointer;'>" + localized_strings.sort_by.replace(":", "") + " " + localized_strings.theworddefault + "</span> | <span id='es_playtime_sort' style='cursor: pointer;'>" + localized_strings.sort_by.replace(":", "") + " Playtime</span>)");
+	$("#memberList").children(".profile_friends").eq(1).attr("id", "es_friends_default");
+	var sorted = $("#es_friends_default").clone();
+	$(sorted).attr("id", "es_friends_playtime").hide();
+	$("#es_friends_default").after("<div style='clear: both'></div>").after(sorted);
+
+	$("#es_playtime_sort").click(function() {
+		$("#es_playtime_sort").css("text-decoration", "underline");
+		$("#es_default_sort").css("text-decoration", "none");
+		$("#es_friends_default").hide();
+		$("#es_friends_playtime").show();
+		var friendArray = [];
+		$("#es_friends_default").find(".friendBlock").each(function(index, value) {
+			var push = new Array();
+			push[0] = $(value).clone();
+			push[1] = $(value).find(".friendSmallText").text().match(/(\d+(\.\d+)?)/)[0];
+			friendArray.push(push);
+		});
+		friendArray.sort(function(a,b) { return parseFloat(b[1]) - parseFloat(a[1]); });
+		$("#es_friends_playtime").html("");
+		$(friendArray).each(function(index, value) {
+			console.log(value[0]);
+			$("#es_friends_playtime").append(value[0]);
+		});
+	});
+
+	$("#es_default_sort").click(function() {
+		$("#es_default_sort").css("text-decoration", "underline");
+		$("#es_playtime_sort").css("text-decoration", "none");
+		$("#es_friends_playtime").hide();
+		$("#es_friends_default").show();
 	});
 }
 
@@ -7015,6 +7129,7 @@ $(document).ready(function(){
 							get_playfire_rewards(appid);
 
 							customize_app_page();
+							add_help_button(appid);
 							break;
 
 						case /^\/sub\/.*/.test(path):
@@ -7144,6 +7259,7 @@ $(document).ready(function(){
 
 						case /^\/(?:id|profiles)\/.+\/friendsthatplay/.test(path):
 							add_friends_that_play();
+							add_friends_playtime_sort();
 							break;
 
 						case /^\/(?:id|profiles)\/.+\/tradeoffers/.test(path):
@@ -7154,6 +7270,7 @@ $(document).ready(function(){
 							add_community_profile_links();
 							add_wishlist_profile_link();
 							add_supporter_badges();
+							add_twitch_info();
 							change_user_background();
 							add_profile_store_links();
 							fix_profile_image_not_found();
@@ -7163,9 +7280,19 @@ $(document).ready(function(){
 							add_profile_style();
 							break;
 
-						case /^\/(?:sharedfiles|workshop)\/.*/.test(path):
+						case /^\/sharedfiles\/.*/.test(path):
 							hide_greenlight_banner();
 							hide_spam_comments();
+							break;
+
+						case /^\/workshop\/.*/.test(path):
+							hide_greenlight_banner();
+							hide_spam_comments();
+							preview_greenlight_votes();
+							break;
+
+						case /^\/greenlight\/.*/.test(path):
+							preview_greenlight_votes();
 							break;
 
 						case /^\/market\/.*/.test(path):

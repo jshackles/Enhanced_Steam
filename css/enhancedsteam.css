@@ -433,7 +433,7 @@ input[type=checkbox].es_dlc_selection:checked + label {
 }
 
 #es_cards_worth {
-	float: right;
+	float: none;
 	width: 280px;
 	text-align: center;
 	margin-right: 38px;
@@ -759,3 +759,47 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	color: #61686d;
 	font-weight: normal;
 }
+
+.gh_fade div:not(.gh_indicators) {
+	opacity: 0.2;
+}
+.gh_vote_up:before, .gh_vote_down:before, .gh_vote_later:before {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 5px;
+	background: rgba(0, 0, 0, 0.6);
+}
+.gh_indicators_right {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding-left: 5px;
+	background: rgba(0, 0, 0, 0.6);
+}
+.gh_fade:before, .gh_fade .gh_indicators_right {
+	background: none;
+}
+.gh_indicators_right div {
+	display: inline-block;
+	width: 17px;
+	height: 30px;
+	margin-right: 5px;
+	background-position: 0px -60px;
+}
+.gh_vote_up:before {
+	content: url('//steamcommunity-a.akamaihd.net/public/images/sharedfiles/ig/nav_vote_yes.png');
+}
+.gh_vote_down:before {
+	content: url('//steamcommunity-a.akamaihd.net/public/images/sharedfiles/ig/nav_vote_no.png');
+}
+.gh_vote_later:before {
+	content: url('//steamcommunity-a.akamaihd.net/public/images/sharedfiles/ig/nav_remind_later.png');
+}
+.gh_favorited {
+	background: url('//steamcommunity-a.akamaihd.net/public/images/sharedfiles/ico_fav_tiled.png');
+}
+.gh_followed {
+	background: url('//steamcommunity-a.akamaihd.net/public/images/sharedfiles/ico_follow_tiled_lrg.png');
+}
+
