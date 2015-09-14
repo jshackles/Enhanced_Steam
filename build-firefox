@@ -1,0 +1,4 @@
+#!/bin/sh
+#git archive HEAD --format=zip -o enhanced-steam.xpi
+# Include uncommitted changes
+git ls-files |zip -@ enhanced-steam.xpi

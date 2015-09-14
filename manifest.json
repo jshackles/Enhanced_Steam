@@ -6,6 +6,11 @@
         "128": "img/enhancedsteam.png"
     },
     "manifest_version": 2,
+    "applications": {
+        "gecko": {
+            "id": "jid0-SmvlvxGpvCyG252KbVMqIKR79Uc@jetpack"
+        }
+    },
     "options_page": "options.html",
     "permissions": [
         "storage",
@@ -168,6 +173,7 @@
             "js": [
                 "js/jQuery.min.js",
                 "js/select2.min.js",
+                "js/common.js",
                 "enhancedsteam.js"
             ],
             "css": [
