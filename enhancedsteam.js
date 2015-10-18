@@ -7711,6 +7711,15 @@ function launch_random_button() {
 	});
 }
 
+function add_chat_link() {
+	storage.get(function(settings) {
+		if (settings.showchatlink === undefined) { settings.showchatlink = false; storage.set({'showchatlink': settings.showchatlink}); }
+		if (settings.showchatlink) {
+			$(".menuitem.username").after('<a class="menuitem es_chat_item" style="cursor: pointer" onclick="window.open(\'https://steamcommunity.com/chat/\', \'SteamWebChat\', \'height=790,width=1015,resize=yes,scrollbars=yes\')"> CHAT	</a>');
+		}
+	});
+}
+
 $(document).ready(function(){
 	localization_promise.done(function(){
 		signed_in_promise.done(function(){
@@ -7731,6 +7740,7 @@ $(document).ready(function(){
 				replace_account_name();
 				add_birthday_celebration();
 				launch_random_button();
+				add_chat_link();
 			}			
 
 			// Attach event to the logout button
