@@ -1,9 +1,10 @@
-var version = "8.0"
+var version = "8.1"
 
 var console_info=["%c Enhanced %cSteam v"+version+" by jshackles %c http://www.enhancedsteam.com ","background: #000000;color: #7EBE45", "background: #000000;color: #ffffff",""];
 console.log.apply(console,console_info);
 
 var storage = chrome.storage.sync;
+if (!storage) storage = chrome.storage.local;
 var info = 0;
 
 var total_requests = 0;
@@ -23,7 +24,7 @@ if (language === undefined) {
 }
 
 // Set language for options page
-chrome.storage.sync.set({'language': language});
+storage.set({'language': language});
 
 var localized_strings = [];
 var localization_promise = (function () {
@@ -130,6 +131,7 @@ var currency_format_info = {
 	"GBP": { places: 2, hidePlacesWhenZero: false, symbolFormat: "£", thousand: ",", decimal: ".", right: false },
 	"RUB": { places: 2, hidePlacesWhenZero: true,  symbolFormat: " pуб.", thousand: "", decimal: ",", right: true },
 	"JPY": { places: 0, hidePlacesWhenZero: false, symbolFormat: "¥ ", thousand: ",", decimal: ".", right: false },
+	"CNY": { places: 0, hidePlacesWhenZero: false, symbolFormat: "¥ ", thousand: ",", decimal: ".", right: false },
 	"MYR": { places: 2, hidePlacesWhenZero: false, symbolFormat: "RM", thousand: ",", decimal: ".", right: false },
 	"NOK": { places: 2, hidePlacesWhenZero: false, symbolFormat: " kr", thousand: ".", decimal: ",", right: true },
 	"IDR": { places: 0, hidePlacesWhenZero: false, symbolFormat: "Rp ", thousand: " ", decimal: ".", right: false },
@@ -144,6 +146,16 @@ var currency_format_info = {
 	"CAD": { places: 2, hidePlacesWhenZero: false, symbolFormat: "CDN$ ", thousand: ",", decimal: ".", right: false },
 	"AUD": { places: 2, hidePlacesWhenZero: false, symbolFormat: "A$ ", thousand: ",", decimal: ".", right: false },
 	"NZD": { places: 2, hidePlacesWhenZero: false, symbolFormat: "NZ$ ", thousand: ",", decimal: ".", right: false },
+	"HKD": { places: 2, hidePlacesWhenZero: false, symbolFormat: "HK$ ", thousand: ",", decimal: ".", right: false },
+	"TWD": { places: 0, hidePlacesWhenZero: false, symbolFormat: "NT$ ", thousand: ",", decimal: ".", right: false },
+	"INR": { places: 0, hidePlacesWhenZero: false, symbolFormat: "₹ ", thousand: ",", decimal: ".", right: false },
+	"SAR": { places: 2, hidePlacesWhenZero: false, symbolFormat: " SR", thousand: ",", decimal: ".", right: true },
+	"ZAR": { places: 2, hidePlacesWhenZero: false, symbolFormat: "R ", thousand: " ", decimal: ".", right: false },
+	"AED": { places: 2, hidePlacesWhenZero: false, symbolFormat: " DH", thousand: ",", decimal: ".", right: true },
+	"CHF": { places: 2, hidePlacesWhenZero: false, symbolFormat: "CHF ", thousand: "'", decimal: ".", right: false },
+	"CLP": { places: 3, hidePlacesWhenZero: false, symbolFormat: "CLP$ ", thousand: ",", decimal: ".", right: false },
+	"PEN": { places: 2, hidePlacesWhenZero: false, symbolFormat: "S/.", thousand: ",", decimal: ".", right: false },
+	"COP": { places: 3, hidePlacesWhenZero: false, symbolFormat: "COL$ ", thousand: ".", decimal: ".", right: false },
 	"USD": { places: 2, hidePlacesWhenZero: false, symbolFormat: "$", thousand: ",", decimal: ".", right: false }
 };
 
@@ -215,6 +227,16 @@ function currency_symbol_to_type (currency_symbol) {
 		"Mex$": "MXN",
 		"CDN$": "CAD",
 		"A$": "AUD",
+		"HK$": "HKD",
+		"NT$": "TWD",
+		"₹": "INR",
+		"SR": "SAR",
+		"R ": "ZAR",
+		"DH": "AED",
+		"CHF": "CHF",
+		"CLP$": "CLP",
+		"S/.": "PEN",
+		"COL$": "COP",
 		"NZ$": "NZD"}[currency_symbol] || "USD";
 }
 
@@ -241,7 +263,7 @@ function currency_symbol_to_number (currency_symbol) {
 }
 
 function currency_symbol_from_string (string_with_symbol) {
-	var re = /(?:R\$|S\$|\$|RM|kr|Rp|€|¥|£|฿|pуб|P|₫|₩|TL|₴|Mex\$|CDN\$|A\$|NZ\$)/;
+	var re = /(?:R\$|S\$|\$|RM|kr|Rp|€|¥|£|฿|pуб|P|₫|₩|TL|₴|Mex\$|CDN\$|A\$|HK\$|NT\$|₹|SR|R |DH|CHF|CLP$|S\/\.|COL\$|NZ\$)/;
 	var match = string_with_symbol.match(re);
 	return match ? match[0] : '';
 }
@@ -310,7 +332,7 @@ function highlight_owned(node) {
 
 		if (settings.highlight_owned_color === undefined) { settings.highlight_owned_color = "#5c7836";	storage.set({'highlight_owned_color': settings.highlight_owned_color}); }
 		if (settings.highlight_owned === undefined) { settings.highlight_owned = true; storage.set({'highlight_owned': settings.highlight_owned}); }
-		if (settings.hide_owned === undefined) { settings.hide_owned = false; chrome.storage.sync.set({'hide_owned': settings.hide_owned}); }
+		if (settings.hide_owned === undefined) { settings.hide_owned = false; storage.set({'hide_owned': settings.hide_owned}); }
 
 		if (settings.highlight_owned) highlight_node(node, settings.highlight_owned_color);
 		if (settings.hide_owned) hide_node(node);
@@ -328,7 +350,7 @@ function highlight_wishlist(node) {
 
 		if (settings.highlight_wishlist_color === undefined) { settings.highlight_wishlist_color = "#d3deea";	storage.set({'highlight_wishlist_color': settings.highlight_wishlist_color}); }
 		if (settings.highlight_wishlist === undefined) { settings.highlight_wishlist = true; storage.set({'highlight_wishlist': settings.highlight_wishlist}); }
-		if (settings.hide_wishlist === undefined) { settings.hide_wishlist = false; chrome.storage.sync.set({'hide_wishlist': settings.hide_wishlist}); }
+		if (settings.hide_wishlist === undefined) { settings.hide_wishlist = false; storage.set({'hide_wishlist': settings.hide_wishlist}); }
 
 		if (settings.highlight_wishlist) highlight_node(node, settings.highlight_wishlist_color);
 		if (settings.hide_wishlist) hide_node(node);
@@ -342,7 +364,7 @@ function highlight_wishlist(node) {
 function highlight_cart(node) {
 	storage.get(function(settings) {
 		node.classList.add("es_highlight_cart");
-		if (settings.hide_cart === undefined) { settings.hide_cart = false; chrome.storage.sync.set({'hide_cart': settings.hide_cart}); }
+		if (settings.hide_cart === undefined) { settings.hide_cart = false; storage.set({'hide_cart': settings.hide_cart}); }
 		if (settings.hide_cart) hide_node(node);
 	});
 }
@@ -393,7 +415,7 @@ function highlight_inv_guestpass(node) {
 
 function highlight_nondiscounts(node) {
 	storage.get(function(settings) {
-		if (settings.hide_notdiscounted === undefined) { settings.hide_notdiscounted = false; chrome.storage.sync.set({'hide_notdiscounted': settings.hide_notdiscounted}); }
+		if (settings.hide_notdiscounted === undefined) { settings.hide_notdiscounted = false; storage.set({'hide_notdiscounted': settings.hide_notdiscounted}); }
 		
 		if (settings.hide_notdiscounted) {
 			$(node).css("display", "none");
@@ -428,7 +450,7 @@ function highlight_notinterested(node) {
 
 	$.when.apply($, [notinterested_promise]).done(function() {
 		storage.get(function(settings) {
-			if (settings.hide_notinterested === undefined) { settings.hide_notinterested = false; chrome.storage.sync.set({'hide_notinterested': settings.hide_notinterested}); }
+			if (settings.hide_notinterested === undefined) { settings.hide_notinterested = false; storage.set({'hide_notinterested': settings.hide_notinterested}); }
 			
 			var notinterested = getValue("ignored_apps");
 			if (notinterested) notinterested = notinterested.split(",");
@@ -516,8 +538,8 @@ function highlight_node(node, color) {
 
 function hide_node(node) {
 	storage.get(function(settings) {
-		if (settings.hide_owned === undefined) { settings.hide_owned = false; chrome.storage.sync.set({'hide_owned': settings.hide_owned}); }
-		if (settings.hide_dlcunownedgames === undefined) { settings.hide_dlcunownedgames = false; chrome.storage.sync.set({'hide_dlcunownedgames': settings.hide_dlcunownedgames}); }
+		if (settings.hide_owned === undefined) { settings.hide_owned = false; storage.set({'hide_owned': settings.hide_owned}); }
+		if (settings.hide_dlcunownedgames === undefined) { settings.hide_dlcunownedgames = false; storage.set({'hide_dlcunownedgames': settings.hide_dlcunownedgames}); }
 
 		if ($(node).hasClass("info") || $(node).hasClass("dailydeal") || $(node).hasClass("spotlight_content") || $(node).hasClass("browse_tag_game_cap")) { node = $(node).parent()[0]; }
 
@@ -1179,8 +1201,8 @@ function add_wishlist_pricehistory() {
 		if (settings.showlowestprice_onwishlist === undefined) { settings.showlowestprice_onwishlist = true; storage.set({'showlowestprice_onwishlist': settings.showlowestprice_onwishlist}); }
 		if (settings.showlowestpricecoupon === undefined) { settings.showlowestpricecoupon = true; storage.set({'showlowestpricecoupon': settings.showlowestpricecoupon}); }
 		if (settings.showlowestprice_region === undefined) { settings.showlowestprice_region = "us"; storage.set({'showlowestprice_region': settings.showlowestprice_region}); }
-		if (settings.showallstores === undefined) { settings.showallstores = true; chrome.storage.sync.set({'showallstores': settings.showallstores}); }
-		if (settings.stores === undefined) { settings.stores = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]; chrome.storage.sync.set({'stores': settings.stores}); }
+		if (settings.showallstores === undefined) { settings.showallstores = true; storage.set({'showallstores': settings.showallstores}); }
+		if (settings.stores === undefined) { settings.stores = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]; storage.set({'stores': settings.stores}); }
 		if (settings.showlowestprice_onwishlist) {
 
 			// Get List of stores we're searching for
@@ -1615,9 +1637,8 @@ function add_enhanced_steam_options() {
 	$dropdown_options.append($group_link);
 	$dropdown_options.append($donation_link);
 
-	$("#global_action_menu")
-		.before($dropdown)
-		.before($dropdown_options_container);
+	$("#global_action_menu").prepend($dropdown);
+	$("#account_dropdown").after($dropdown_options_container);
 
 	$("#global_actions").after("<progress id='es_progress' class='complete' value='1' max='1' title='" + localized_strings.ready.ready + "'></progress>");
 }
@@ -1701,7 +1722,7 @@ function remove_install_steam_button() {
 	storage.get(function(settings) {
 		if (settings.hideinstallsteambutton === undefined) { settings.hideinstallsteambutton = false; storage.set({'hideinstallsteambutton': settings.hideinstallsteambutton}); }
 		if (settings.hideinstallsteambutton) {
-			$('div.header_installsteam_btn').replaceWith('');
+			$('div.header_installsteam_btn').remove();
 		}
 	});
 }
@@ -1711,7 +1732,7 @@ function remove_about_menu() {
 	storage.get(function(settings) {
 		if (settings.hideaboutmenu === undefined) { settings.hideaboutmenu = false; storage.set({'hideaboutmenu': settings.hideaboutmenu}); }
 		if (settings.hideaboutmenu) {
-			$('a[href$="http://store.steampowered.com/about/"]').replaceWith('');
+			$(".menuitem[href$='http://store.steampowered.com/about/']").remove();
 		}
 	});
 }
@@ -1901,8 +1922,8 @@ function show_pricing_history(appid, type) {
 		if (settings.showlowestprice === undefined) { settings.showlowestprice = true; storage.set({'showlowestprice': settings.showlowestprice}); }
 		if (settings.showlowestpricecoupon === undefined) { settings.showlowestpricecoupon = true; storage.set({'showlowestpricecoupon': settings.showlowestpricecoupon}); }
 		if (settings.showlowestprice_region === undefined) { settings.showlowestprice_region = "us"; storage.set({'showlowestprice_region': settings.showlowestprice_region}); }
-		if (settings.showallstores === undefined) { settings.showallstores = true; chrome.storage.sync.set({'showallstores': settings.showallstores}); }
-		if (settings.stores === undefined) { settings.stores = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]; chrome.storage.sync.set({'stores': settings.stores}); }
+		if (settings.showallstores === undefined) { settings.showallstores = true; storage.set({'showallstores': settings.showallstores}); }
+		if (settings.stores === undefined) { settings.stores = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]; storage.set({'stores': settings.stores}); }
 		if (settings.showlowestprice) {
 
 			// Get list of stores we're searching for
@@ -2188,17 +2209,17 @@ function add_community_profile_links() {
 	var icon_color='';
 	var profile_link_icon_background = '';
 	storage.get(function(settings) {
-		if (settings.profile_steamgifts === undefined) { settings.profile_steamgifts = true; chrome.storage.sync.set({'profile_steamgifts': settings.profile_steamgifts}); }
-		if (settings.profile_steamrep === undefined) { settings.profile_steamrep = true; chrome.storage.sync.set({'profile_steamrep': settings.profile_steamrep}); }
-		if (settings.profile_steamdbcalc === undefined) { settings.profile_steamdbcalc = true; chrome.storage.sync.set({'profile_steamdbcalc': settings.profile_steamdbcalc}); }
-		if (settings.profile_astats === undefined) { settings.profile_astats = true; chrome.storage.sync.set({'profile_astats': settings.profile_astats}); }
-		if (settings.profile_backpacktf === undefined) { settings.profile_backpacktf = true; chrome.storage.sync.set({'profile_backpacktf': settings.profile_backpacktf}); }
-		if (settings.profile_astatsnl === undefined) { settings.profile_astatsnl = true; chrome.storage.sync.set({'profile_astatsnl': settings.profile_astatsnl}); }
-		if (settings.profile_permalink === undefined) { settings.profile_permalink = true; chrome.storage.sync.set({'profile_permalink': settings.profile_permalink}); }
-		if (settings.show_profile_link_images === undefined) { settings.show_profile_link_images = "gray"; chrome.storage.sync.set({'show_profile_link_images': settings.show_profile_link_images}); }
+		if (settings.profile_steamgifts === undefined) { settings.profile_steamgifts = true; storage.set({'profile_steamgifts': settings.profile_steamgifts}); }
+		if (settings.profile_steamrep === undefined) { settings.profile_steamrep = true; storage.set({'profile_steamrep': settings.profile_steamrep}); }
+		if (settings.profile_steamdbcalc === undefined) { settings.profile_steamdbcalc = true; storage.set({'profile_steamdbcalc': settings.profile_steamdbcalc}); }
+		if (settings.profile_astats === undefined) { settings.profile_astats = true; storage.set({'profile_astats': settings.profile_astats}); }
+		if (settings.profile_backpacktf === undefined) { settings.profile_backpacktf = true; storage.set({'profile_backpacktf': settings.profile_backpacktf}); }
+		if (settings.profile_astatsnl === undefined) { settings.profile_astatsnl = true; storage.set({'profile_astatsnl': settings.profile_astatsnl}); }
+		if (settings.profile_permalink === undefined) { settings.profile_permalink = true; storage.set({'profile_permalink': settings.profile_permalink}); }
+		if (settings.show_profile_link_images === undefined) { settings.show_profile_link_images = "gray"; storage.set({'show_profile_link_images': settings.show_profile_link_images}); }
 		if (settings.show_profile_link_images!="false"){if(settings.show_profile_link_images=="color"){icon_color="_col";profile_link_icon_background=" profile_link_icon_background"}}
-		if (settings.profile_api_info === undefined){ settings.profile_api_info = false; chrome.storage.sync.set({'profile_api_info': settings.profile_api_info});}
-		if (settings.api_key == false||settings.api_key==""||settings.api_key===undefined){ settings.profile_api_info = false; chrome.storage.sync.set({'profile_api_info': settings.profile_api_info});}
+		if (settings.profile_api_info === undefined){ settings.profile_api_info = false; storage.set({'profile_api_info': settings.profile_api_info});}
+		if (settings.api_key == false||settings.api_key==""||settings.api_key===undefined){ settings.profile_api_info = false; storage.set({'profile_api_info': settings.profile_api_info});}
 
 		var htmlstr = '';
 		if (settings.profile_steamrep) {
@@ -2246,7 +2267,7 @@ function add_community_profile_links() {
 			htmlstr += '<div class="profile_count_link"><a href="//api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' + settings.api_key + '&steamids='+steamID+'" target="_blank"><span class="count_link_label">API Information</span><span class="profile_count_link_total">&nbsp;</span></div>';
 		}
 		
-		if (htmlstr != '') { $(".profile_item_links").append(htmlstr); }
+		if (htmlstr != '') { $(".profile_item_links").append(htmlstr + "<div style='clear: both;'></div>"); }
 
 		if ($(".profile_item_links").length == 0) {
 			htmlstr = "<div class='profile_item_links'>" + htmlstr + "</div>";
@@ -2544,11 +2565,11 @@ function endless_scrolling_greenlight() {
 
 function add_hide_buttons_to_search() {
 	storage.get(function(settings) {
-		if (settings.hide_owned === undefined) { settings.hide_owned = false; chrome.storage.sync.set({'hide_owned': settings.hide_owned}); }
-		if (settings.hide_wishlist === undefined) { settings.hide_wishlist = false; chrome.storage.sync.set({'hide_wishlist': settings.hide_wishlist}); }
-		if (settings.hide_cart === undefined) { settings.hide_cart = false; chrome.storage.sync.set({'hide_cart': settings.hide_cart}); }
-		if (settings.hide_notdiscounted === undefined) { settings.hide_notdiscounted = false; chrome.storage.sync.set({'hide_notdiscounted': settings.hide_notdiscounted}); }
-		if (settings.hide_notinterested === undefined) { settings.hide_notinterested = false; chrome.storage.sync.set({'hide_notinterested': settings.hide_notinterested}); }
+		if (settings.hide_owned === undefined) { settings.hide_owned = false; storage.set({'hide_owned': settings.hide_owned}); }
+		if (settings.hide_wishlist === undefined) { settings.hide_wishlist = false; storage.set({'hide_wishlist': settings.hide_wishlist}); }
+		if (settings.hide_cart === undefined) { settings.hide_cart = false; storage.set({'hide_cart': settings.hide_cart}); }
+		if (settings.hide_notdiscounted === undefined) { settings.hide_notdiscounted = false; storage.set({'hide_notdiscounted': settings.hide_notdiscounted}); }
+		if (settings.hide_notinterested === undefined) { settings.hide_notinterested = false; storage.set({'hide_notinterested': settings.hide_notinterested}); }
 		
 		$("#advsearchform").find(".rightcol").prepend("<div class='block' id='es_hide_menu'><div class='block_header'><div>" + localized_strings.hide + "</div></div><div class='block_content block_content_inner'><div class='tab_filter_control' id='es_owned_games'><div class='tab_filter_control_checkbox'></div><span class='tab_filter_control_label'>" + localized_strings.options.owned + "</span></div><div class='tab_filter_control' id='es_wishlist_games'><div class='tab_filter_control_checkbox'></div><span class='tab_filter_control_label'>" + localized_strings.options.wishlist + "</span></div><div class='tab_filter_control' id='es_cart_games'><div class='tab_filter_control_checkbox'></div><span class='tab_filter_control_label'>" + localized_strings.options.cart + "</span></div><div class='tab_filter_control' id='es_notdiscounted'><div class='tab_filter_control_checkbox'></div><span class='tab_filter_control_label'>" + localized_strings.notdiscounted + "</span></div><div class='tab_filter_control' id='es_notinterested'><div class='tab_filter_control_checkbox'></div><span class='tab_filter_control_label'>" + localized_strings.notinterested + "</span></div></div></div>")
 
@@ -2586,10 +2607,10 @@ function add_hide_buttons_to_search() {
 		$("#es_owned_games").click(function() {
 			if ($("#es_owned_games").hasClass("checked")) {
 				$("#es_owned_games").removeClass("checked");
-				chrome.storage.sync.set({'hide_owned': false });
+				storage.set({'hide_owned': false });
 			} else {
 				$("#es_owned_games").addClass("checked");
-				chrome.storage.sync.set({'hide_owned': true });
+				storage.set({'hide_owned': true });
 			}
 			add_hide_buttons_to_search_click();
 		});
@@ -2597,10 +2618,10 @@ function add_hide_buttons_to_search() {
 		$("#es_wishlist_games").click(function() {
 			if ($("#es_wishlist_games").hasClass("checked")) {
 				$("#es_wishlist_games").removeClass("checked");
-				chrome.storage.sync.set({'hide_wishlist': false });
+				storage.set({'hide_wishlist': false });
 			} else {
 				$("#es_wishlist_games").addClass("checked");
-				chrome.storage.sync.set({'hide_wishlist': true });
+				storage.set({'hide_wishlist': true });
 			}
 			add_hide_buttons_to_search_click();
 		});
@@ -2608,10 +2629,10 @@ function add_hide_buttons_to_search() {
 		$("#es_cart_games").click(function() {
 			if ($("#es_cart_games").hasClass("checked")) {
 				$("#es_cart_games").removeClass("checked");
-				chrome.storage.sync.set({'hide_cart': false });
+				storage.set({'hide_cart': false });
 			} else {
 				$("#es_cart_games").addClass("checked");
-				chrome.storage.sync.set({'hide_cart': true });
+				storage.set({'hide_cart': true });
 			}
 			add_hide_buttons_to_search_click();
 		});
@@ -2619,10 +2640,10 @@ function add_hide_buttons_to_search() {
 		$("#es_notdiscounted").click(function() {
 			if ($("#es_notdiscounted").hasClass("checked")) {
 				$("#es_notdiscounted").removeClass("checked");
-				chrome.storage.sync.set({'hide_notdiscounted': false });
+				storage.set({'hide_notdiscounted': false });
 			} else {
 				$("#es_notdiscounted").addClass("checked");
-				chrome.storage.sync.set({'hide_notdiscounted': true });
+				storage.set({'hide_notdiscounted': true });
 			}
 			add_hide_buttons_to_search_click();
 		});
@@ -2630,10 +2651,10 @@ function add_hide_buttons_to_search() {
 		$("#es_notinterested").click(function() {
 			if ($("#es_notinterested").hasClass("checked")) {
 				$("#es_notinterested").removeClass("checked");
-				chrome.storage.sync.set({'hide_notinterested': false });
+				storage.set({'hide_notinterested': false });
 			} else {
 				$("#es_notinterested").addClass("checked");
-				chrome.storage.sync.set({'hide_notinterested': true });
+				storage.set({'hide_notinterested': true });
 			}
 			add_hide_buttons_to_search_click();
 		});
@@ -4820,7 +4841,8 @@ function process_early_access() {
 							break;
 						case /^\/(?:id|profiles)\/.+/.test(window.location.pathname):
 							$(".game_info_cap").each(function(index, value) { check_early_access($(this)); });
-							$(".showcase_slot").each(function(index, value) { check_early_access($(this)); });
+							$(".showcase_gamecollector_game").each(function(index, value) { check_early_access($(this)); });
+							$(".favoritegame_showcase_game").each(function(index, value) { check_early_access($(this)); });
 							break;
 						case /^\/app\/.*/.test(window.location.pathname):
 							if ($(".apphub_EarlyAccess_Title").length > 0) {
@@ -4862,162 +4884,177 @@ function show_regional_pricing() {
 			var sale;
 			var sub;
 			var region_appended=0;
-			var available_currencies = ["USD","GBP","EUR","BRL","RUB","JPY","NOK","IDR","MYR","PHP","SGD","THB","VND","KRW","TRY","UAH","MXN","CAD","AUD","NZD"];
-			var conversion_rates = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 			var currency_symbol;
 
 			// Get user's Steam currency
 			currency_symbol = currency_symbol_from_string($(".price:first, .discount_final_price:first").text().trim());
 			if (currency_symbol == "") { return; }
 			local_currency = currency_symbol_to_type(currency_symbol);
+			
+			if (/^\/sale\/.*/.test(window.location.pathname)) {
+				sale=true;
+				pricing_div = $(pricing_div).addClass("es_regional_sale");
+			}
+			if (/^\/sub\/.*/.test(window.location.pathname)) {
+				sub=true;
+				pricing_div = $(pricing_div).addClass("es_regional_sub");
+			}
+			if (getCookie("fakeCC") != null || getCookie("LKGBillingCountry") != null) {
+				if (getCookie("fakeCC")){
+					local_country = getCookie("fakeCC").toLowerCase();
+				} else {
+					local_country = getCookie("LKGBillingCountry").toLowerCase();
+				}
+			}
+			if(countries.indexOf(local_country)===-1){
+				countries.push(local_country);
+			}
+			var all_game_areas = $(".game_area_purchase_game").toArray();
+			if (sale) {
+				all_game_areas = $(".sale_page_purchase_item").toArray();
+			}
+			var subid_info = [];
+			var subid_array = [];
 
-			var complete = 0;
-
-			$.each(available_currencies, function(index, currency_type) {
-				if (currency_type != local_currency) {
-					if (getValue(currency_type + "to" + local_currency)) {
-						var expire_time = parseInt(Date.now() / 1000, 10) - 24 * 60 * 60; // One day ago
-						var last_updated = getValue(currency_type + "to" + local_currency + "_time") || expire_time - 1;
-
-						if (last_updated < expire_time) {
-							get_http("//api.enhancedsteam.com/currency/?" + local_currency.toLowerCase() + "=1&local=" + currency_type.toLowerCase(), function(txt) {
-								complete += 1;
-								conversion_rates[available_currencies.indexOf(currency_type)] = parseFloat(txt);
-								setValue(currency_type + "to" + local_currency, parseFloat(txt));
-								setValue(currency_type + "to" + local_currency + "_time", parseInt(Date.now() / 1000, 10));
-								if (complete == available_currencies.length - 1) process_data(conversion_rates);
-							});
-						} else {
-							complete += 1;
-							conversion_rates[available_currencies.indexOf(currency_type)] = getValue(currency_type + "to" + local_currency);
-							if (complete == available_currencies.length - 1) process_data(conversion_rates);
-						}	
-					} else {
-						get_http("//api.enhancedsteam.com/currency/?" + local_currency.toLowerCase() + "=1&local=" + currency_type.toLowerCase(), function(txt) {
-							complete += 1;
-							conversion_rates[available_currencies.indexOf(currency_type)] = parseFloat(txt);
-							setValue(currency_type + "to" + local_currency, parseFloat(txt));
-							setValue(currency_type + "to" + local_currency + "_time", parseInt(Date.now() / 1000, 10));
-							if (complete == available_currencies.length - 1) process_data(conversion_rates);
-						});
+			function formatPriceData(sub_info,country,converted_price) {
+				var flag_div = "<div class=\"es_flag\" style='background-image:url("+chrome.extension.getURL("img/flags/flags.png")+")'></div>";
+				if (sub_info["prices"][country]){
+					var price = sub_info["prices"][country]["final"]/100;
+					var local_price = sub_info["prices"][local_country]["final"]/100;
+					converted_price = converted_price/100;
+					converted_price = converted_price.toFixed(2);
+					var currency = sub_info["prices"][country]["currency"];
+					var percentage;
+					var formatted_price = formatCurrency(price, currency);
+					var formatted_converted_price = formatCurrency(converted_price, local_currency);
+					
+					percentage = (((converted_price/local_price)*100)-100).toFixed(2);
+					var arrows = chrome.extension.getURL("img/arrows.png");
+					var percentage_span="<span class=\"es_percentage\"><div class=\"es_percentage_indicator\" style='background-image:url("+arrows+")'></div></span>";
+					if (percentage<0) {
+						percentage = Math.abs(percentage);
+						percentage_span = $(percentage_span).addClass("es_percentage_lower");
+					}else if (percentage==0) {
+						percentage_span = $(percentage_span).addClass("es_percentage_equal");
+					}else {
+						percentage_span = $(percentage_span).addClass("es_percentage_higher");
 					}
+					percentage_span = $(percentage_span).append(percentage+"%");
+					var regional_price_div = "<div class=\"es_regional_price\">"+formatted_price+"&nbsp;<span class=\"es_regional_converted\">("+formatted_converted_price+")</span></div>";
+					flag_div = $(flag_div).addClass("es_flag_"+country);
+					regional_price_div = $(regional_price_div).prepend(flag_div);
+					regional_price_div = $(regional_price_div).append(percentage_span);
+					return regional_price_div;
+				}
+				else {
+					var regional_price_div = "<div class=\"es_regional_price\"><span class=\"es_regional_unavailable\">"+localized_strings.region_unavailable+"</span></div>";
+					flag_div = $(flag_div).addClass("es_flag_"+country);
+					regional_price_div = $(regional_price_div).prepend(flag_div);
+					return regional_price_div;
+				}
+			}
+
+			$.each(all_game_areas,function(index,app_package){
+				var subid = $(app_package).find("input[name='subid']").val();
+				if(subid>0){
+					subid_info[index]=[];
+					subid_info[index]["subid"]=subid;
+					subid_info[index]["prices"]=[];
+					subid_array.push(subid);
 				}
 			});
-			
-			function process_data(conversion_array) {
-				if (/^\/sale\/.*/.test(window.location.pathname)) {
-					sale=true;
-					pricing_div = $(pricing_div).addClass("es_regional_sale");
-				}
-				if (/^\/sub\/.*/.test(window.location.pathname)) {
-					sub=true;
-					pricing_div = $(pricing_div).addClass("es_regional_sub");
-				}
-				if (getCookie("fakeCC") != null || getCookie("LKGBillingCountry") != null) {
-					if (getCookie("fakeCC")){
-						local_country = getCookie("fakeCC").toLowerCase();
-					} else {
-						local_country = getCookie("LKGBillingCountry").toLowerCase();
+			if(subid_array.length>0){
+				$.each(countries,function(index,country){
+					switch (country) {
+						case "eu1":
+							cc="fr";
+							break;
+						case "eu2":
+							cc="it";
+							break;
+						default:
+							cc=country;
+							break;
 					}
-				}
-				if(countries.indexOf(local_country)===-1){
-					countries.push(local_country);
-				}
-				var all_game_areas = $(".game_area_purchase_game").toArray();
-				if (sale) {
-					all_game_areas = $(".sale_page_purchase_item").toArray();
-				}
-				var subid_info = [];
-				var subid_array = [];
-
-				function formatPriceData(sub_info,country,converted_price) {
-					var flag_div = "<div class=\"es_flag\" style='background-image:url("+chrome.extension.getURL("img/flags/flags.png")+")'></div>";
-					if (sub_info["prices"][country]){
-						var price = sub_info["prices"][country]["final"]/100;
-						var local_price = sub_info["prices"][local_country]["final"]/100;
-						converted_price = converted_price/100;
-						converted_price = converted_price.toFixed(2);
-						var currency = sub_info["prices"][country]["currency"];
-						var percentage;
-						var formatted_price = formatCurrency(price, currency);
-						var formatted_converted_price = formatCurrency(converted_price, local_currency);
-						
-						percentage = (((converted_price/local_price)*100)-100).toFixed(2);
-						var arrows = chrome.extension.getURL("img/arrows.png");
-						var percentage_span="<span class=\"es_percentage\"><div class=\"es_percentage_indicator\" style='background-image:url("+arrows+")'></div></span>";
-						if (percentage<0) {
-							percentage = Math.abs(percentage);
-							percentage_span = $(percentage_span).addClass("es_percentage_lower");
-						}else if (percentage==0) {
-							percentage_span = $(percentage_span).addClass("es_percentage_equal");
-						}else {
-							percentage_span = $(percentage_span).addClass("es_percentage_higher");
-						}
-						percentage_span = $(percentage_span).append(percentage+"%");
-						var regional_price_div = "<div class=\"es_regional_price\">"+formatted_price+"&nbsp;<span class=\"es_regional_converted\">("+formatted_converted_price+")</span></div>";
-						flag_div = $(flag_div).addClass("es_flag_"+country);
-						regional_price_div = $(regional_price_div).prepend(flag_div);
-						regional_price_div = $(regional_price_div).append(percentage_span);
-						return regional_price_div;
-					}
-					else {
-						var regional_price_div = "<div class=\"es_regional_price\"><span class=\"es_regional_unavailable\">"+localized_strings.region_unavailable+"</span></div>";
-						flag_div = $(flag_div).addClass("es_flag_"+country);
-						regional_price_div = $(regional_price_div).prepend(flag_div);
-						return regional_price_div;
-					}
-				}
-
-				$.each(all_game_areas,function(index,app_package){
-					var subid = $(app_package).find("input[name='subid']").val();
-					if(subid>0){
-						subid_info[index]=[];
-						subid_info[index]["subid"]=subid;
-						subid_info[index]["prices"]=[];
-						subid_array.push(subid);
-					}
-				});
-				if(subid_array.length>0){
-					$.each(countries,function(index,country){
-						switch (country) {
-							case "eu1":
-								cc="fr";
-								break;
-							case "eu2":
-								cc="it";
-								break;
-							default:
-								cc=country;
-								break;
-						}
-						$.each(subid_info,function(subid_index,package_info){
-							currency_deferred.push(
-								$.ajax({
-									url:api_url,
-									data:{
-										packageids:package_info["subid"],
-										cc:cc
-									}
-								}).done(function(data){
-									$.each(data,function(data_subid){
-										if(package_info){
-											if(package_info["subid"]===data_subid){
-												if(data[data_subid]["data"]) {
-													var price = data[data_subid]["data"]["price"];
-													subid_info[subid_index]["prices"][country]=price;
-													pricing_div=$(pricing_div).append(price);
-												}
+					$.each(subid_info,function(subid_index,package_info){
+						currency_deferred.push(
+							$.ajax({
+								url:api_url,
+								data:{
+									packageids:package_info["subid"],
+									cc:cc
+								}
+							}).done(function(data){
+								$.each(data,function(data_subid){
+									if(package_info){
+										if(package_info["subid"]===data_subid){
+											if(data[data_subid]["data"]) {
+												var price = data[data_subid]["data"]["price"];
+												subid_info[subid_index]["prices"][country]=price;
+												pricing_div=$(pricing_div).append(price);
 											}
 										}
-									});
-								})
-							);
-						});
+									}
+								});
+							})
+						);
 					});
-					var format_deferred=[];
-					var formatted_regional_price_array=[];
-					$.when.apply(null,currency_deferred).done(function(){
-						$.map(subid_info,function(subid,index){
+				});
+				var format_deferred=[];
+				var formatted_regional_price_array=[];
+				$.when.apply(null,currency_deferred).done(function(){
+					$.map(subid_info,function(subid,index){
+
+						// Get applicable currency conversion rates
+						var complete = 0,
+							available_currencies = [],
+							conversion_rates = [];
+
+						for (var price in subid["prices"]) {
+							if (subid["prices"][price]) {
+								if (available_currencies.indexOf(subid["prices"][price]["currency"]) == -1) {
+									available_currencies.push(subid["prices"][price]["currency"]);
+									conversion_rates.push(1);
+								}
+							}
+						}
+
+						var currency_conversion_promise = (function () {
+							var deferred = new $.Deferred();
+							$.each(available_currencies, function(index, currency_type) {
+								if (currency_type != local_currency) {
+									if (getValue(currency_type + "to" + local_currency)) {
+										var expire_time = parseInt(Date.now() / 1000, 10) - 24 * 60 * 60; // One day ago
+										var last_updated = getValue(currency_type + "to" + local_currency + "_time") || expire_time - 1;
+
+										if (last_updated < expire_time) {
+											get_http("//api.enhancedsteam.com/currency/?" + local_currency.toLowerCase() + "=1&local=" + currency_type.toLowerCase(), function(txt) {
+												complete += 1;
+												conversion_rates[available_currencies.indexOf(currency_type)] = parseFloat(txt);
+												setValue(currency_type + "to" + local_currency, parseFloat(txt));
+												setValue(currency_type + "to" + local_currency + "_time", parseInt(Date.now() / 1000, 10));
+												if (complete == available_currencies.length - 1) deferred.resolve();;
+											});
+										} else {
+											complete += 1;
+											conversion_rates[available_currencies.indexOf(currency_type)] = getValue(currency_type + "to" + local_currency);
+											if (complete == available_currencies.length - 1) deferred.resolve();;
+										}	
+									} else {
+										get_http("//api.enhancedsteam.com/currency/?" + local_currency.toLowerCase() + "=1&local=" + currency_type.toLowerCase(), function(txt) {
+											complete += 1;
+											conversion_rates[available_currencies.indexOf(currency_type)] = parseFloat(txt);
+											setValue(currency_type + "to" + local_currency, parseFloat(txt));
+											setValue(currency_type + "to" + local_currency + "_time", parseInt(Date.now() / 1000, 10));
+											if (complete == available_currencies.length - 1) deferred.resolve();;
+										});
+									}
+								}
+							});
+							return deferred.promise();
+						})();
+
+						$.when.apply($, [currency_conversion_promise]).done(function() {
 							if(subid){
 								var sub_formatted = [];
 								var convert_deferred=[];
@@ -5031,11 +5068,11 @@ function show_regional_pricing() {
 											var country_currency = subid["prices"][country]["currency"].toString().toUpperCase();
 											var app_price = subid["prices"][country]["final"];
 											var index = $.inArray(country_currency, available_currencies);
-											var converted_price = parseFloat(app_price) / conversion_array[index];																					
+											var converted_price = parseFloat(app_price) / conversion_rates[index];
 											var regional_price = formatPriceData(subid,country,converted_price);
 											regional_price_array[0]=country;
 											regional_price_array[1]=regional_price;
-											sub_formatted.push(regional_price_array);											
+											sub_formatted.push(regional_price_array);	
 										}
 										else {
 											var regional_price = formatPriceData(subid,country);
@@ -5068,81 +5105,81 @@ function show_regional_pricing() {
 												break;
 										}
 									}
-									sub_formatted["subid"]=subid_info[index]["subid"].toString();
+									sub_formatted["subid"]=subid_info[index]["subid"].toString();									
 									formatted_regional_price_array.push(sub_formatted);
 									all_convert_deferred.resolve();
 								});
 								format_deferred.push(all_convert_deferred.promise());
 							}
-						});
-						$.when.apply(null,format_deferred).done(function(){
-							var all_sub_sorted_divs=[];
-							$.each(formatted_regional_price_array,function(formatted_div_index,formatted_div){
-								var sorted_formatted_divs=[];
-								$.each(countries,function(country_index,country){
-									$.each(formatted_div,function(regional_div_index,regional_div){
-										var sort_div_country = regional_div[0];
-										if(country==sort_div_country){
-											sorted_formatted_divs.push(regional_div[1]);
+							$.when.apply($, [format_deferred]).done(function(){
+								var all_sub_sorted_divs=[];
+								$.each(formatted_regional_price_array,function(formatted_div_index,formatted_div){
+									var sorted_formatted_divs=[];
+									$.each(countries,function(country_index,country){
+										$.each(formatted_div,function(regional_div_index,regional_div){
+											var sort_div_country = regional_div[0];
+											if(country==sort_div_country){
+												sorted_formatted_divs.push(regional_div[1]);
+											}
+										});
+									});
+									sorted_formatted_divs["subid"]=formatted_div["subid"];
+									all_sub_sorted_divs.push(sorted_formatted_divs);
+								});
+								$.each(all_sub_sorted_divs,function(index,sorted_divs){
+									var subid = subid_array[index];
+									$.each(sorted_divs,function(price_index,regional_div){
+										$("#es_pricing_"+sorted_divs["subid"]).append(regional_div);
+										if(regional_div!=undefined){
+											region_appended++;
 										}
 									});
-								});
-								sorted_formatted_divs["subid"]=formatted_div["subid"];
-								all_sub_sorted_divs.push(sorted_formatted_divs);
-							});
-							$.each(all_sub_sorted_divs,function(index,sorted_divs){
-								var subid = subid_array[index];
-								$.each(sorted_divs,function(price_index,regional_div){
-									$("#es_pricing_"+sorted_divs["subid"]).append(regional_div);
-									if(regional_div!=undefined){
-										region_appended++;
-									}
-								});
-								if (settings.showregionalprice == "mouse") {
-									$("#es_pricing_"+subid).append("<div class='miniprofile_arrow right' style='position: absolute; top: 12px; right: -8px;'></div>");
-									if(region_appended<=1){
-										$("#es_pricing_"+subid).find(".miniprofile_arrow").css("top","6px");
-									}
-								}
-							});
-							$.each(all_game_areas,function(index,app_package){
-								var subid = $(app_package).find("input[name='subid']").val();
-								if(subid){
 									if (settings.showregionalprice == "mouse") {
-										if(!(settings.regional_hideworld)){
-											$(app_package).find(".price").css({"padding-left":"25px","background-image":"url("+world+")","background-repeat":"no-repeat","background-position":"5px 8px"});
-											$(app_package).find(".discount_original_price").css({"position":"relative","float":"left"});
-											$(app_package).find(".discount_block").css({"padding-left":"25px","background-image":"url("+world+")","background-repeat":"no-repeat","background-position":"77px 8px","background-color":"#000000"});
-											$(app_package).find(".discount_prices").css({"background":"none"});
-										}
-										$(app_package).find(".price, .discount_block")
-										.mouseover(function() {
-											var purchase_location = $(app_package).find("div.game_purchase_action_bg").offset();
-											if (sale) {
-												$("#es_pricing_" + subid).css("right", $(app_package).find(".game_purchase_action_bg").width() - $(app_package).find(".btnv6_blue_blue_innerfade").width() +"px").css("top", "25px");
-												$("#es_pricing_" + subid).css("width", "200px");
-											} else if (sub) {
-												$("#es_pricing_" + subid).css("right", $(app_package).find(".game_purchase_action_bg").width() + 25 + "px").css("top", "70px");
-											} else {
-												$("#es_pricing_" + subid).css("right", $(app_package).find(".game_purchase_action_bg").width() + 20 + "px");
-											}
-											$("#es_pricing_" + subid).show();
-										})
-										.mouseout(function() {
-											$("#es_pricing_" + subid).hide();
-										})
-										.css("cursor","help");
-									} else {
-										$("#es_pricing_" + subid).addClass("es_regional_always");
-										if (!sale){
-											$("#es_pricing_"+subid).after("<div style='clear:both'></div>");
+										$("#es_pricing_"+subid).append("<div class='miniprofile_arrow right' style='position: absolute; top: 12px; right: -8px;'></div>");
+										if(region_appended<=1){
+											$("#es_pricing_"+subid).find(".miniprofile_arrow").css("top","6px");
 										}
 									}
-								}
+								});
+								$.each(all_game_areas,function(index,app_package){
+									var subid = $(app_package).find("input[name='subid']").val();
+									if(subid){
+										if (settings.showregionalprice == "mouse") {
+											if(!(settings.regional_hideworld)){
+												$(app_package).find(".price").css({"padding-left":"25px","background-image":"url("+world+")","background-repeat":"no-repeat","background-position":"5px 8px"});
+												$(app_package).find(".discount_original_price").css({"position":"relative","float":"left"});
+												$(app_package).find(".discount_block").css({"padding-left":"25px","background-image":"url("+world+")","background-repeat":"no-repeat","background-position":"77px 8px","background-color":"#000000"});
+												$(app_package).find(".discount_prices").css({"background":"none"});
+											}
+											$(app_package).find(".price, .discount_block")
+											.mouseover(function() {
+												var purchase_location = $(app_package).find("div.game_purchase_action_bg").offset();
+												if (sale) {
+													$("#es_pricing_" + subid).css("right", $(app_package).find(".game_purchase_action_bg").width() - $(app_package).find(".btnv6_blue_blue_innerfade").width() +"px").css("top", "25px");
+													$("#es_pricing_" + subid).css("width", "200px");
+												} else if (sub) {
+													$("#es_pricing_" + subid).css("right", $(app_package).find(".game_purchase_action_bg").width() + 25 + "px").css("top", "95px");
+												} else {
+													$("#es_pricing_" + subid).css("right", $(app_package).find(".game_purchase_action_bg:last").width() + 20 + "px");
+												}
+												$("#es_pricing_" + subid).show();
+											})
+											.mouseout(function() {
+												$("#es_pricing_" + subid).hide();
+											})
+											.css("cursor","help");
+										} else {
+											$("#es_pricing_" + subid).addClass("es_regional_always");
+											if (!sale){
+												$("#es_pricing_"+subid).after("<div style='clear:both'></div>");
+											}
+										}
+									}
+								});
 							});
 						});
 					});
-				}
+				});
 			}
 		}
 	});
@@ -7248,7 +7285,7 @@ function add_gamecard_market_links(game) {
 					$(this).children("div:contains('" + cardname + "')").parent().append(html);
 				}
 			});
-			if (cost > 0 && $(".profile_small_header_name .whiteLink").attr("href") == $("#headerUserAvatarIcon").parent().attr("href")) {
+			if (cost > 0 && $(".profile_small_header_name .whiteLink").attr("href") == $(".user_avatar:first").attr("href").replace(/\/$/, "")) {
 				cost = formatCurrency(cost, currency_type);
 				$(".badge_empty_name:last").after("<div class='badge_info_unlocked' style='color: #5c5c5c;'>" + localized_strings.badge_completion_cost+ ": " + cost + "</div>");
 				$(".badge_empty_right").css("margin-top", "7px");
@@ -7446,6 +7483,7 @@ function add_total_drops_count() {
 				});
 			}
 		} else {
+			$(".profile_xp_block_right").prepend("<span id='es_calculations' style='color: #fff;'>" + localized_strings.drop_calc + "</span>");
 			$(".progress_info_bold").each(function(i, obj) {
 				var parent = $(obj).parent().parent();
 				if ($(parent).find(".progress_info_bold")[0]) {
