@@ -1274,7 +1274,8 @@ function add_wishlist_pricehistory() {
 			if (settings.stores[29]) { storestring += "funstock,"; }
 			if (settings.stores[30]) { storestring += "wingamestore,"; }
 			if (settings.stores[31]) { storestring += "gamebillet,"; }
-			if (settings.showallstores) { storestring = "steam,amazonus,impulse,gamersgate,greenmangaming,gamefly,origin,uplay,indiegalastore,gametap,gamesplanet,getgames,gog,dotemu,gameolith,adventureshop,nuuvem,shinyloot,dlgamer,humblestore,squenix,bundlestars,fireflower,humblewidgets,newegg,gamesrepublic,coinplay,funstock,wingamestore,gamebillet"; }
+			if (settings.stores[32]) { storestring += "gamesrocket,"; }
+			if (settings.showallstores) { storestring = "steam,amazonus,impulse,gamersgate,greenmangaming,gamefly,origin,uplay,indiegalastore,gametap,gamesplanet,getgames,gog,dotemu,gameolith,adventureshop,nuuvem,shinyloot,dlgamer,humblestore,squenix,bundlestars,fireflower,humblewidgets,newegg,gamesrepublic,coinplay,funstock,wingamestore,gamebillet,gamesrocket"; }
 
 			// Get country code from Steam cookie
 			var cookies = document.cookie;
@@ -1992,7 +1993,8 @@ function show_pricing_history(appid, type) {
 			if (settings.stores[29]) { storestring += "funstock,"; }
 			if (settings.stores[30]) { storestring += "wingamestore,"; }
 			if (settings.stores[31]) { storestring += "gamebillet,"; }
-			if (settings.showallstores) { storestring = "steam,amazonus,impulse,gamersgate,greenmangaming,gamefly,origin,uplay,indiegalastore,gametap,gamesplanet,getgames,gog,dotemu,gameolith,adventureshop,nuuvem,shinyloot,dlgamer,humblestore,squenix,bundlestars,fireflower,humblewidgets,newegg,gamesrepublic,coinplay,funstock,wingamestore,gamebillet"; }
+			if (settings.stores[32]) { storestring += "gamesrocket,"; }
+			if (settings.showallstores) { storestring = "steam,amazonus,impulse,gamersgate,greenmangaming,gamefly,origin,uplay,indiegalastore,gametap,gamesplanet,getgames,gog,dotemu,gameolith,adventureshop,nuuvem,shinyloot,dlgamer,humblestore,squenix,bundlestars,fireflower,humblewidgets,newegg,gamesrepublic,coinplay,funstock,wingamestore,gamebillet,gamesrocket"; }
 
 			// Get country code from the Steam cookie
 			var cookies = document.cookie;

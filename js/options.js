@@ -98,7 +98,8 @@ function save_options() {
 		$("#coinplay").prop('checked'),
 		$("#funstock").prop('checked'),
 		$("#wingamestore").prop('checked'),
-		$("#gamebillet").prop('checked')
+		$("#gamebillet").prop('checked'),
+		$("#gamesrocket").prop('checked')
 	];
 	showregionalprice = $("#regional_price_on").val();
 	regional_hideworld = $("#regional_hideworld").prop('checked');
@@ -334,6 +335,7 @@ function toggle_stores() {
 			$("#funstock").prop('checked', settings.stores[29]);
 			$("#wingamestore").prop('checked', settings.stores[30]);
 			$("#gamebillet").prop('checked', settings.stores[31]);
+			$("#gamesrocket").prop('checked', settings.stores[32]);
 		});
 		break;
 	}
