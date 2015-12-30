@@ -46,6 +46,7 @@ function save_options() {
 	showdrm = $("#showdrm").prop('checked');
 	show_acrtag_info = $("#showacrtag").prop('checked');
 	showmcus = $("#showmcus").prop('checked');
+	showpercentage = $("#showpercentage").prop('checked');
 	showhltb = $("#showhltb").prop('checked');
 	showpcgw = $("#showpcgw").prop('checked');
 	showsteamcardexchange = $("#showsteamcardexchange").prop('checked');
@@ -189,6 +190,7 @@ function save_options() {
 		'showdrm': showdrm,
 		'show_acrtag_info': show_acrtag_info,
 		'showmcus': showmcus,
+		'showpercentage': showpercentage,
 		'showhltb': showhltb,
 		'showpcgw': showpcgw,
 		'showsteamcardexchange': showsteamcardexchange,
@@ -400,6 +402,7 @@ function load_options() {
 		if (settings.showmarkettotal === undefined) { settings.showmarkettotal = true; storage.set({'showmarkettotal': settings.showmarkettotal}); }
 		if (settings.showsteamrepapi === undefined) { settings.showsteamrepapi = true; storage.set({'showsteamrepapi': settings.showsteamrepapi}); }
 		if (settings.showmcus === undefined) { settings.showmcus = true; storage.set({'showmcus': settings.showmcus}); }
+		if (settings.showpercentage === undefined) { settings.showpercentage = false; storage.set({'showpercentage': settings.showpercentage}); }
 		if (settings.showhltb === undefined) { settings.showhltb = true; storage.set({'showhltb': settings.showhltb}); }
 		if (settings.showpcgw === undefined) { settings.showpcgw = true; storage.set({'showpcgw': settings.showpcgw}); }
 		if (settings.showsteamcardexchange === undefined) { settings.showsteamcardexchange = false; storage.set({'showsteamcardexchange': settings.showsteamcardexchange}); }
@@ -498,6 +501,7 @@ function load_options() {
 		$("#showdrm").prop('checked', settings.showdrm);
 		$("#showacrtag").prop('checked', settings.show_acrtag_info);
 		$("#showmcus").prop('checked', settings.showmcus);
+		$("#showpercentage").prop('checked', settings.showpercentage);
 		$("#showhltb").prop('checked', settings.showhltb);
 		$("#showpcgw").prop('checked', settings.showpcgw);
 		$("#showsteamcardexchange").prop('checked', settings.showsteamcardexchange);
