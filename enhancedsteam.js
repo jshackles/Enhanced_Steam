@@ -5190,9 +5190,10 @@ function show_regional_pricing() {
 			$.each(all_game_areas,function(index,app_package){
 				var subid = $(app_package).find("input[name='subid']").val();
 				if(subid>0){
-					subid_info[index]=[];
-					subid_info[index]["subid"]=subid;
-					subid_info[index]["prices"]=[];
+					subid_info.push({
+						subid: subid,
+						prices: []
+					});
 					subid_array.push(subid);
 				}
 			});
