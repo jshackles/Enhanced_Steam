@@ -1254,7 +1254,7 @@ function load_inventory() {
 
 function add_empty_wishlist_buttons() {
 	if(is_signed_in) {
-		var profile = $(".playerAvatar a")[0].href.replace("http://steamcommunity.com", "");
+		var profile = $(".playerAvatar a")[0].href.replace(window.location.protocol + "//steamcommunity.com", "");
 		if (window.location.pathname.startsWith(profile)) {
 			var empty_buttons = $("<div class='btn_save' id='es_empty_wishlist'>" + localized_strings.empty_wishlist + "</div>");
 			$(".save_actions_enabled").filter(":last").after(empty_buttons);
@@ -1582,7 +1582,7 @@ function add_wishlist_pricehistory() {
 
 function add_wishlist_notes() {
 	if(is_signed_in) {
-		var profile = $(".playerAvatar a")[0].href.replace("http://steamcommunity.com", "");
+		var profile = $(".playerAvatar a")[0].href.replace(window.location.protocol + "//steamcommunity.com", "");
 		if (window.location.pathname.startsWith(profile)) {
 			$(".wishlistRow").each(function() {
 				var appid = $(this).attr("id").replace("game_", "");
@@ -1646,12 +1646,12 @@ function empty_wishlist() {
 		var deferreds = $(wishlist_class).map(function(i, $obj) {
 			var deferred = new $.Deferred();
 			var appid = get_appid_wishlist($obj.id),
-				profile = $(".playerAvatar a")[0].href.replace("http://steamcommunity.com/", ""),
+				profile = $(".playerAvatar a")[0].href.replace(window.location.protocol + "//steamcommunity.com/", ""),
 				session = decodeURIComponent(cookie.match(/sessionid=(.+?);/i)[1]);
 
 			$.ajax({
 				type:"POST",
-				url: "http://steamcommunity.com/" + profile + "/wishlist/",
+				url: window.location.protocol + "//steamcommunity.com/" + profile + "/wishlist/",
 				data:{
 					sessionid: session,
 					action: "remove",
@@ -1981,7 +1981,7 @@ function remove_about_menu() {
 function add_header_links() {
 	if ($(".supernav_container").length > 0) {
 		// add "Forums" after "Workshop"
-		$(".submenu_community").find("a[href='http://steamcommunity.com/workshop/']").after('<a class="submenuitem" href="//forums.steampowered.com/forums/" target="_blank">' + localized_strings.forums + '</a>');
+		$(".submenu_community").find("a[href='" + window.location.protocol + "//steamcommunity.com/workshop/']").after('<a class="submenuitem" href="//forums.steampowered.com/forums/" target="_blank">' + localized_strings.forums + '</a>');
 		
 		if (is_signed_in) {
 			$(".submenu_username").find("a:first").after('<a class="submenuitem" href="//steamcommunity.com/my/games/">' + localized_strings.games + '</a>');
@@ -5190,9 +5190,10 @@ function show_regional_pricing() {
 			$.each(all_game_areas,function(index,app_package){
 				var subid = $(app_package).find("input[name='subid']").val();
 				if(subid>0){
-					subid_info[index]=[];
-					subid_info[index]["subid"]=subid;
-					subid_info[index]["prices"]=[];
+					subid_info.push({
+						subid: subid,
+						prices: []
+					});
 					subid_array.push(subid);
 				}
 			});
@@ -7550,7 +7551,7 @@ function add_gamecard_trading_forum() {
 	function addForum(){
 		var pathname = window.location.pathname;
 		var appid = window.location.pathname.split("/")[4];
-		$(".badge_detail_tasks_rule").next().next().after('<div class="gamecards_inventorylink"><a href="http://steamcommunity.com/app/'+appid+'/tradingforum/" class="btn_grey_grey btn_medium"><span>' + localized_strings.visit_trade_forum + '</span></a></div>');
+		$(".badge_detail_tasks_rule").next().next().after('<div class="gamecards_inventorylink"><a href="' + window.location.protocol + '//steamcommunity.com/app/'+appid+'/tradingforum/" class="btn_grey_grey btn_medium"><span>' + localized_strings.visit_trade_forum + '</span></a></div>');
 		forumAdded = true;
 	}
 	var all_cards = $(".badge_card_set_card");
@@ -7923,7 +7924,7 @@ function add_itad_button() {
 			$("#es_itad").on("click", function() {
 				var ripc = function () {
 					var dialog = ShowBlockingWaitDialog("", "");
-					var url = "http://store.steampowered.com/dynamicstore/userdata/" + g_AccountID;
+					var url = window.location.protocol + "//store.steampowered.com/dynamicstore/userdata/" + g_AccountID;
 					$J.get(url).done(function(data) {
 						var form = "<form name='itad_import' method='POST' action='https://isthereanydeal.com/outside/user/collection/3rdparty/steam'>"
 							+"<input type='hidden' name='json' value='" + JSON.stringify(data) + "'>"
@@ -8226,7 +8227,7 @@ $(document).ready(function(){
 							break;
 
 						case /^\/games\/.*/.test(path):
-							var appid = document.querySelector( 'a[href*="http://steamcommunity.com/app/"]' );
+							var appid = document.querySelector( 'a[href*="'+ window.location.protocol + '//steamcommunity.com/app/"]' );
 							appid = appid.href.match( /(\d)+/g );
 							add_steamdb_links(appid, "gamegroup");
 							break;
