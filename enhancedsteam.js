@@ -75,15 +75,26 @@ var currency_promise = (function() {
 				user_currency = currency_cache.currency_type;
 				deferred.resolve();
 			} else {
-				get_http("//store.steampowered.com/app/220", function(txt) {
-					var currency = parse_currency($(txt).find(".price, .discount_final_price").text().trim());
-					if (!currency) return;
-					user_currency = currency.currency_type;
+				var url = "//store.steampowered.com/cart/",
+					selector = "#cart_price_total",
+					checkFailed = false;
+				// We could always make a HTTPS request to "/cart/" but it contains an unsecure form which will result in a warning
+				if (window.location.pathname.match("/account(/store_transactions)?/?$")) {
+					url = "//store.steampowered.com/account/store_transactions/";
+					selector = ".accountData.price a";
+				}
+				get_http(url, function(txt) {
+					var currency = parse_currency($(txt).find(selector).text().trim());
+					user_currency = currency ? currency.currency_type : "USD";
+					checkFailed = currency ? false : true;
 				}, "xhrFields: { withCredentials: true }").fail(function() {
 					user_currency = "USD";
+					checkFailed = true;
 				}).done(function() {
+					// We probably should avoid storing the currency if the detection failed, or set a smaller expire interval
 					localStorage.setItem("user_currency", JSON.stringify({currency_type: user_currency, updated: parseInt(Date.now() / 1000, 10)}));
 				}).always(function() {
+					//console.info("Currency detection" + (checkFailed ? "(failed):" : ":"), user_currency);
 					deferred.resolve();
 				});
 			}
@@ -4115,13 +4126,20 @@ function account_total_spent() {
 						var history_promise = (function () {
 							var deferred = new $.Deferred();
 							get_http("//store.steampowered.com/account/AjaxLoadMoreHistory/?l=en&sessionid=" + sessionid, function(txt) {
-								var next = add_it_up(txt);
-								while (next) {
+								var next = add_it_up(txt),
+									el = $('#es_total');
+
+								$(el).removeClass('es_loading');
+
+								while (!$(el).hasClass('es_loading') && next) {
+									$(el).addClass('es_loading');
 									$.ajax({
-										async: false,
+										//async: false,
 										url: "//store.steampowered.com/account/AjaxLoadMoreHistory/?l=en&cursor%5Btimestamp_newest%5D=" + next["timestamp_newest"] + "&sessionid=" + sessionid
 									}).done(function(data) {
 										next = add_it_up(JSON.stringify(data));
+									}).always(function(){
+										$(el).removeClass('es_loading');
 									});
 								}
 								deferred.resolve();
