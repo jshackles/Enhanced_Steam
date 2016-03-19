@@ -75,15 +75,26 @@ var currency_promise = (function() {
 				user_currency = currency_cache.currency_type;
 				deferred.resolve();
 			} else {
-				get_http("//store.steampowered.com/app/220", function(txt) {
-					var currency = parse_currency($(txt).find(".price, .discount_final_price").text().trim());
-					if (!currency) return;
-					user_currency = currency.currency_type;
+				var url = "//store.steampowered.com/cart/",
+					selector = "#cart_price_total",
+					checkFailed = false;
+				// We could always make a HTTPS request to "/cart/" but it contains an unsecure form which will result in a warning
+				if (window.location.pathname.match("/account(/store_transactions)?/?$")) {
+					url = "//store.steampowered.com/account/store_transactions/";
+					selector = ".accountData.price a";
+				}
+				get_http(url, function(txt) {
+					var currency = parse_currency($(txt).find(selector).text().trim());
+					user_currency = currency ? currency.currency_type : "USD";
+					checkFailed = currency ? false : true;
 				}, "xhrFields: { withCredentials: true }").fail(function() {
 					user_currency = "USD";
+					checkFailed = true;
 				}).done(function() {
+					// We probably should avoid storing the currency if the detection failed, or set a smaller expire interval
 					localStorage.setItem("user_currency", JSON.stringify({currency_type: user_currency, updated: parseInt(Date.now() / 1000, 10)}));
 				}).always(function() {
+					//console.info("Currency detection" + (checkFailed ? "(failed):" : ":"), user_currency);
 					deferred.resolve();
 				});
 			}
@@ -3579,7 +3590,7 @@ function add_steam_client_link(appid) {
 	storage.get(function(settings) {
 		if (settings.showclient === undefined) { settings.showclient = true; storage.set({'showclient': settings.showclient}); }
 		if (settings.showclient) {
-			$('#ReportAppBtn').parent().prepend('<a class="btnv6_blue_hoverfade btn_medium steam_client_btn" href="steam://store/' + appid + '" style="display: block; margin-bottom: 6px;"><span><i class="ico16" style="background-image:url(http://store.steampowered.com/favicon.ico)"></i>&nbsp;&nbsp; ' + localized_strings.viewinclient + '</span></a>');
+			$('#ReportAppBtn').parent().prepend('<a class="btnv6_blue_hoverfade btn_medium steam_client_btn" href="steam://url/StoreAppPage/' + appid + '" style="display: block; margin-bottom: 6px;"><span><i class="ico16" style="background-image:url(http://store.steampowered.com/favicon.ico)"></i>&nbsp;&nbsp; ' + localized_strings.viewinclient + '</span></a>');
 		}
 	});
 }
@@ -4115,13 +4126,20 @@ function account_total_spent() {
 						var history_promise = (function () {
 							var deferred = new $.Deferred();
 							get_http("//store.steampowered.com/account/AjaxLoadMoreHistory/?l=en&sessionid=" + sessionid, function(txt) {
-								var next = add_it_up(txt);
-								while (next) {
+								var next = add_it_up(txt),
+									el = $('#es_total');
+
+								$(el).removeClass('es_loading');
+
+								while (!$(el).hasClass('es_loading') && next) {
+									$(el).addClass('es_loading');
 									$.ajax({
-										async: false,
+										//async: false,
 										url: "//store.steampowered.com/account/AjaxLoadMoreHistory/?l=en&cursor%5Btimestamp_newest%5D=" + next["timestamp_newest"] + "&sessionid=" + sessionid
 									}).done(function(data) {
 										next = add_it_up(JSON.stringify(data));
+									}).always(function(){
+										$(el).removeClass('es_loading');
 									});
 								}
 								deferred.resolve();
@@ -4994,7 +5012,7 @@ function add_astats_link(appid) {
 }
 
 function add_achievement_completion_bar(appid) {
-	$(".myactivity_block").find(".details_block").after("<link href='http://steamcommunity-a.akamaihd.net/public/css/skin_1/playerstats_generic.css' rel='stylesheet' type='text/css'><div id='es_ach_stats' style='margin-bottom: 9px; margin-top: -16px; float: right;'></div>");
+	$(".myactivity_block").find(".details_block:first").after("<link href='http://steamcommunity-a.akamaihd.net/public/css/skin_1/playerstats_generic.css' rel='stylesheet' type='text/css'><div id='es_ach_stats' style='margin-bottom: 9px; margin-top: -16px; float: right;'></div>");
 	$("#es_ach_stats").load("//steamcommunity.com/my/stats/" + appid + "/ #topSummaryAchievements", function(response, status, xhr) {				
 		if (response.match(/achieveBarFull\.gif/)) {
 			var BarFull = $("#es_ach_stats").html().match(/achieveBarFull\.gif" width="([0-9]|[1-9][0-9]|[1-9][0-9][0-9])"/)[1];
@@ -5782,7 +5800,7 @@ function customize_home_page() {
 		if (settings.show_homepage_under_ten === undefined) { settings.show_homepage_under_ten = true; storage.set({'show_show_homepage_under_ten': settings.show_homepage_under_ten}); }
 		if (settings.show_homepage_sidebar === undefined) { settings.show_homepage_sidebar = true; storage.set({'show_homepage_sidebar': settings.show_homepage_sidebar}); }
 
-		var html = "<div class='home_viewsettings_popup' style='display: none; z-index: 12; right: 18px;'><div class='home_viewsettings_instructions' style='font-size: 12px;'>" + localized_strings.apppage_sections + "</div>"
+		var html = "<div class='home_viewsettings_popup'><div class='home_viewsettings_instructions' style='font-size: 12px;'>" + localized_strings.apppage_sections + "</div>"
 
 		// Carousel
 		if ($("#home_main_cluster").length > 0) {
@@ -6572,7 +6590,7 @@ function add_app_page_wishlist(appid) {
 function add_app_page_wishlist_changes(appid) {
 	if (is_signed_in) {
 		if ($("#add_to_wishlist_area").length == 0 && $(".game_area_already_owned").length == 0) {
-			$(".queue_actions_ctn").find("img[src='http://store.akamai.steamstatic.com/public/images/v6/ico/ico_selected.png']").parent().parent().wrap("<div id='add_to_wishlist_area_success' style='display: inline-block;'></div>");
+			$(".queue_actions_ctn").find("a.queue_btn_active:first").wrap("<div id='add_to_wishlist_area_success' style='display: inline-block;'></div>");
 			$(".queue_actions_ctn").prepend("<div id='add_to_wishlist_area' style='display: none;'><a class='btnv6_blue_hoverfade btn_medium' href='javascript:AddToWishlist( " + appid + ", \"add_to_wishlist_area\", \"add_to_wishlist_area_success\", \"add_to_wishlist_area_fail\", \"1_5_9__407\" );'><span>" + localized_strings.add_to_wishlist + "</span></a></div>");
 			$(".queue_actions_ctn").prepend("<div id='add_to_wishlist_area_fail' style='display: none;'></div>");
 		}
