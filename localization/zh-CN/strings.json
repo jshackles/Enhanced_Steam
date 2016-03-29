@@ -213,7 +213,7 @@
   "leave_group_all":"离开所有组",
   "leave_group_all_confirm":"你即将离开所有组\n确定离开?",
   "leave_group_admin_confirm":"你是本组管理员: __groupname__\n确定离开?",
-  "wrong_try_again":"未知错误，请重试.",
+  "wrong_try_again":"发生错误，请重试.",
   "join_group":"加入组",
   "achievements":{
     "option":"在商店页面显示成就",
