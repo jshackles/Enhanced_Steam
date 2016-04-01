@@ -406,6 +406,21 @@ function getStoreRegionCountryCode() {
 			matched = cookies.match(/steamCountry=([a-z]{2})/i);
 			if (matched != null && matched.length == 2) {
 				cc = matched[1];
+			} else if (window.g_oSuggestParams && g_oSuggestParams.cc) {
+				// country code is defined after an inline script executed
+				cc = g_oSuggestParams.cc;
+			} else {
+				// if not defined, we get the country code from the inline script
+				// that part looks like this, and the string 'CN' is what we want:
+				//     EnableSearchSuggestions( $J('#searchform')[0].elements['term'], '1_5_9_', 'CN', 'schinese', '1861747' );
+				var init_cc_script = $(".responsive_store_nav_ctn_spacer + script");
+				if (init_cc_script.length) {
+					var cc_script_text = init_cc_script.text();
+					matched = cc_script_text.match(/EnableSearchSuggestions\(.+'([a-z]{2})',.+\);/i);
+					if (matched != null && matched.length === 2) {
+						cc = matched[1];
+					}
+				}
 			}
 		}
 	}
