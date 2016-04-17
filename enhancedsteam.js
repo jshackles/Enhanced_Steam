@@ -699,7 +699,7 @@ function highlight_notinterested(node) {
 					}
 					setValue("dynamiclist_time", parseInt(Date.now() / 1000, 10));
 					deferred.resolve();
-				});
+				}, { async: false });
 			} else {
 				deferred.resolve();
 			}
