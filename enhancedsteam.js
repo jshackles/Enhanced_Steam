@@ -1324,6 +1324,71 @@ function add_wishlist_filter() {
 	});
 }
 
+// Show the number of wishlisted apps on sale
+function wishlist_on_sale_count(forceGet) { // "forceGet" is for attempting a cache update from any page, we use it on Wishlist page
+	if (is_signed_in) {
+		function count_get() {
+			var deferred = new $.Deferred();
+
+			var profileurl = $('.user_avatar')[0].href || $('.user_avatar a')[0].href,
+				expire_time = parseInt(Date.now() / 1000, 10) - 12 * 60 * 60, // 12 hours
+				expire_time_wl = parseInt(Date.now() / 1000, 10) - 120, // 2 minutes
+				last_updated = expire_time - 1,
+				on_sale_count = 0;
+
+			chrome.storage.local.get("wishlist_apps_on_sale", function(cache){
+				if (cache.wishlist_apps_on_sale !== undefined) {
+					on_sale_count = cache.wishlist_apps_on_sale.count;
+					last_updated = cache.wishlist_apps_on_sale.updated;
+				}
+
+				// If viewing the Wishlist take advantage of that and update the number of apps on sale
+				if (/\/wishlist(\/)?$/.test(window.location.pathname) && $("#save_action_enabled_1").length && last_updated < expire_time_wl) {
+					on_sale_count = $(".discount_block_inline").length;
+					//console.log("Updated from Wishlist page", on_sale_count);
+					count_set(on_sale_count);
+					deferred.resolve(on_sale_count);
+				// Pull the wishlist and count apps on sale if cache has expired
+				} else if (last_updated < expire_time) {
+					$.ajax({
+						url: profileurl + "wishlist/"
+					}).done(function(txt) {
+						var html = $.parseHTML(txt);
+						on_sale_count = $(html).find(".discount_block_inline").length;
+						//console.log("Updated from Store page", on_sale_count);
+						count_set(on_sale_count);
+						deferred.resolve(on_sale_count);
+					});
+				// Return from cache
+				} else {
+					//console.log("Returned from Storage", on_sale_count);
+					deferred.resolve(on_sale_count);
+				}
+			});
+
+			return deferred.promise();
+		}
+
+		function count_set(count) {
+			chrome.storage.local.set({wishlist_apps_on_sale: {count: count, updated: parseInt(Date.now() / 1000, 10)}});
+			//console.log("Set to", count);
+		}
+
+		if ($('#wishlist_item_count_value').length || forceGet) {
+			count_get().done(function(count) {
+				if (count > 0 && $('#wishlist_item_count_value').length) {
+					// Tooltip (is "of which" in locale correct?)
+					localized_strings.wishlist_count = "You have <b>__wishlist_count__</b> apps in your wishlist, of which <b>__wishlist_on_sale__</b> are on sale";
+					$('#wishlist_link').attr("data-store-tooltip", localized_strings.wishlist_count.replace("__wishlist_count__", $('#wishlist_item_count_value').text()).replace("__wishlist_on_sale__", count));
+					runInPageContext(function() { BindStoreTooltip( $J('[data-store-tooltip]') ); });
+
+					$('#wishlist_item_count_value').append(' <span class="es-discounted-count discount_pct">' + count + '</span>');
+				}
+			});
+		}
+	}
+}
+
 function add_wishlist_discount_sort() {
 	if ($("#wishlist_sort_options").find("a[href$='price']").length > 0) {
 		$("#wishlist_sort_options").find("a[href$='price']").after("&nbsp;&nbsp;<label id='es_wl_sort_discount'><a>" + localized_strings.discount + "</a></label>");
@@ -1887,6 +1952,7 @@ function add_enhanced_steam_options() {
 	$clear_cache_link.click(function(){
 		localStorage.clear();
 		chrome.storage.local.remove("user_currency");
+		chrome.storage.local.remove("wishlist_apps_on_sale");
 		location.reload();
 	});
 
@@ -4740,7 +4806,7 @@ function dlc_data_from_site(appid) {
 			var html = "<div class='block'><div class='block_header'><h4>" + localized_strings.dlc_details + "</h4></div><div class='block_content'><div class='block_content_inner'><div class='details_block'>";
 
 			if (data) {
-				.each(data["dlc"], function(index, value) {
+				$.each(data["dlc"], function(index, value) {
 					html += "<div class='game_area_details_specs'><div class='icon'><img src='http://www.enhancedsteam.com/gamedata/icons/" + escapeHTML(value['icon']) + "' align='top'></div><a class='name' title='" + escapeHTML(value['text']) + "'>" + escapeHTML(index) + "</a></div>";
 				});
 			}
@@ -8347,6 +8413,7 @@ $(document).ready(function(){
 					hide_trademark_symbols();
 					set_html5_video();
 					get_store_session();
+					wishlist_on_sale_count();
 					break;
 
 				case "steamcommunity.com":
@@ -8365,6 +8432,7 @@ $(document).ready(function(){
 							add_wishlist_ajaxremove();
 							add_wishlist_pricehistory();
 							add_wishlist_notes();
+							wishlist_on_sale_count(true);
 
 							// Wishlist highlights
 							load_inventory().done(function() {

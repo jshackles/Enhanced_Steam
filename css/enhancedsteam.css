@@ -319,8 +319,8 @@ input[type=checkbox].es_dlc_selection:checked + label {
 }
 
 #es_dlc_option_panel {
-    background: url(http://cdn.steamcommunity.com/public/images/profile/profile_header_bg_texture.jpg);    
-    border-bottom: 1px solid black;
+	background: url(http://cdn.steamcommunity.com/public/images/profile/profile_header_bg_texture.jpg);	
+	border-bottom: 1px solid black;
 }
 
 .es_dlc_option {
@@ -537,9 +537,9 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	-webkit-appearance: none;
 	border: none;
 	-webkit-transition: width 1s ease-in-out;
-    -moz-transition: width 1s ease-in-out;
-    -o-transition: width 1s ease-in-out;
-    transition: width 1s ease-in-out;
+	-moz-transition: width 1s ease-in-out;
+	-o-transition: width 1s ease-in-out;
+	transition: width 1s ease-in-out;
 }
 #es_progress.error, #es_progress.complete {
 	width:14px;
@@ -833,16 +833,16 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	background: url('//steamcommunity-a.akamaihd.net/public/images/sharedfiles/ico_follow_tiled_lrg.png');
 }
 .performance-graph {
-    margin-top: -10px;
-    background: linear-gradient(135deg, rgba(97,100,101,0.3) 0%,rgba(226,244,255,0.3) 100%);
-    width: 98%;
-    border-radius: 6px;
-    border: 1px solid #524f4e;
-    overflow: hidden;
+	margin-top: -10px;
+	background: linear-gradient(135deg, rgba(97,100,101,0.3) 0%,rgba(226,244,255,0.3) 100%);
+	width: 98%;
+	border-radius: 6px;
+	border: 1px solid #524f4e;
+	overflow: hidden;
 }
 .performance-graph .row {
-    height: 18px;
-    overflow: hidden;
+	height: 18px;
+	overflow: hidden;
 }
 .performance-graph .row .nvidia {
 	background: #72b100;
@@ -859,17 +859,17 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	 background: black;
 }
 .performance-graph .left-bar {
-    height: 100%;
-    text-align: center;
-    float: left;
-    position:relative;
+	height: 100%;
+	text-align: center;
+	float: left;
+	position:relative;
 }
 .performance-graph .right-bar {
-    background: rgba(0,0,0,0.0);
-    min-width:30px;
-    height: 100%;
-    text-align: left;
-    float: left;
+	background: rgba(0,0,0,0.0);
+	min-width:30px;
+	height: 100%;
+	text-align: left;
+	float: left;
 }
 .performance-graph .right-bar span {
 	padding-left: 5px;
@@ -912,14 +912,14 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	bottom: 0;
 }
 .es_recentAchievements .achieveBar {
-    background: #3a3a3a;
-    padding: 1px;
-    border: 1px solid #aeaeae;
-    width: 176.9px;
+	background: #3a3a3a;
+	padding: 1px;
+	border: 1px solid #aeaeae;
+	width: 176.9px;
 }
 .es_recentAchievements .achieveBarProgress {
-    height: 8px;
-    background-color: #aeaeae;
+	height: 8px;
+	background-color: #aeaeae;
 }
 
 #es_customize_btn {
@@ -959,6 +959,7 @@ input[type=checkbox].es_dlc_selection:checked + label {
 
 /***************************************
  * Groups page
+ * groups_leave_options()
  **************************************/
 .es-group-leave-button {
 	background: linear-gradient(to bottom, #a4d007 5%, #536904 95%);
@@ -1022,3 +1023,19 @@ input[type=checkbox].es_dlc_selection:checked + label {
 }
 .es-leave-options button:focus {outline: none}
 .es-leave-options button:disabled {opacity: .6}
+
+/***************************************
+ * Store pages
+ * wishlist_on_sale_count()
+ **************************************/
+.es-discounted-count {
+	display: inline !important;
+	padding: 0 4px 1px 4px;
+	color: #fff !important;
+	border-radius: 2px;
+	font-size: 11px;
+	opacity: 0.8;
+}
+#wishlist_link:hover .es-discounted-count {
+	opacity: 1;
+}
