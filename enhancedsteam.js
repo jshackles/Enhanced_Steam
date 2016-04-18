@@ -1325,8 +1325,24 @@ function add_wishlist_filter() {
 }
 
 // Show the number of wishlisted apps on sale
-function wishlist_on_sale_count(forceGet) { // "forceGet" is for attempting a cache update from any page, we use it on Wishlist page
+// - "tryUpdate" is for attempting a cache update from any page even if
+//   there is no element to attach the count to, we use it on Wishlist page
+// - "forceUpdate" updates the cache regardless of cache expiry date
+// TODO: Maybe add an option to add or substract from current count
+// saved in cache when adding/removing apps to/from Wishlist to avoid
+// requesting the whole Wishlist page again every time. It's much faster
+function wishlist_on_sale_count(tryUpdate, forceUpdate) {
 	if (is_signed_in) {
+		// Force the count to update when adding/removing apps to/from WL
+		// still not working properly when there is no cache, needs more testing
+		var on_add_to_wishlist = new MutationObserver(function(mutations) {
+			//console.log('"Add to wishlist" button state changed');
+			wishlist_on_sale_count(false, true);
+		});
+		if ($("#add_to_wishlist_area_success").length) {
+			on_add_to_wishlist.observe($("#add_to_wishlist_area_success")[0], {attributes: true, attributeFilter: ['style'], childList: false, subtree: false});
+		}
+					
 		function count_get() {
 			var deferred = new $.Deferred();
 
@@ -1334,7 +1350,7 @@ function wishlist_on_sale_count(forceGet) { // "forceGet" is for attempting a ca
 				expire_time = parseInt(Date.now() / 1000, 10) - 12 * 60 * 60, // 12 hours
 				expire_time_wl = parseInt(Date.now() / 1000, 10) - 120, // 2 minutes
 				last_updated = expire_time - 1,
-				on_sale_count = 0;
+				on_sale_count = total_count = 0;
 
 			chrome.storage.local.get("wishlist_apps_on_sale", function(cache){
 				if (cache.wishlist_apps_on_sale !== undefined) {
@@ -1343,21 +1359,24 @@ function wishlist_on_sale_count(forceGet) { // "forceGet" is for attempting a ca
 				}
 
 				// If viewing the Wishlist take advantage of that and update the number of apps on sale
-				if (/\/wishlist(\/)?$/.test(window.location.pathname) && $("#save_action_enabled_1").length && last_updated < expire_time_wl) {
+				if (/\/wishlist(\/)?$/.test(window.location.pathname) && $("#save_action_enabled_1").length && (last_updated < expire_time_wl || forceUpdate)) {
 					on_sale_count = $(".discount_block_inline").length;
 					//console.log("Updated from Wishlist page", on_sale_count);
 					count_set(on_sale_count);
+					on_add_to_wishlist.disconnect();
 					deferred.resolve(on_sale_count);
 				// Pull the wishlist and count apps on sale if cache has expired
-				} else if (last_updated < expire_time) {
+				} else if (last_updated < expire_time || forceUpdate) {
 					$.ajax({
 						url: profileurl + "wishlist/"
 					}).done(function(txt) {
 						var html = $.parseHTML(txt);
 						on_sale_count = $(html).find(".discount_block_inline").length;
+						total_count = $(html).find(".wishlistRow").length;
 						//console.log("Updated from Store page", on_sale_count);
 						count_set(on_sale_count);
-						deferred.resolve(on_sale_count);
+						on_add_to_wishlist.disconnect();
+						deferred.resolve(on_sale_count, total_count);
 					});
 				// Return from cache
 				} else {
@@ -1374,12 +1393,21 @@ function wishlist_on_sale_count(forceGet) { // "forceGet" is for attempting a ca
 			//console.log("Set to", count);
 		}
 
-		if ($('#wishlist_item_count_value').length || forceGet) {
-			count_get().done(function(count) {
+		if ($('#wishlist_item_count_value').length || tryUpdate) {
+			count_get().done(function(count, total) {
 				if (count > 0 && $('#wishlist_item_count_value').length) {
 					// Tooltip (is "of which" in locale correct?)
 					localized_strings.wishlist_count = "You have <b>__wishlist_count__</b> apps in your wishlist, of which <b>__wishlist_on_sale__</b> are on sale";
-					$('#wishlist_link').attr("data-store-tooltip", localized_strings.wishlist_count.replace("__wishlist_count__", $('#wishlist_item_count_value').text()).replace("__wishlist_on_sale__", count));
+					// We need to remove and create the element again to reset the tooltip
+					if ($('.es-discounted-count').length) {
+						$('.es-discounted-count').remove();
+						if (total !== undefined) {
+							$('#wishlist_item_count_value')[0].innerText = total;
+						}
+						var elTemp = $('#wishlist_link').clone();
+						$('#wishlist_link').after(elTemp).remove();
+					}
+					$('#wishlist_link').attr("data-store-tooltip", localized_strings.wishlist_count.replace("__wishlist_count__", $('#wishlist_item_count_value')[0].firstChild.nodeValue).replace("__wishlist_on_sale__", count));
 					runInPageContext(function() { BindStoreTooltip( $J('[data-store-tooltip]') ); });
 
 					$('#wishlist_item_count_value').append(' <span class="es-discounted-count discount_pct">' + count + '</span>');
