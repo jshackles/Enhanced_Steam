@@ -215,6 +215,7 @@
     "leave_group_admin_confirm": "You are Admin in this group: __groupname__\nAre you sure you want to leave?",
     "wrong_try_again": "Something went wrong. Please try again.",
     "join_group": "Join Group",
+    "wishlist_counts_tooltip": "You have <b>__wishlist_total__</b> apps on your wishlist, <b>__wishlist_on_sale__</b> are on sale",
     "achievements": {
         "option": "Show achievements on store pages",
         "achievements": "Achievements",

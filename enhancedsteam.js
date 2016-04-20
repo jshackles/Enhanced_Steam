@@ -1330,9 +1330,20 @@ var wishlist_on_sale_count = (function() {
 	$(document).on("click", "#clear_on_sale", function(e){
 		e.preventDefault();
 
-		chrome.storage.local.remove("wishlist_apps_on_sale");
+		chrome.storage.local.remove("wishlist_counts");
 		console.log("Cleared on sale cache");		
 	});*/
+
+	function count_set(wishlist_sale, wishlist_total) {
+		chrome.storage.local.set({
+			wishlist_counts: {
+				total: wishlist_total,
+				onSale: wishlist_sale,
+				updated: parseInt(Date.now() / 1000, 10)
+			}
+		});
+		//console.info("Storage set to", wishlist_sale, "on sale and", wishlist_total, "total");
+	}
 
 	function get(options){
 		//console.info('"get" was called');
@@ -1344,28 +1355,17 @@ var wishlist_on_sale_count = (function() {
 			var settings = $.extend({}, defaults, options || {});
 			//console.log(settings);
 
-			var profileurl = $('.user_avatar')[0].href || $('.user_avatar a')[0].href,
+			var profileurl = $(".user_avatar")[0].href || $(".user_avatar a")[0].href,
 				expire_time = parseInt(Date.now() / 1000, 10) - 12 * 60 * 60, // 12 hours
 				expire_time_wl = parseInt(Date.now() / 1000, 10) - 120, // 2 minutes
 				last_updated = expire_time - 1,
 				wishlist_sale = wishlist_total = 0;
 
-			function count_set(wishlist_sale, wishlist_total) {
-				chrome.storage.local.set({
-					wishlist_apps_on_sale: {
-						wltotal: wishlist_total,
-						count: wishlist_sale,
-						updated: parseInt(Date.now() / 1000, 10)
-					}
-				});
-				//console.info("Storage set to", wishlist_sale, "on sale and", wishlist_total, "total");
-			}
-
-			chrome.storage.local.get("wishlist_apps_on_sale", function(cache){
-				if (cache.wishlist_apps_on_sale !== undefined) {
-					wishlist_sale = cache.wishlist_apps_on_sale.count;
-					wishlist_total = cache.wishlist_apps_on_sale.wltotal;
-					last_updated = cache.wishlist_apps_on_sale.updated;
+			chrome.storage.local.get("wishlist_counts", function(cache){
+				if (cache.wishlist_counts !== undefined) {
+					wishlist_sale = cache.wishlist_counts.onSale;
+					wishlist_total = cache.wishlist_counts.total;
+					last_updated = cache.wishlist_counts.updated;
 				}
 
 				// If viewing the Wishlist take advantage of that and update the number of apps on sale
@@ -1388,6 +1388,8 @@ var wishlist_on_sale_count = (function() {
 						//console.info("Updated from a Store page", wishlist_sale, "on sale", wishlist_total, "total");
 						count_set(wishlist_sale, wishlist_total);
 						deferred.resolve(wishlist_sale, wishlist_total);
+					}).fail(function(){
+						deferred.resolve();
 					});
 				// Return from cache
 				} else {
@@ -1405,9 +1407,12 @@ var wishlist_on_sale_count = (function() {
 		//console.info('"display" was called');
 		if (is_signed_in) {
 			// Make sure the element we want to add the count to exists
-			if ($('#wishlist_item_count_value').length) {
+			if ($("#wishlist_item_count_value").length) {
 				get().done(function(wishlist_sale, wishlist_total) {
-					updateView(wishlist_sale, wishlist_total);
+					// No need to updateView if there is not valid data
+					if (wishlist_sale !== undefined && wishlist_total !== undefined) {
+						updateView(wishlist_sale, wishlist_total);
+					}
 				});
 			}
 		}
@@ -1416,7 +1421,7 @@ var wishlist_on_sale_count = (function() {
 	function updateView(wishlist_sale, wishlist_total){
 		//console.info('"updateView" was called');
 		// Make sure there are apps on sale and that the element we want to add the count to exists
-		if (wishlist_sale > 0 && $('#wishlist_item_count_value').length) {
+		if ($("#wishlist_item_count_value").length) {
 			// Monitor for adding/removing apps to/from wishlist
 			if ($("#add_to_wishlist_area").length) {
 				var on_wishlist_change = new MutationObserver(function() {
@@ -1425,7 +1430,7 @@ var wishlist_on_sale_count = (function() {
 						//console.info('"Add to wishlist" button state changed');
 						var ammount = ($("#add_to_wishlist_area").is(":visible") ? -1 : 1);
 						var is_on_sale = false;
-						if ($('.game_purchase_action:first').find('.discount_block').length) {
+						if ($(".game_purchase_action:first").find(".discount_block").length) {
 							is_on_sale = true;
 						}
 
@@ -1437,48 +1442,40 @@ var wishlist_on_sale_count = (function() {
 				on_wishlist_change.observe($("#add_to_wishlist_area")[0], {attributes: true, attributeFilter: ['style'], childList: false, subtree: false});
 			}
 
-			// Tooltip (is "of which" in locale correct?)
-			localized_strings.wishlist_count = "You have <b>__wishlist_count__</b> apps in your wishlist, of which <b>__wishlist_on_sale__</b> are on sale";
-
-			var wlLinkSel = '#wishlist_link';
+			var wlLinkSel = "#wishlist_link";
 			// We need to remove and re-insert the Wishlist link to reset the toolip
-			if ($('.es-discounted-count').length) { // don't do it the first time, after page was loaded
-				$('.es-discounted-count').remove();
+			if ($(".es-discounted-count").length) { // don't do it the first time(after page was loaded)
+				$(".es-discounted-count").remove();
 				// Change wishlist total
-				$('#wishlist_item_count_value').text(wishlist_total);
+				$("#wishlist_item_count_value").text(wishlist_total);
 
 				$(wlLinkSel).after($(wlLinkSel).clone()).remove();
 			}
-			$(wlLinkSel).attr("data-store-tooltip", localized_strings.wishlist_count.replace("__wishlist_count__", wishlist_total).replace("__wishlist_on_sale__", wishlist_sale));
-			runInPageContext(function() { BindStoreTooltip( $J('[data-store-tooltip]') ); });
+			$(wlLinkSel).attr("data-store-tooltip", localized_strings.wishlist_counts_tooltip.replace("__wishlist_total__", wishlist_total).replace("__wishlist_on_sale__", wishlist_sale));
+			runInPageContext(function() { BindStoreTooltip( $J("[data-store-tooltip]") ); });
 
 			// Insert total on sale
-			$('#wishlist_item_count_value').append(' <span class="es-discounted-count discount_pct">' + wishlist_sale + '</span>');
+			$("#wishlist_item_count_value").append(' <span class="es-discounted-count discount_pct">' + wishlist_sale + '</span>');
 		}
 	}
 
 	function changeBy(ammount, is_on_sale) {
 		//console.info('"changeBy" was called');
 		if (is_signed_in) {
-			chrome.storage.local.get("wishlist_apps_on_sale", function(cache){
+			chrome.storage.local.get("wishlist_counts", function(cache){
 				// The cache has be there already
-				if (cache.wishlist_apps_on_sale !== undefined) {
-					wishlist_sale = cache.wishlist_apps_on_sale.count;
-					wishlist_total = cache.wishlist_apps_on_sale.wltotal;
+				if (cache.wishlist_counts !== undefined) {
+					wishlist_sale = cache.wishlist_counts.onSale;
+					wishlist_total = cache.wishlist_counts.total;
 
 					if (Number.isInteger(ammount)) {
-						wishlist_total = wishlist_total + ammount;
+						// We prevent negative numbers, just to be safe
+						wishlist_total = Math.max(0, wishlist_total + ammount);
 						if (is_on_sale) {
-							wishlist_sale = wishlist_sale + ammount;
+							wishlist_sale = Math.max(0, wishlist_sale + ammount);
 						}
 
-						chrome.storage.local.set({
-							wishlist_apps_on_sale: {
-								wltotal: wishlist_total,
-								count: wishlist_sale,
-								updated: parseInt(Date.now() / 1000, 10)
-							}
-						});
+						count_set(wishlist_sale, wishlist_total);
 
 						//console.info("Changed count by", ammount, "to", wishlist_sale, "on sale" + (is_on_sale ? "(changed)" : "(not changed)") + " and", wishlist_total, "total");
 						updateView(wishlist_sale, wishlist_total);
