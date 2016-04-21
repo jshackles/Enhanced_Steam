@@ -2064,7 +2064,7 @@ function add_enhanced_steam_options() {
 	$clear_cache_link.click(function(){
 		localStorage.clear();
 		chrome.storage.local.remove("user_currency");
-		chrome.storage.local.remove("wishlist_apps_on_sale");
+		chrome.storage.local.remove("wishlist_counts");
 		location.reload();
 	});
 
