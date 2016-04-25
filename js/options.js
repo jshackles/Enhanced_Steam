@@ -36,6 +36,7 @@ function save_options() {
 	hideinstallsteambutton = $("#hideinstallsteambutton").prop('checked');
 	hideaboutmenu = $("#hideaboutmenu").prop('checked');
 	replaceaccountname = $("#replaceaccountname").prop('checked');
+	show_onsale_count = $("#show_onsale_count").prop('checked');
 	showfakeccwarning = $("#showfakeccwarning").prop('checked');
 	showlanguagewarning = $("#showlanguagewarning").prop('checked');
 	showlanguagewarninglanguage = $("#warning_language").val();
@@ -185,6 +186,7 @@ function save_options() {
 		'hideinstallsteambutton': hideinstallsteambutton,
 		'hideaboutmenu': hideaboutmenu,
 		'replaceaccountname': replaceaccountname,
+		'show_onsale_count': show_onsale_count,
 		'showfakeccwarning': showfakeccwarning,
 		'showlanguagewarning': showlanguagewarning,
 		'showlanguagewarninglanguage': showlanguagewarninglanguage,
@@ -432,6 +434,7 @@ function load_options() {
 		if (settings.hideinstallsteambutton === undefined) { settings.hideinstallsteambutton = false; storage.set({'hideinstallsteambutton': settings.hideinstallsteambutton}); }
 		if (settings.hideaboutmenu === undefined) { settings.hideaboutmenu = false; storage.set({'hideaboutmenu': settings.hideaboutmenu}); }
 		if (settings.replaceaccountname === undefined) { settings.replaceaccountname = false; storage.set({'replaceaccountname': settings.replaceaccountname}); }
+		if (settings.show_onsale_count === undefined) { settings.show_onsale_count = false; storage.set({'show_onsale_count': settings.show_onsale_count}); }
 		if (settings.showfakeccwarning === undefined) { settings.showfakeccwarning = true; storage.set({'showfakeccwarning': settings.showfakeccwarning}); }
 		if (settings.showlanguagewarning === undefined) { settings.showlanguagewarning = true; storage.set({'showlanguagewarning': settings.showlanguagewarning}); }
 		if (settings.showlanguagewarninglanguage === undefined) { settings.showlanguagewarninglanguage = "English"; storage.set({'showlanguagewarninglanguage': settings.showlanguagewarninglanguage}); }
@@ -503,6 +506,7 @@ function load_options() {
 		$("#hideinstallsteambutton").prop('checked', settings.hideinstallsteambutton);
 		$("#hideaboutmenu").prop('checked', settings.hideaboutmenu);
 		$("#replaceaccountname").prop('checked', settings.replaceaccountname);
+		$("#show_onsale_count").prop('checked', settings.show_onsale_count);
 		$("#showfakeccwarning").prop('checked', settings.showfakeccwarning);
 		$("#showlanguagewarning").prop('checked', settings.showlanguagewarning);
 		$("#warning_language").val(settings.showlanguagewarninglanguage);
@@ -677,6 +681,7 @@ function load_translation() {
 			$("#store_hide_install_text").text(localized_strings.options.hide_install);
 			$("#store_hide_about_menu").text(localized_strings.options.hide_about);
 			$("#store_replace_account_name").text(localized_strings.options.replace_account_name);
+			$("#show_onsale_count_text").text(localized_strings.options.show_onsale_count_text);
 			$("#store_general").text(localized_strings.options.general);
 			$("#header_showfakeccwarning_text").text(localized_strings.options.show_regionwarning);
 			$("#store_show_languagewarning_text").text(localized_strings.options.show_languagewarning);

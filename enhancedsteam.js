@@ -1333,6 +1333,15 @@ var wishlist_on_sale_count = (function() {
 		chrome.storage.local.remove("wishlist_counts");
 		console.log("Cleared on sale cache");		
 	});*/
+	var is_enabled = false;
+	storage.get(function(settings) {
+		if (settings.show_onsale_count === undefined) {
+			is_enabled = true;
+			storage.set({'show_onsale_count': is_enabled});
+		} else {
+			is_enabled = settings.show_onsale_count;
+		}
+	});
 
 	function count_set(wishlist_sale, wishlist_total) {
 		chrome.storage.local.set({
@@ -1348,7 +1357,7 @@ var wishlist_on_sale_count = (function() {
 	function get(options){
 		//console.info('"get" was called');
 		var deferred = new $.Deferred();
-		if (is_signed_in) {
+		if (is_signed_in && is_enabled) {
 			var defaults = {
 				forceUpdate : false
 			}
@@ -1405,7 +1414,7 @@ var wishlist_on_sale_count = (function() {
 
 	function display(){
 		//console.info('"display" was called');
-		if (is_signed_in) {
+		if (is_signed_in && is_enabled) {
 			// Make sure the element we want to add the count to exists
 			if ($("#wishlist_item_count_value").length) {
 				get().done(function(wishlist_sale, wishlist_total) {
@@ -1421,7 +1430,7 @@ var wishlist_on_sale_count = (function() {
 	function updateView(wishlist_sale, wishlist_total){
 		//console.info('"updateView" was called');
 		// Make sure there are apps on sale and that the element we want to add the count to exists
-		if ($("#wishlist_item_count_value").length) {
+		if (is_signed_in && is_enabled && $("#wishlist_item_count_value").length) {
 			// Monitor for adding/removing apps to/from wishlist
 			if ($("#add_to_wishlist_area").length) {
 				var on_wishlist_change = new MutationObserver(function() {
@@ -1461,7 +1470,7 @@ var wishlist_on_sale_count = (function() {
 
 	function changeBy(ammount, is_on_sale) {
 		//console.info('"changeBy" was called');
-		if (is_signed_in) {
+		if (is_signed_in && is_enabled) {
 			chrome.storage.local.get("wishlist_counts", function(cache){
 				// The cache has be there already
 				if (cache.wishlist_counts !== undefined) {
