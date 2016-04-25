@@ -1324,6 +1324,185 @@ function add_wishlist_filter() {
 	});
 }
 
+// Show the number of wishlisted apps on sale
+var wishlist_on_sale_count = (function() {
+	/*$('#store_header .content').prepend('<a id="clear_on_sale" style="float: left; cursor: pointer;">Clear on sale cache</a>');
+	$(document).on("click", "#clear_on_sale", function(e){
+		e.preventDefault();
+
+		chrome.storage.local.remove("wishlist_counts");
+		console.log("Cleared on sale cache");		
+	});*/
+	var is_enabled = false;
+	storage.get(function(settings) {
+		if (settings.show_onsale_count === undefined) {
+			is_enabled = true;
+			storage.set({'show_onsale_count': is_enabled});
+		} else {
+			is_enabled = settings.show_onsale_count;
+		}
+	});
+
+	function count_set(wishlist_sale, wishlist_total) {
+		chrome.storage.local.set({
+			wishlist_counts: {
+				total: wishlist_total,
+				onSale: wishlist_sale,
+				updated: parseInt(Date.now() / 1000, 10)
+			}
+		});
+		//console.info("Storage set to", wishlist_sale, "on sale and", wishlist_total, "total");
+	}
+
+	function get(options){
+		//console.info('"get" was called');
+		var deferred = new $.Deferred();
+		if (is_signed_in && is_enabled) {
+			var defaults = {
+				forceUpdate : false
+			}
+			var settings = $.extend({}, defaults, options || {});
+			//console.log(settings);
+
+			var profileurl = $(".user_avatar")[0].href || $(".user_avatar a")[0].href,
+				expire_time = parseInt(Date.now() / 1000, 10) - 12 * 60 * 60, // 12 hours
+				expire_time_wl = parseInt(Date.now() / 1000, 10) - 120, // 2 minutes
+				last_updated = expire_time - 1,
+				wishlist_sale = wishlist_total = 0;
+
+			chrome.storage.local.get("wishlist_counts", function(cache){
+				if (cache.wishlist_counts !== undefined) {
+					wishlist_sale = cache.wishlist_counts.onSale;
+					wishlist_total = cache.wishlist_counts.total;
+					last_updated = cache.wishlist_counts.updated;
+				}
+
+				// If viewing the Wishlist take advantage of that and update the number of apps on sale
+				if (/\/wishlist(\/)?$/.test(window.location.pathname) && $("#save_action_enabled_1").length && (last_updated < expire_time_wl || settings.forceUpdate)) {
+					wishlist_sale = $(".discount_block_inline").length;
+					wishlist_total = $(".wishlistRow").length;
+
+					//console.info("Updated from Wishlist page", wishlist_sale, "on sale", wishlist_total, "total");
+					count_set(wishlist_sale, wishlist_total);
+					deferred.resolve(wishlist_sale, wishlist_total);
+				// Pull the wishlist and count apps on sale if cache has expired
+				} else if (last_updated < expire_time || settings.forceUpdate) {
+					$.ajax({
+						url: profileurl + "wishlist/"
+					}).done(function(txt) {
+						var html = $.parseHTML(txt);
+						wishlist_sale = $(html).find(".discount_block_inline").length;
+						wishlist_total = $(html).find(".wishlistRow").length;
+
+						//console.info("Updated from a Store page", wishlist_sale, "on sale", wishlist_total, "total");
+						count_set(wishlist_sale, wishlist_total);
+						deferred.resolve(wishlist_sale, wishlist_total);
+					}).fail(function(){
+						deferred.resolve();
+					});
+				// Return from cache
+				} else {
+					//console.info("Returned from Storage", wishlist_sale, "on sale", wishlist_total, "total");
+					deferred.resolve(wishlist_sale, wishlist_total);
+				}
+			});
+		} else {
+			deferred.resolve();
+		}
+		return deferred.promise();
+	}
+
+	function display(){
+		//console.info('"display" was called');
+		if (is_signed_in && is_enabled) {
+			// Make sure the element we want to add the count to exists
+			if ($("#wishlist_item_count_value").length) {
+				get().done(function(wishlist_sale, wishlist_total) {
+					// No need to updateView if there is not valid data
+					if (wishlist_sale !== undefined && wishlist_total !== undefined) {
+						updateView(wishlist_sale, wishlist_total);
+					}
+				});
+			}
+		}
+	}
+
+	function updateView(wishlist_sale, wishlist_total){
+		//console.info('"updateView" was called');
+		// Make sure there are apps on sale and that the element we want to add the count to exists
+		if (is_signed_in && is_enabled && $("#wishlist_item_count_value").length) {
+			// Monitor for adding/removing apps to/from wishlist
+			if ($("#add_to_wishlist_area").length) {
+				var on_wishlist_change = new MutationObserver(function() {
+					// Make sure the request has not failed
+					if (!$("#add_to_wishlist_area_fail").is(":visible")) {
+						//console.info('"Add to wishlist" button state changed');
+						var ammount = ($("#add_to_wishlist_area").is(":visible") ? -1 : 1);
+						var is_on_sale = false;
+						if ($(".game_purchase_action:first").find(".discount_block").length) {
+							is_on_sale = true;
+						}
+
+						changeBy(ammount, is_on_sale);
+					}
+					
+					this.disconnect();
+				});
+				on_wishlist_change.observe($("#add_to_wishlist_area")[0], {attributes: true, attributeFilter: ['style'], childList: false, subtree: false});
+			}
+
+			var wlLinkSel = "#wishlist_link";
+			// We need to remove and re-insert the Wishlist link to reset the toolip
+			if ($(".es-discounted-count").length) { // don't do it the first time(after page was loaded)
+				$(".es-discounted-count").remove();
+				// Change wishlist total
+				$("#wishlist_item_count_value").text(wishlist_total);
+
+				$(wlLinkSel).after($(wlLinkSel).clone()).remove();
+			}
+			$(wlLinkSel).attr("data-store-tooltip", localized_strings.wishlist_counts_tooltip.replace("__wishlist_total__", wishlist_total).replace("__wishlist_on_sale__", wishlist_sale));
+			runInPageContext(function() { BindStoreTooltip( $J("[data-store-tooltip]") ); });
+
+			// Insert total on sale
+			$("#wishlist_item_count_value").append(' <span class="es-discounted-count discount_pct">' + wishlist_sale + '</span>');
+		}
+	}
+
+	function changeBy(ammount, is_on_sale) {
+		//console.info('"changeBy" was called');
+		if (is_signed_in && is_enabled) {
+			chrome.storage.local.get("wishlist_counts", function(cache){
+				// The cache has be there already
+				if (cache.wishlist_counts !== undefined) {
+					wishlist_sale = cache.wishlist_counts.onSale;
+					wishlist_total = cache.wishlist_counts.total;
+
+					if (Number.isInteger(ammount)) {
+						// We prevent negative numbers, just to be safe
+						wishlist_total = Math.max(0, wishlist_total + ammount);
+						if (is_on_sale) {
+							wishlist_sale = Math.max(0, wishlist_sale + ammount);
+						}
+
+						count_set(wishlist_sale, wishlist_total);
+
+						//console.info("Changed count by", ammount, "to", wishlist_sale, "on sale" + (is_on_sale ? "(changed)" : "(not changed)") + " and", wishlist_total, "total");
+						updateView(wishlist_sale, wishlist_total);
+					}
+				} else {
+					//console.warn('Something went wrong, please refresh the page and try again!');
+				}
+			});
+		}
+	}
+	return {
+		get: get,
+		display: display,
+		updateView: updateView,
+		changeBy: changeBy
+	}
+})();
+
 function add_wishlist_discount_sort() {
 	if ($("#wishlist_sort_options").find("a[href$='price']").length > 0) {
 		$("#wishlist_sort_options").find("a[href$='price']").after("&nbsp;&nbsp;<label id='es_wl_sort_discount'><a>" + localized_strings.discount + "</a></label>");
@@ -1430,6 +1609,7 @@ function add_wishlist_ajaxremove() {
 		var session = decodeURIComponent(cookie.match(/sessionid=(.+?);/i)[1]);
 
 		$("#es_wishlist_remove_" + appid).on("click", function() {
+			var el = $(this);
 			$.ajax({
 				type:"POST",
 				url: window.location,
@@ -1448,6 +1628,12 @@ function add_wishlist_ajaxremove() {
 							$('.wishlist_rank')[i].value = $('.wishlist_rank')[i].value - 1;	
 						}
 					}
+					// Update the wishlist count
+					var is_on_sale = false;
+					if ($(el).parent().parent().find('.gameListPriceData .discount_block').length) {
+						is_on_sale = true;
+					}
+					wishlist_on_sale_count.changeBy(-1, is_on_sale);
 				}
 			});
 		});
@@ -1887,6 +2073,7 @@ function add_enhanced_steam_options() {
 	$clear_cache_link.click(function(){
 		localStorage.clear();
 		chrome.storage.local.remove("user_currency");
+		chrome.storage.local.remove("wishlist_counts");
 		location.reload();
 	});
 
@@ -8347,6 +8534,7 @@ $(document).ready(function(){
 					hide_trademark_symbols();
 					set_html5_video();
 					get_store_session();
+					wishlist_on_sale_count.display();
 					break;
 
 				case "steamcommunity.com":
@@ -8365,6 +8553,7 @@ $(document).ready(function(){
 							add_wishlist_ajaxremove();
 							add_wishlist_pricehistory();
 							add_wishlist_notes();
+							wishlist_on_sale_count.get();
 
 							// Wishlist highlights
 							load_inventory().done(function() {
