@@ -50,6 +50,7 @@ function save_options() {
 	showpcgw = $("#showpcgw").prop('checked');
 	showclient = $("#showclient").prop('checked');
 	showsteamcardexchange = $("#showsteamcardexchange").prop('checked');
+	add_chat_link = $("#add_chat_link").prop('checked');
 	showsteamdb = $("#showsteamdb").prop('checked');
 	showastatslink = $("#showastatslink").prop('checked');
 	showwsgf = $("#showwsgf").prop('checked');
@@ -199,6 +200,7 @@ function save_options() {
 		'showpcgw': showpcgw,
 		'showclient': showclient,
 		'showsteamcardexchange': showsteamcardexchange,
+		'add_chat_link': add_chat_link,
 		'showsteamdb': showsteamdb,
 		'showastatslink': showastatslink,
 		'showwsgf': showwsgf,
@@ -417,6 +419,7 @@ function load_options() {
 		if (settings.showpcgw === undefined) { settings.showpcgw = true; storage.set({'showpcgw': settings.showpcgw}); }
 		if (settings.showclient === undefined) { settings.showclient = true; storage.set({'showclient': settings.showclient}); }
 		if (settings.showsteamcardexchange === undefined) { settings.showsteamcardexchange = false; storage.set({'showsteamcardexchange': settings.showsteamcardexchange}); }
+		if (settings.add_chat_link === undefined) { settings.add_chat_link = true; storage.set({'add_chat_link': settings.add_chat_link}); }
 		if (settings.showsteamdb === undefined) { settings.showsteamdb = true; storage.set({'showsteamdb': settings.showsteamdb}); }
 		if (settings.showastatslink === undefined) { settings.showastatslink = true; storage.set({'showastatslink': settings.showastatslink}); }
 		if (settings.showwsgf === undefined) { settings.showwsgf = true; storage.set({'showwsgf': settings.showwsgf}); }
@@ -517,6 +520,7 @@ function load_options() {
 		$("#showpcgw").prop('checked', settings.showpcgw);
 		$("#showclient").prop('checked', settings.showclient);
 		$("#showsteamcardexchange").prop('checked', settings.showsteamcardexchange);
+		$("#add_chat_link").prop('checked', settings.add_chat_link);
 		$("#showsteamdb").prop('checked', settings.showsteamdb);
 		$("#showastatslink").prop('checked', settings.showastatslink);
 		$("#showwsgf").prop('checked', settings.showwsgf);
@@ -768,6 +772,7 @@ function load_translation() {
 			$("#show_spamcommentregex").text("("+localized_strings.customize+")");
 			$("#spamcommentregex_default").text(localized_strings.theworddefault);
 			$("#steamcardexchange_text").text(localized_strings.options.steamcardexchange);
+			$("#add_chat_link_text").text(localized_strings.options.add_chat_link);
 			$("#wlbuttoncommunityapp_text").text(localized_strings.options.wlbuttoncommunityapp);
 			$("#removeguideslanguagefilter_text").text(localized_strings.options.removeguideslanguagefilter);
 			$("#show1clickgoo_text").text(localized_strings.options.show1clickgoo);

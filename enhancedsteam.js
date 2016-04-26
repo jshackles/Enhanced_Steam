@@ -3622,6 +3622,15 @@ function add_steamcardexchange_link(appid){
 		}
 	});
 }
+		
+function add_chat_link() {
+	storage.get(function(settings) {
+		if (settings.add_chat_link === undefined) { settings.add_chat_link = true; storage.set({'showchatlink': settings.add_chat_link}); }
+		if (settings.add_chat_link) {
+			$(".submenu_username .submenuitem:nth-of-type(3)").after('<a class="submenuitem" style="cursor: pointer" onclick="window.open(\'https://steamcommunity.com/chat/\', \'SteamWebChat\', \'height=790,width=1015,resize=yes,scrollbars=yes\')">Chat</a>');
+		}
+	});
+}
 
 function add_app_page_highlights() {
 	storage.get(function(settings) {		
@@ -8229,6 +8238,7 @@ $(document).ready(function(){
 				add_birthday_celebration();
 				launch_random_button();
 				add_itad_button();
+				add_chat_link();
 			}			
 
 			// Attach event to the logout button
