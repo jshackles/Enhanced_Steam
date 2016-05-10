@@ -267,6 +267,7 @@
     "options": {
         "wsgf": "Show WSGF (Widescreen) info",
         "steamcardexchange": "Show SteamCardExchange links on badges",
+        "add_chat_link": "Add a Chat link to the account menu",
         "regional_price": "Regional Price Comparison",
         "acrtag": "Show warnings on items where cross region trading is disabled",
         "excludef2p": "Exclude free to play games from highlighting",
