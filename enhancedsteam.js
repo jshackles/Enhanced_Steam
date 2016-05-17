@@ -740,11 +740,11 @@ function highlight_notinterested(node) {
 				if (settings.tag_notinterested_color === undefined) { settings.tag_notinterested_color = "#e02b3c"; storage.set({'tag_notinterested_color': settings.tag_notinterested_color}); }
 				if (settings.tag_notinterested === undefined) { settings.tag_notinterested = true; storage.set({'tag_notinterested': settings.tag_notinterested}); }
 				if (settings.tag_notinterested) add_tag(node, localized_strings.tag.notinterested, settings.tag_notinterested_color);
-			
+
 				// Hide not interested search results
 				if (settings.hide_notinterested === undefined) { settings.hide_notinterested = false; storage.set({'hide_notinterested': settings.hide_notinterested}); }
-			
-				if ($(node).hasClass("search_result_row") && settings.hide_notinterested == true) {
+
+				if ($(node).hasClass("search_result_row") && settings.hide_notinterested === true) {
 					$(node).css("display", "none");
 				}
 			}
@@ -761,8 +761,11 @@ function hexToRgb(hex) {
 	} : null;
 }
 
+var highlight_css_loaded = false;
+
 function highlight_node(node, color) {
 	var $node = $(node);
+
 	storage.get(function(settings) {
 		if (settings.highlight_excludef2p === undefined) { settings.highlight_excludef2p = false; storage.set({'highlight_excludef2p': settings.highlight_excludef2p}); }
 		if (settings.highlight_excludef2p) {
@@ -782,6 +785,21 @@ function highlight_node(node, color) {
 					return;
 				}
 			}
+		}
+
+		if (!highlight_css_loaded) {
+			highlight_css_loaded = true;
+
+			var hlCss = "",
+				hlColor = "",
+				hlNames = ["coupon", "inv_gift", "inv_guestpass", "notinterested", "owned", "wishlist"];
+			
+			$(hlNames).each(function (id, name) {
+				hlColor = hexToRgb(settings["highlight_" + name + "_color"]);
+				hlCss += '.es_highlight_' + name + ' { background: linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(' + hlColor.r + ', ' + hlColor.g + ', ' + hlColor.b + ', 0.8) 100%) !important; }\n';
+			});
+
+			$("head").append('<style id="es_highlight_styles" type="text/css">' + hlCss + '</style>');
 		}
 			
 		// Carousel item
@@ -809,14 +827,7 @@ function highlight_node(node, color) {
 			}
 		}
 
-		var rgb = hexToRgb(color);
-
-		$node.css("backgroundImage", "none");
-		$node.css("background", "linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba("+rgb.r+","+rgb.g+","+rgb.b+",0.8) 100%)");
-
-		$(node).find("img").css("opacity", "1");
-		$(node).find(".search_capsule").css("opacity", "1");
-		$(node).find(".ds_flag").remove();
+		$(node).addClass("es_highlighted").find(".ds_flag").remove();
 
 		// Set text colour to not conflict with highlight
 		if (node.classList.contains("tab_item")) $node.find("div").css("color", "lightgrey");
