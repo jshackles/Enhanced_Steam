@@ -1429,3 +1429,16 @@ input[type=checkbox].es_dlc_selection:checked + label {
 #save_action_enabled_2 {
 	margin-top: -10px;
 }
+
+
+/***************************************
+ * Store and Community
+ * highlight_node()
+ **************************************/
+.es_highlighted .ds_flag {
+	display: none !important;
+}
+.es_highlighted img,
+.es_highlighted .search_capsule {
+	opacity: 1 !important;
+}
