@@ -792,7 +792,7 @@ function highlight_node(node, color) {
 
 			var hlCss = "",
 				hlColor = "",
-				hlNames = ["coupon", "inv_gift", "inv_guestpass", "notinterested", "owned", "wishlist"];
+				hlNames = ["notinterested", "owned", "wishlist", "inv_guestpass", "coupon", "inv_gift"];
 			
 			$(hlNames).each(function (id, name) {
 				hlColor = hexToRgb(settings["highlight_" + name + "_color"]);
@@ -801,7 +801,7 @@ function highlight_node(node, color) {
 
 			$("head").append('<style id="es_highlight_styles" type="text/css">' + hlCss + '</style>');
 		}
-			
+
 		// Carousel item
 		if (node.classList.contains("cluster_capsule")) {
 			$node = $(node).find(".main_cap_content").parent();
