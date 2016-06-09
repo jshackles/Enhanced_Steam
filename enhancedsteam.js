@@ -3887,6 +3887,16 @@ function add_background_preview_link() {
 		}
 	}
 }
+function scmSapicButton() {
+    var viewFullButton = $("#largeiteminfo_item_actions").find("a");
+    if (viewFullButton.length) {
+        var href = viewFullButton.attr('href');
+        var bgLink = /public\/images\/items/.test($(viewFullButton).attr("href"));
+        if (bgLink) {
+            viewFullButton.after('<a class="scm_sapic_button btn_small btn_grey_white_innerfade" target="_blank" href="http://sapic.github.io/#' + href + '"><span>Preview On Sapic</span></a>');
+        }
+    }
+}
 
 function hide_activity_spam_comments() {
 	var blotter_content_observer = new WebKitMutationObserver(function(mutations) {
@@ -4619,7 +4629,31 @@ function inventory_market_helper(response) {
 	var html;
 
 	var thisItem = "#item" + global_id +"_"+ contextID +"_"+ assetID;
-
+	
+	//Preview on Sapic from Inventories
+	setInterval(function() {
+		var itemActions = $(".inventory_iteminfo").find(".item_desc_content").find(".item_desc_description").find("#iteminfo1_item_actions");
+		var viewFullButton = $(itemActions).find("a").first();
+		if (viewFullButton.length) {
+			var bgLink = /public\/images\/items/.test($(viewFullButton).attr("href"));
+			var href = viewFullButton.attr('href');
+			if (bgLink && !(itemActions).find(".inv_sapic_button:not(#iteminfo0_item_actions)").length) {
+				viewFullButton.after('<a class="inv_sapic_button btn_small btn_grey_white_innerfade" target="_blank" href="http://sapic.github.io/#' + href + '"><span>Preview On Sapic</span></a>');
+			}
+		}	
+	}, 200);
+	setInterval(function() {
+		var itemActions = $(".inventory_iteminfo").find(".item_desc_content").find(".item_desc_description").find("#iteminfo0_item_actions");
+		var viewFullButton = $(itemActions).find("a").first();
+		if (viewFullButton.length) {
+			var bgLink = /public\/images\/items/.test($(viewFullButton).attr("href"));
+			var href = viewFullButton.attr('href');
+			if (bgLink && !(itemActions).find(".inv_sapic_button:not(#iteminfo1_item_actions)").length) {
+				viewFullButton.after('<a class="inv_sapic_button btn_small btn_grey_white_innerfade" target="_blank" href="http://sapic.github.io/#' + href + '"><span>Preview On Sapic</span></a>');
+			}
+		}
+	}, 200);
+	
 	// Set as background option
 	var sideActs = $("#iteminfo" + item + "_item_actions");
 	var link = $(sideActs).find("a").first();
@@ -8967,6 +9001,7 @@ $(document).ready(function(){
 							add_relist_button();
 							keep_ssa_checked();
 							add_background_preview_link();
+							scmSapicButton();
 							break;
 
 						case /^\/app\/[^\/]*\/guides/.test(path):
