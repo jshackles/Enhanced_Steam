@@ -3915,6 +3915,17 @@ function add_metacritic_userscore() {
 	});
 }
 
+// Add positive review percentage to user reviews summary
+function add_review_summary_percentage() {
+	storage.get(function(settings) {
+		if (settings.showpercentage === undefined) { settings.showpercentage = false; storage.set({'showpercentage': settings.showpercentage}); }
+		if (settings.showpercentage) {
+			// Get text (# reviews) and replace "(" with percentage in tooltip
+			$("#game_highlights").find(".responsive_hidden").text($("#game_highlights").find(".responsive_hidden").text().replace("(","("+($("#game_highlights").find(".nonresponsive_hidden.responsive_reviewdesc").text().match(/..%/)+" of ")));
+		}
+	});
+}
+
 // Add Steam user review score
 function add_steamreview_userscore(appid) {
 	if ($(".game_area_dlc_bubble,.noReviewsYetTitle").length === 0) {
@@ -8717,6 +8728,7 @@ $(document).ready(function(){
 
 							drm_warnings("app");
 							add_metacritic_userscore();
+							add_review_summary_percentage();
 							add_steamreview_userscore(appid);
 							display_purchase_date();
 
