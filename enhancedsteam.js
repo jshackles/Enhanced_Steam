@@ -1,4 +1,4 @@
-var version = "8.6";
+var version = "8.7";
 
 var console_info = ["%c Enhanced %cSteam v" + version + " by jshackles %c http://www.enhancedsteam.com ", "background: #000000;color: #7EBE45", "background: #000000;color: #ffffff", ""];
 console.log.apply(console, console_info);
@@ -132,7 +132,7 @@ var signed_in_promise = (function () {
 						setValue("steamID", is_signed_in);
 					}
 					deferred.resolve();
-				});
+				}, { xhrFields: {withCredentials: true} });
 			}
 		} else {
 			deferred.resolve();
@@ -581,14 +581,17 @@ var profileData = (function() {
 		data = cache_get(steamid);
 		if (data) {
 			deferred.resolveWith(data);
-		} else {
+		} else if (steamid) {
 			var apiurl = "//api.enhancedsteam.com/profiledata/?steam64=" + steamid;
 			get_http(apiurl, function(txt) {
 				data = JSON.parse(txt);
 				cache_set(steamid, data);
 				deferred.resolveWith(data);
-			}).fail(deferred.reject);
+			}).fail(deferred.reject());
+		} else {
+			deferred.reject();
 		}
+
 		return deferred.promise();
 	}
 	function get(api, callback) {
@@ -8665,9 +8668,6 @@ function skip_got_steam() {
 
 $(document).ready(function(){
 	var path = window.location.pathname.replace(/\/+/g, "/");
-
-	// Don't interfere with Storefront API requests
-	if (path.startsWith("/api")) return;
 
 	$.when(localization_promise, signed_in_promise, currency_promise).done(function(){
 			// On window load
