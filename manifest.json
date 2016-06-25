@@ -6,6 +6,11 @@
         "128": "img/enhancedsteam.png"
     },
     "manifest_version": 2,
+    "applications": {
+        "gecko": {
+            "id": "firefox@enhancedsteam.com"
+        }
+    },
     "options_page": "options.html",
     "permissions": [
         "storage",
