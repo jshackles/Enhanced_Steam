@@ -463,7 +463,9 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	float: right;
 	margin-top: 55px;
 	-webkit-appearance: none;
+	-moz-appearance: none;
 	border: none;
+	border-radius: 8px; 
 	-webkit-transition: width 1s ease-in-out;
 	-moz-transition: width 1s ease-in-out;
 	-o-transition: width 1s ease-in-out;
@@ -487,6 +489,19 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	border-radius: 0px;
 	box-shadow: 0 1px 0px 0 rgba(255, 255, 255, 0.2);
 }
+
+#es_progress::-moz-progress-bar {
+	background: black;
+	border-radius: 8px;
+	box-shadow: 0 1px 0px 0 rgba(255, 255, 255, 0.2);
+	background-color: #5c7836;
+}
+#es_progress.error::-moz-progress-bar {
+	background-color: #B31414;
+	border-radius: 0px;
+	box-shadow: 0 1px 0px 0 rgba(255, 255, 255, 0.2);
+}
+
 #es-lightbox {
 	position: fixed;
 	top: 0;
@@ -1451,6 +1466,7 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	top: 4px;
 	left: 4px;
 	background: no-repeat url("chrome-extension://__MSG_@@extension_id__/img/pinn.png");
+	background: no-repeat url("moz-extension://__MSG_@@extension_id__/img/pinn.png");
 }
 .wishlistRow:hover .es_wishlist_note {
 	color: #EEEEEE;
@@ -1509,11 +1525,13 @@ input[type=checkbox].es_dlc_selection:checked + label {
  **************************************/
 .es_birthday #logo_holder img {
 	background: url("chrome-extension://__MSG_@@extension_id__/img/birthday_logo.png") no-repeat;
+	background: url("moz-extension://__MSG_@@extension_id__/img/birthday_logo.png") no-repeat;
 	padding: 28px 0;
 	margin-top: -28px;
 }
 .es_birthday.es_store_front #global_header:before {
 	background: url("chrome-extension://__MSG_@@extension_id__/img/birthday_bg.png") repeat-x;
+	background: url("moz-extension://__MSG_@@extension_id__/img/birthday_bg.png") repeat-x;
 	content: "";
 	display: block;
 	position: absolute;
@@ -1620,6 +1638,7 @@ input[type=checkbox].es_dlc_selection:checked + label {
 .es_regional_icon {
 	padding-left: 23px !important;
 	background: no-repeat url("chrome-extension://__MSG_@@extension_id__/img/flags/world.png") 8px 8px !important;
+	background: no-repeat url("moz-extension://__MSG_@@extension_id__/img/flags/world.png") 8px 8px !important;
 }
 .es_regional_icon.price {
 	padding-left: 30px !important;
@@ -1679,6 +1698,7 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	position: relative;
 	display: inline-block;
 	background: no-repeat url("chrome-extension://__MSG_@@extension_id__/img/arrows.png") top left;
+	background: no-repeat url("moz-extension://__MSG_@@extension_id__/img/arrows.png") top left;
 }
 .es_percentage_higher:before {
 	background-position: 0 -4px;

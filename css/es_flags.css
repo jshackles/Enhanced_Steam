@@ -6,6 +6,7 @@
 	margin-right: 4px;
 	display: inline-block;
 	background: no-repeat url("chrome-extension://__MSG_@@extension_id__/img/flags/flags.png") top left;
+	background: no-repeat url("moz-extension://__MSG_@@extension_id__/img/flags/flags.png") top left;
 }
 
 .es_flag.es_flag_ad:before {background-position: -16px 0}
