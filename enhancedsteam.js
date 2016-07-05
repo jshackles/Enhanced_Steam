@@ -3958,6 +3958,16 @@ function add_steam_client_link(appid) {
 	});
 }
 
+// Add link to game's page on steamspy.com
+function add_steamspy_link(appid) {
+	storage.get(function(settings) {
+		if (settings.showsteamspy === undefined) { settings.showsteamspy = true; storage.set({'showsteamspy': settings.showsteamspy}); }
+		if (settings.showsteamspy) {
+			$('#ReportAppBtn').parent().prepend('<a class="btnv6_blue_hoverfade btn_medium steam_client_btn" href="http://steamspy.com/app/' + appid + '" style="display: block; margin-bottom: 6px;"><span><i class="ico16" style="background-image:url(http://steamspy.com/pages/ico/60.png); background-size: cover;"></i>&nbsp;&nbsp; ' + localized_strings.steamspy_link.replace("__steamspy__","SteamSpy") + '</span></a>');
+		}
+	});
+}
+
 // Add link to Steam Card Exchange
 function add_steamcardexchange_link(appid){
 	storage.get(function(settings) {
@@ -8845,6 +8855,7 @@ $(document).ready(function(){
 							add_widescreen_certification(appid);
 							add_hltb_info(appid);
 							add_steam_client_link(appid);
+							add_steamspy_link(appid);
 							add_pcgamingwiki_link(appid);
 							add_steamcardexchange_link(appid);
 							add_app_page_highlights();

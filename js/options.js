@@ -90,6 +90,7 @@ var settings_defaults = {
 	"showmcus": true,
 	"showhltb": true,
 	"showpcgw": true,
+	"showsteamspy": true,
 	"showclient": true,
 	"showsteamcardexchange": false,
 	"showsteamdb": true,
