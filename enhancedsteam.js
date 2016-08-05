@@ -5013,7 +5013,7 @@ function inventory_market_helper(response) {
 			$sideMarketActs.show().html("<img class='es_loading' src='//steamcommunity-a.akamaihd.net/public/images/login/throbber.gif' />");
 
 			// "View in market" link
-			html += "<div style='height: 24px;'><a href='//steamcommunity.com/market/listings/" + global_id + "/" + hash_name + "'>" + localized_strings.view_in_market + "</a></div>";
+			html += $("<div/>").css("height", "24px").append($("<a/>").attr("href", "//steamcommunity.com/market/listings/" + global_id + "/" + hash_name).html(localized_strings.view_in_market))[0].outerHTML;
 
 			// Check if price is stored in data
 			if (dataLowest) {
