@@ -141,6 +141,7 @@ var settings_defaults = {
 	"show_profile_link_images": "gray",
 	"profile_steamrepcn": true,
 	"profile_steamgifts": true,
+	"profile_steamtrades": true,
 	"profile_steamrep": true,
 	"profile_steamdbcalc": true,
 	"profile_astats": true,
