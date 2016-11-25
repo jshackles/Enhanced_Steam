@@ -2121,6 +2121,16 @@ function send_age_verification() {
 	});
 }
 
+// Automatically confirms Age Gate verification
+function disable_age_gate() {
+	storage.get(function(settings) {
+		if (settings.disable_age_gate === undefined) { settings.disable_age_gate = true; storage.set({'disable_age_gate': settings.disable_age_gate}); }
+		if (settings.disable_age_gate && $("#age_gate_btn_continue").length) {
+			$("#age_gate_btn_continue").click();
+		}
+	});
+}
+
 // Display Steam Wallet funds in header
 function add_wallet_balance_to_header() {
 	storage.get(function(settings) {
@@ -9538,6 +9548,10 @@ $(document).ready(function(){
 							load_inventory().done(function() {
 								start_highlights_and_tags();
 							});	
+							break;
+
+						case /^\/app\/[0-9]+\/discussions/.test(path):
+							disable_age_gate();
 							break;
 
 						case /^\/chat\//.test(path):
