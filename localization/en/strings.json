@@ -508,5 +508,16 @@
         "dont_show": "Don't Show Again",
         "updated": "Enhanced Steam has been updated to __version__",
         "changes": "This release includes the following changes"
+    },
+    "quickbadge":{
+      "complete_lvl":"Complete level",
+      "complete_badge":"Complete badge!",
+      "current_lvl":"Current level",
+      "cards_total":"Cards in badge",
+      "cards_for_level":"Need for level",
+      "cards_for_badge":"Need for badge",
+      "price_for_level":"Price for one level",
+      "price_for_card":"Price for one item",
+      "refresh_requests":"Refresh existings requests"
     }
 }

@@ -9354,6 +9354,344 @@ function disable_link_filter() {
 	}
 }
 
+// Show button for quick buy cards on badge page
+function add_gamecard_quickbadge(game){
+	storage.get(function(settings) {
+		if (settings.hideactivelistings === undefined) { settings.show_gamecard_quickbadge = false; storage.set({'show_gamecard_quickbadge': settings.show_gamecard_quickbadge}); }
+		var currentLevel = getCurLevel();
+		if (!settings.show_gamecard_quickbadge || currentLevel === 5) {
+			return;
+		}
+		
+		var text = localized_strings.quickbadge;
+		
+		var form = $("<div/>", {
+			class: "badge_detail_tasks",
+			style: "padding: 10px"
+		});
+		var formFooter = $("<div/>", {
+			class: "badge_detail_tasks footer"
+		});
+		var btnBuyLevelAll = jQuery("<button/>", {
+			text: text.complete_lvl
+		});
+		var btnBuyBadgeAll = jQuery("<button/>", {
+			text: text.complete_badge 
+		});
+		var byPriceCardField = jQuery("<input/>", {
+			type: "number",
+			value: "1.0"
+		});
+		var byPriceBadgeField = jQuery("<input/>", {
+			type: "number",
+			value: "10.0"
+		});
+		var totalCardsField = jQuery("<strong/>", {
+			text: "0"
+		});
+		var curLevelField = jQuery("<strong/>", {
+			text: currentLevel
+		});
+		var forNextLevelField = jQuery("<strong/>", {
+			text: "0"
+		});
+		var forFullCompleteField = jQuery("<strong/>", {
+			text: "0"
+		});
+		var isRefreshOffersField = jQuery("<input/>", {
+			type: "checkbox",
+			checked: true,
+			value: "1"
+		});
+		
+		var table = $("<table/>").append(
+				$("<tr/>")
+					.append(
+						$("<td/>")
+							.append(
+								$("<div/>")
+									.append($("<label/>", {text: text.price_for_level}))
+									.append(byPriceBadgeField)
+							)
+							.append(
+								$("<div/>")
+									.append($("<label/>", {text: text.price_for_card}))
+									.append(byPriceCardField)
+							)
+							.append(
+								$("<div/>")
+									.append($("<label/>", {text: text.refresh_requests}).append(isRefreshOffersField))
+							)
+					)
+					.append(
+						$("<td/>")
+							.append($("<div/>").append(btnBuyLevelAll))
+							.append($("<div/>").append(btnBuyBadgeAll))
+					)
+			);
+				
+		form.addClass("badge_detail_tasks")
+			.addClass("es_gamecard_quickbadge_block")
+			.append(
+				$("<div/>")
+					.addClass("es_gamecard_quickbadge_item")
+					.append($("<label/>", {text: text.current_lvl})).append(curLevelField)
+			)
+			.append(
+				$("<div/>")
+					.addClass("es_gamecard_quickbadge_item")
+					.append($("<label/>", {text: text.cards_total})).append(totalCardsField)
+			)
+			.append(
+				$("<div/>")
+					.addClass("es_gamecard_quickbadge_item")
+					.append($("<label/>", {text: text.cards_for_level})).append(forNextLevelField)
+			)
+			.append(
+				$("<div/>")
+					.addClass("es_gamecard_quickbadge_item")
+					.append($("<label/>", {text: text.cards_for_badge})).append(forFullCompleteField)
+			)
+			.append("<hr/>")
+			.append(table)
+			.insertBefore(".badge_detail_tasks_rule");
+	
+		formFooter.addClass("badge_detail_tasks footer")
+			.insertAfter(form);
+		
+		function getCurLevel() {
+			if ($(".badge_empty_circle", ".badge_current").length === 1) {
+				return 0;
+			}
+			
+			return $.trim($(".badge_info_title", ".badge_current").next().text()).match(/\d+/)[0]-0;
+		}
+		
+		function buyItem(url, count, price) {
+			url = url + "#autobuy_count-" + count + "_price-" + price + ((isRefreshOffersField.prop("checked")) ? "_refresh" : "")
+			window.open(url);
+		}
+
+		var priceType = (user_currency == "USD") ? "price" : "price_" + user_currency.toLowerCase();
+		
+		get_http("//api.enhancedsteam.com/market_data/card_prices/?appid=" + game, function(txt) {
+			var data = JSON.parse(txt);
+			var cards = [];
+			
+			for (var i = 0; i < data.length; i++) {
+				var card = data[i];
+				
+				if (
+					card.name.length > 6
+					&& (card.name.indexOf('(Foil)') >= 0 || card.name.indexOf('(Foil Trading Card)') >= 0)
+					&& (card.name.indexOf('(Foil)') === card.name.length -6
+					|| card.name.indexOf('(Foil Trading Card)') === card.name.length -19)
+				) {
+					continue;
+				} else if (
+					card.name.indexOf('(Trading Card)') > 0
+					&& card.name.indexOf('(Trading Card)') === card.name.length -14
+				) {
+					card.name = $.trim(card.name.substring(0, card.name.length -14));
+				}
+				
+				cards.push({
+					name: card.name.replace(new RegExp("&quot;", 'g'), '"'),
+					url: "//steamcommunity.com/market/listings/" + card.url,
+					needForNext: 0,
+					needForFull: 0,
+					price: parseFloat(card[priceType])
+				});
+			}
+			
+			var forNextLevel = 0;
+			var forFullComplete = 0;
+			
+			$(".badge_card_set_card").each(function() {
+				var node = $(this);
+				var cardname = $(this).html().match(/(.+)<div style=\"/)[1].trim().replace(/&amp;/g, '&');
+				var cardsOwned = ($(".badge_card_set_text_qty", node).length) ?
+					$(".badge_card_set_text_qty", node).text().replace(/\D+/g, '')-0
+					: 0;
+				
+				//for (var i = 0; i < data.length; i++) {
+				cards.forEach(function(card) {
+					if (card.name === cardname) {
+						card.needForFull = 5-currentLevel-cardsOwned;
+						forFullComplete += card.needForFull;
+						
+						if (node.hasClass("unowned")) {
+							card.needForNext = 1;
+							forNextLevel++;
+						} else if (node.hasClass("owned")) {
+							card.needForNext = 0;
+						}
+					}
+				});
+			});
+			
+			totalCardsField.text(cards.length);
+			forNextLevelField.text(forNextLevel);
+			forFullCompleteField.text(forFullComplete);
+			
+			if (forNextLevel === 0) {
+				btnBuyLevelAll.prop("disabled", true);
+			}
+			
+			byPriceBadgeField.on("change", function() {
+				byPriceCardField.val(Math.round($(this).val()/cards.length * 100) / 100);
+			}).trigger("change");
+			
+			byPriceCardField.on("change", function() {
+				byPriceBadgeField.val($(this).val() * cards.length);
+			});
+			
+			btnBuyLevelAll.on("click", function(){
+				var i = 0;
+				setTimeout(function(){ window.close(); }, cards.length + 6100);
+				cards.forEach(function(card, idx, array) {
+					//console.log(card.name + ((card.needForNext) ? " buy" : " skip"));
+					if (card.needForNext) {
+						setTimeout(function(){
+							buyItem(card.url, 1, byPriceCardField.val());
+							
+							if (idx === array.length - 1) {
+								window.close();
+							}
+						}, (i * 6000));
+						i++;
+					}
+				});
+			});
+			
+			btnBuyBadgeAll.on("click", function(){
+				var i = 0;
+				setTimeout(function(){ window.close(); }, cards.length + 6100);
+				cards.forEach(function(card, idx, array) {
+					//console.log(card.name + ((card.needForFull > 0) ? " buy " + card.needForFull : " skip"));
+					if (card.needForFull > 0) {
+						setTimeout(function(){
+							buyItem(card.url, card.needForFull, byPriceCardField.val());
+							
+							if (idx === array.length - 1) {
+								window.close();
+							}
+						}, (i * 6000));
+						i++;
+					}
+				});
+			});
+			
+			if (location.hash === '#buy-all') {
+				btnBuyLevelAll.trigger("click");
+			}
+			
+		});
+	});
+}
+
+function items_autobuyout() {
+	if (location.hash.indexOf("autobuy") === 1) {
+		var options = {
+			price: 1,
+			count: 0,
+			refresh: false
+		};
+		
+		location.hash.split("_").forEach(function(part) {
+			var tmp = part.split("-");
+			if (tmp.length === 1) {
+				options[tmp[0]] = true;
+			} else if (tmp.length === 2) {
+				options[tmp[0]] = tmp[1];
+			} else {
+				var optName = tmp.shift();
+				options[optName] = tmp;
+			}
+		});
+		
+		var cancelButton = jQuery("#tabContentsMyListings>.market_home_listing_table:last").find(".market_listing_cancel_button a.item_market_action_button");
+		var sessionId = decodeURIComponent(cookie.match(/sessionid=(.+?);/i)[1]);
+		
+		if (options.refresh && cancelButton.length === 1) {
+			var orderId = cancelButton.prop("href").match(/(\d)+/)[0];
+			
+			jQuery.ajax({
+				url: "//steamcommunity.com/market/cancelbuyorder/",
+				method: "POST",
+				data: {
+					sessionid: sessionId,
+					buy_orderid: orderId
+				},
+				dataType: "json"
+			}).done(function() {
+				location.reload();
+			});
+			
+		} else if (jQuery(".market_commodity_buy_button:first").length === 1) {	
+			//console.log(jQuery(".market_commodity_buy_button:first").get(0));
+			fireClick(jQuery(".market_commodity_buy_button:first").get(0));
+			
+			setTimeout(function(){		
+				$("#market_buy_commodity_input_price").val(options.price).trigger("change").trigger("keypress");
+				$("#market_buy_commodity_input_quantity").val(options.count).trigger("change").trigger("keypress");
+				
+				if (!$("#market_buyorder_dialog_accept_ssa").prop("checked")) {
+					fireClick($("#market_buyorder_dialog_accept_ssa_label").get(0));
+				}			  
+				
+				setTimeout(function(){
+					fireClick($("#market_buyorder_dialog_purchase").get(0));
+					setTimeout(function(){ window.close(); }, 2000);
+				}, 1000);
+				
+			}, 1000);
+			
+			/*
+			@todo
+			now 400 bad request all time
+			runInPageContext(`
+				function () {
+					var o1 = g_rgAssets[Object.keys(g_rgAssets)[0]];
+					var o2 = o1[Object.keys(o1)[0]];
+					var data = o2[Object.keys(o2)[0]];
+			
+					jQuery.ajax({
+						url: "//steamcommunity.com/market/createbuyorder/",
+						method: "POST",
+						data: {
+							sessionid: g_sessionID,
+							currency: g_rgWalletInfo.wallet_currency,
+							appid: data.appid,
+							market_hash_name: data.market_hash_name,
+							price_total: ` + options.price*100 + `,
+							quantity: ` + options.count + `
+						},
+						dataType: "json"
+					}).fail(function() {
+						
+					});
+				}
+			`);
+			
+			setTimeout(function(){ window.close(); }, 1000); 
+			*/
+		} else {
+			setTimeout(function(){ window.close(); }, 1000);
+		}
+	}
+}
+
+function fireClick(el) {
+	if (el.fireEvent) {
+		el.fireEvent('onclick');
+	} else {
+		var evObj = document.createEvent('MouseEvents');	
+		evObj.initEvent("click", true, true);
+		el.dispatchEvent(evObj);
+	}
+}
+
 $(document).ready(function(){
 	var path = window.location.pathname.replace(/\/+/g, "/");
 
@@ -9593,6 +9931,7 @@ $(document).ready(function(){
 							add_gamecard_market_links(gamecard);
 							add_gamecard_foil_link();
 							add_trade_forum_link(gamecard);
+							add_gamecard_quickbadge(gamecard);
 							break;
 
 						case /^\/(?:id|profiles)\/.+\/friendsthatplay/.test(path):
@@ -9668,6 +10007,7 @@ $(document).ready(function(){
 							keep_ssa_checked();
 							add_background_preview_link();
 							add_market_sort();
+							items_autobuyout();
 							break;
 
 						case /^\/app\/[^\/]*\/guides/.test(path):

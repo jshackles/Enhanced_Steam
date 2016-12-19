@@ -2157,3 +2157,47 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	margin-top: 12px;
 	float: left;
 }
+
+.es_gamecard_quickbadge_block button {
+    width: 200px;
+    background-color: #5491cf;
+    display: inline-block;
+    border-radius: 5px;
+    border: 1px solid #27629d;
+    line-height: 32px;
+    height: 32px;
+    text-shadow: 1px 1px 2px #3c6dab;
+    color: #ffffff;
+    font-size: 14px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.es_gamecard_quickbadge_block > .es_gamecard_quickbadge_item {
+    max-width: 50%;
+    width: 50%;
+    display: inline-block;
+}
+
+.es_gamecard_quickbadge_block label {
+    padding: 2px 8px 2px 0;
+}
+
+.es_gamecard_quickbadge_block > table {
+    width: 100%;
+}
+
+.es_gamecard_quickbadge_block > table td:last-child {
+    text-align: right;
+}
+
+.es_gamecard_quickbadge_block hr {
+    margin: 6px 3px 6px 0;
+    height: 1px;
+    border: none;
+    border-top: 1px solid #000000;
+    background-color: #333333;
+}
