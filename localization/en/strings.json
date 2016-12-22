@@ -408,6 +408,7 @@
         "skip_got_steam": "Skip the 'Got Steam?' window",
         "store_general_thirdparty": "Options for information from 3rd party sites",
         "purchase_dates": "Show apps purchase date on store pages",
+        "disable_age_gate": "Disable the Age Gate in forums",
         "lang": {
             "english": "English",
             "brazilian": "Portuguese-Brazil",
