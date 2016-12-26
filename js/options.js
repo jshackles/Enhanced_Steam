@@ -121,7 +121,7 @@ var settings_defaults = {
 	"showdrm": true,
 	"show_acrtag_info": false,
 	"regional_hideworld": false,
-	"showinvnav": false,
+	"showinvnav": true,
 	"showesbg": true,
 	"quickinv": true,
 	"quickinv_diff": -0.01,
@@ -151,7 +151,8 @@ var settings_defaults = {
 	"profile_permalink": true,
 	"steamcardexchange": true,
 	"purchase_dates": true,
-	"add_wallet_balance": true
+	"add_wallet_balance": true,
+	"add_to_cart_wishlist": true
 };
 
 // Saves options to localStorage
