@@ -4827,16 +4827,23 @@ function add_lowest_market_price() {
 					if (data["success"]) {
 						node.find(".market_listing_es_lowest").html(data["lowest_price"]);
 						var my_price = parse_currency($(node).find(".market_listing_price span span:first").text().trim());
-						var low_price = parse_currency(node.find(".market_listing_es_lowest").text());
+						var low_price = parse_currency(data["lowest_price"]);
 
-						// Ours matches the lowest price
-						if (my_price.value <= low_price.value) {
+                        // Our price is lower than the lowest price
+						if (my_price.value < low_price.value) {
 							node.find(".market_listing_es_lowest").addClass("es_percentage_lower");
+                        	node.find(".market_listing_es_lowest").append("<br><span>(+" + formatCurrency(low_price.value - my_price.value) + ")</span>");
+						}
+                        
+						// Ours matches the lowest price
+						else if (my_price.value == low_price.value) {
+							node.find(".market_listing_es_lowest").addClass("es_percentage_equal");
 						}
 
 						// Our price is higher than the lowest price
-						if (my_price.value > low_price.value) {
+						else if (my_price.value > low_price.value) {
 							node.find(".market_listing_es_lowest").addClass("es_percentage_higher");
+                            node.find(".market_listing_es_lowest").append("<br><span>(-" + formatCurrency(my_price.value - low_price.value) + ")</span>");
 						}
 					}
 				});
@@ -4855,13 +4862,18 @@ function add_lowest_market_price() {
 							var my_price = parse_currency($(node).find(".market_listing_price span span:first").text().trim());
 							var low_price = parse_currency(node.find(".market_listing_es_lowest").text());
 
-							// Ours matches the lowest price
-							if (my_price.value <= low_price.value) {
+                            // Our price is lower than the lowest price
+							if (my_price.value < low_price.value) {
 								node.find(".market_listing_es_lowest").addClass("es_percentage_lower");
+							}
+                            
+							// Ours matches the lowest price
+							else if (my_price.value == low_price.value) {
+								node.find(".market_listing_es_lowest").addClass("es_percentage_equal");
 							}
 
 							// Our price is higher than the lowest price
-							if (my_price.value > low_price.value) {
+							else if (my_price.value > low_price.value) {
 								node.find(".market_listing_es_lowest").addClass("es_percentage_higher");
 							}
 						}
