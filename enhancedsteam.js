@@ -2848,6 +2848,8 @@ function add_community_profile_links() {
 				"link": `//backpack.tf/profiles/${ steamID }`,
 				"name": "Backpack.tf",
 			},
+			"opendota": {
+				"link": `//www.opendota.com/players/${ steamID.substr(3) - 61197960265728}`,
 				"name": "Opendota",
 			},
 			"astatsnl": {
