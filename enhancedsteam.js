@@ -2810,6 +2810,7 @@ function add_community_profile_links() {
 		if (settings.profile_steamdbcalc === undefined) { settings.profile_steamdbcalc = true; storage.set({'profile_steamdbcalc': settings.profile_steamdbcalc}); }
 		if (settings.profile_astats === undefined) { settings.profile_astats = true; storage.set({'profile_astats': settings.profile_astats}); }
 		if (settings.profile_backpacktf === undefined) { settings.profile_backpacktf = true; storage.set({'profile_backpacktf': settings.profile_backpacktf}); }
+		if (settings.profile_opendota === undefined) { settings.profile_opendota = false; storage.set({'profile_opendota': settings.profile_opendota}); }
 		if (settings.profile_astatsnl === undefined) { settings.profile_astatsnl = true; storage.set({'profile_astatsnl': settings.profile_astatsnl}); }
 		if (settings.profile_steamrepcn === undefined) { settings.profile_steamrepcn = true; storage.set({'profile_steamrepcn': settings.profile_steamrepcn}); }
 		
@@ -2846,6 +2847,8 @@ function add_community_profile_links() {
 			"backpacktf": {
 				"link": `//backpack.tf/profiles/${ steamID }`,
 				"name": "Backpack.tf",
+			},
+				"name": "Opendota",
 			},
 			"astatsnl": {
 				"link": `//astats.astats.nl/astats/User_Info.php?steamID64=${ steamID }`,
