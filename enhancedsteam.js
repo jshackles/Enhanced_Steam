@@ -2819,6 +2819,7 @@ function add_community_profile_links() {
 		if (settings.profile_backpacktf === undefined) { settings.profile_backpacktf = true; storage.set({'profile_backpacktf': settings.profile_backpacktf}); }
 		if (settings.profile_astatsnl === undefined) { settings.profile_astatsnl = true; storage.set({'profile_astatsnl': settings.profile_astatsnl}); }
 		if (settings.profile_steamrepcn === undefined) { settings.profile_steamrepcn = true; storage.set({'profile_steamrepcn': settings.profile_steamrepcn}); }
+		if (settings.profile_steamladder === undefined) { settings.profile_steamladder = true; storage.set({'profile_steamladder': settings.profile_steamladder}); }
 		
 		if (settings.profile_permalink === undefined) { settings.profile_permalink = true; storage.set({'profile_permalink': settings.profile_permalink}); }
 		
@@ -2857,6 +2858,10 @@ function add_community_profile_links() {
 			"astatsnl": {
 				"link": `//astats.astats.nl/astats/User_Info.php?steamID64=${ steamID }`,
 				"name": "AStats.nl",
+			},
+			"steamladder": {
+				"link": `//steamladder.com/profile/${ steamID }`,
+				"name": "SteamLadder",
 			}
 		};
 
