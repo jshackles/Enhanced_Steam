@@ -2160,3 +2160,15 @@ input[type=checkbox].es_dlc_selection:checked + label {
 	filter: brightness(350%);
 }
 
+/***************************************
+ * Chat page
+ * keep_chat_scroll_at_bottom()
+ **************************************/
+@keyframes esNewChatMessageAppears {
+	from {opacity: 0.99;}
+	to {opacity: 1;}
+}
+.chat_message {
+	animation-duration: 0.001s;
+	animation-name: esNewChatMessageAppears;
+}
