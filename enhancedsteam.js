@@ -3033,6 +3033,7 @@ function chat_dropdown_options(in_chat) {
 	}
 }
 
+function keep_chat_scroll_at_bottom() {
 	document.addEventListener('animationstart', function(event) {
 		if (event.animationName == "esNewChatMessageAppears") {
 			$(".chat_dialog:not([style*='none']) .chat_dialog_scroll").scrollTop($(".chat_dialog:not([style*='none']) .chat_dialog_content_inner").height());
@@ -9714,6 +9715,7 @@ $(document).ready(function(){
 
 						case /^\/chat\//.test(path):
 							chat_dropdown_options(true);
+							keep_chat_scroll_at_bottom();
 							break;
 
 						case /^\/(?:id|profiles)\/.+\/\b(home|myactivity|status)\b\/?$/.test(path):

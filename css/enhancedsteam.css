@@ -2162,8 +2162,9 @@ input[type=checkbox].es_dlc_selection:checked + label {
 
 /***************************************
  * Chat page
+ * keep_chat_scroll_at_bottom()
  **************************************/
- @keyframes esNewChatMessageAppears {
+@keyframes esNewChatMessageAppears {
 	from {opacity: 0.99;}
 	to {opacity: 1;}
 }
