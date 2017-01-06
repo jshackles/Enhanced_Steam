@@ -3033,6 +3033,13 @@ function chat_dropdown_options(in_chat) {
 	}
 }
 
+	document.addEventListener('animationstart', function(event) {
+		if (event.animationName == "esNewChatMessageAppears") {
+			$(".chat_dialog:not([style*='none']) .chat_dialog_scroll").scrollTop($(".chat_dialog:not([style*='none']) .chat_dialog_content_inner").height());
+		}
+	}, false);
+}
+
 function ingame_name_link() {
 	var $ingameAppIdSel = $("input[name='ingameAppID']");
 
