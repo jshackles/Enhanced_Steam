@@ -366,6 +366,7 @@
         "show_steamspy_info": "Show steamspy.com info",
         "showallachievements": "Show achievement stats on \"All Games\" page",
         "lowestprice_onwishlist": "Show on Wishlist",
+        "custom_profile_style": "Show custom profiles styling",
         "steamrepapi": "Show SteamRep status on profile pages",
         "header": "Header",
         "lowestprice": "Show",

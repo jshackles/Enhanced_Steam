@@ -4234,7 +4234,7 @@ function hide_spam_comments() {
 function add_steamrep_api() {
 	storage.get(function(settings) {
 		if (settings.showsteamrepapi === undefined) { settings.showsteamrepapi = true; storage.set({'showsteamrepapi': settings.showsteamrepapi}); }
-		if(settings.showsteamrepapi) {
+		if (settings.showsteamrepapi) {
 			profileData.get("steamrep", function(txt) {
 				if (txt == "") return;
 				if ($(".profile_in_game").length == 0) {
@@ -4258,33 +4258,37 @@ function add_nickname_link() {
 }
 
 function add_profile_style() {
-	if (!$(".profile_page.private_profile").length) {
-		profileData.get("profile_style", function(data) {
-			var txt = data.style;
-			var available_styles = ["clear", "green", "holiday2014", "orange", "pink", "purple", "red", "teal", "yellow", "blue"];
-			if ($.inArray(txt, available_styles) > -1) {
-				$("body").addClass("es_profile_style");
-				switch (txt) {
-					case "holiday2014":
-						$("head").append("<link rel='stylesheet' type='text/css' href='//steamcommunity-a.akamaihd.net/public/css/skin_1/holidayprofile.css'>");
-						$(".profile_header_bg_texture").append("<div class='holidayprofile_header_overlay'></div>");
-						$(".profile_page").addClass("holidayprofile");
-						$.getScript("//steamcommunity-a.akamaihd.net/public/javascript/holidayprofile.js").done(function() {
-							runInPageContext("function() { StartAnimation(); }");
-						});
-						break;
-					case "clear":
-						$("body").addClass("es_style_clear");
-						break;
-					default:
-						$("head").append("<link rel='stylesheet' type='text/css' href='" + chrome.extension.getURL("img/profile_styles/" + txt + "/style.css") + "'>");
-						$(".profile_header_bg_texture").css("background-image", "url('" + chrome.extension.getURL("img/profile_styles/" + txt + "/header.jpg") + "')");
-						$(".profile_customization").css("background-image", "url('" + chrome.extension.getURL("img/profile_styles/" + txt + "/showcase.png") + "')");
-						break;
+	storage.get(function(settings) {
+		if (settings.custom_profile_style === undefined) { settings.custom_profile_style = true; storage.set({'custom_profile_style': settings.custom_profile_style}); }
+		if (settings.custom_profile_style && !$(".profile_page.private_profile").length) {
+			profileData.get("profile_style", function(data) {
+				var txt = data.style;
+				var available_styles = ["clear", "green", "holiday2014", "orange", "pink", "purple", "red", "teal", "yellow", "blue"];
+
+				if ($.inArray(txt, available_styles) > -1) {
+					$("body").addClass("es_profile_style");
+					switch (txt) {
+						case "holiday2014":
+							$("head").append("<link rel='stylesheet' type='text/css' href='//steamcommunity-a.akamaihd.net/public/css/skin_1/holidayprofile.css'>");
+							$(".profile_header_bg_texture").append("<div class='holidayprofile_header_overlay'></div>");
+							$(".profile_page").addClass("holidayprofile");
+							$.getScript("//steamcommunity-a.akamaihd.net/public/javascript/holidayprofile.js").done(function() {
+								runInPageContext("function() { StartAnimation(); }");
+							});
+							break;
+						case "clear":
+							$("body").addClass("es_style_clear");
+							break;
+						default:
+							$("head").append("<link rel='stylesheet' type='text/css' href='" + chrome.extension.getURL("img/profile_styles/" + txt + "/style.css") + "'>");
+							$(".profile_header_bg_texture").css("background-image", "url('" + chrome.extension.getURL("img/profile_styles/" + txt + "/header.jpg") + "')");
+							$(".profile_customization").css("background-image", "url('" + chrome.extension.getURL("img/profile_styles/" + txt + "/showcase.png") + "')");
+							break;
+					}
 				}
-			}
-		});
-	}
+			});
+		}
+	});
 }
 
 function add_background_preview_link() {
