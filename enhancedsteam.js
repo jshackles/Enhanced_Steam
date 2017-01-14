@@ -2559,6 +2559,7 @@ function show_pricing_history(appid, type) {
 										}
 									}
 
+									var percent = data["price"]["cut"].toString();
 									if (settings.override_price != "auto") {
 										currencyConversion.load().done(function() {
 											lowest = currencyConversion.convert(data["price"]["price"], price_data[".meta"]["currency"], settings.override_price);
@@ -2568,7 +2569,7 @@ function show_pricing_history(appid, type) {
 										lowest = data["price"]["price"].toString();
 									}
 
-									line1 = localized_strings.lowest_price + ': ' + localized_strings.lowest_price_format.replace("__price__", formatCurrency(lowest, currency_type)).replace("__store__", '<a href="' + escapeHTML(data["price"]["url"].toString()) + '" target="_blank">' + escapeHTML(data["price"]["store"].toString()) + '</a>') + ' ' + activates + ' (<a href="' + escapeHTML(data["urls"]["info"].toString()) + '" target="_blank">' + localized_strings.info + '</a>)';
+									line1 = localized_strings.lowest_price + ': '+ localized_strings.lowest_price_format.replace("__price__", formatCurrency(lowest, currency_type)).replace("__percent__", percent).replace("__store__", '<a href="' + escapeHTML(data["price"]["url"].toString()) + '" target="_blank">' + escapeHTML(data["price"]["store"].toString()) + '</a>') + ' ' + activates + ' (<a href="' + escapeHTML(data["urls"]["info"].toString()) + '" target="_blank">' + localized_strings.info + '</a>)';
 									if (settings.showlowestpricecoupon) {
 										if (data["price"]["price_voucher"]) {
 											line1 = localized_strings.lowest_price + ': ' + localized_strings.lowest_price_format.replace("__price__", formatCurrency(lowest, currency_type)).replace("__store__", '<a href="' + escapeHTML(data["price"]["url"].toString()) + '" target="_blank">' + escapeHTML(data["price"]["store"].toString()) + '</a>') + ' ' + localized_strings.after_coupon + ' <b>' + escapeHTML(data["price"]["voucher"].toString()) + '</b> ' + activates + ' (<a href="' + escapeHTML(data["urls"]["info"].toString()) + '" target="_blank">' + localized_strings.info + '</a>)';
@@ -2578,6 +2579,7 @@ function show_pricing_history(appid, type) {
 
 								// "Historical Low"
 								if (data["lowest"]) {
+									var percenth = percenth = data["lowest"]["cut"].toString();
 									if (settings.override_price != "auto") {
 										currencyConversion.load().done(function() {
 											lowesth = currencyConversion.convert(data["lowest"]["price"], price_data[".meta"]["currency"], settings.override_price);
@@ -2588,7 +2590,7 @@ function show_pricing_history(appid, type) {
 									}
 
 									recorded = new Date(data["lowest"]["recorded"]*1000);
-									line2 = localized_strings.historical_low + ': ' + localized_strings.historical_low_format.replace("__price__", formatCurrency(lowesth, currency_type)).replace("__store__", escapeHTML(data["lowest"]["store"].toString())).replace("__date__", recorded.toLocaleDateString()) + ' (<a href="' + escapeHTML(data["urls"]["history"].toString()) + '" target="_blank">' + localized_strings.info + '</a>)';
+									line2 = localized_strings.historical_low + ': ' + localized_strings.historical_low_format.replace("__price__", formatCurrency(lowesth, currency_type)).replace("__percent__", percenth).replace("__store__", escapeHTML(data["lowest"]["store"].toString())).replace("__date__", recorded.toLocaleDateString()) + ' (<a href="' + escapeHTML(data["urls"]["history"].toString()) + '" target="_blank">' + localized_strings.info + '</a>)';
 								}
 
 								html = "<div class='es_lowest_price' id='es_price_" + subid + "'><div class='gift_icon' id='es_line_chart_" + subid + "'><img src='" + chrome.extension.getURL("img/line_chart.png") + "'></div>";
