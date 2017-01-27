@@ -152,7 +152,9 @@ var settings_defaults = {
 	"purchase_dates": true,
 	"add_wallet_balance": true,
 	"add_to_cart_wishlist": true,
-	"show_badge_progress": true
+	"show_badge_progress": true,
+	"show_wishlist_link": true,
+	"show_wishlist_count": true
 };
 
 // Saves options to localStorage
@@ -278,7 +280,7 @@ function load_options() {
 
 		toggle_stores();
 		populate_regional_selects();
-		
+
 		if (!changelog_loaded) {		
 			$.get('changelog.txt', function(data) {
 				$("#changelog_text").after("<textarea rows=28 cols=100 readonly>" + data + "</textarea>");
@@ -288,6 +290,8 @@ function load_options() {
 
 		load_translation();
 		load_profile_link_images();
+
+		parentOfInit();
 	});
 }
 
@@ -490,6 +494,23 @@ function load_default_countries() {
 		$("#saved").stop(true,true).fadeIn().delay(600).fadeOut();
 	});	
 }
+
+function parentOfInit() {
+	$("[data-parent-of]").each(function() {
+		var groupSel = $(this).data("parent-of"),
+			state = !$(this).is(":checked");
+		
+		$(groupSel).toggleClass("disabled", state).find("input, select").prop("disabled", state);
+	});
+
+	$("[data-parent-of]").on("change", function(){
+		var groupSel = $(this).data("parent-of"),
+			state = !$(this).is(":checked");
+
+		$(groupSel).toggleClass("disabled", state).find("input, select").prop("disabled", state);
+	});
+}
+
 
 $(document).ready(function(){
 	load_options();
