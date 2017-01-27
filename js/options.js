@@ -261,15 +261,17 @@ function load_options() {
 			storage.set({"stores": settings_defaults.stores});
 		}
 
+		parentOfInit();
+
 		// Set the value or state for each input
 		$("[data-setting]").each(function(){
 			var setting = $(this).data("setting");
 
 			if (settings_defaults.hasOwnProperty(setting)) {
 				if ($(this).is(":checkbox")) {
-					$(this).prop('checked', settings[setting]);
+					$(this).prop('checked', settings[setting]).trigger("change");
 				} else {
-					$(this).val(settings[setting]);
+					$(this).val(settings[setting]).trigger("change");
 				}
 			}
 		});
@@ -291,7 +293,7 @@ function load_options() {
 		load_translation();
 		load_profile_link_images();
 
-		parentOfInit();
+		
 	});
 }
 
@@ -496,12 +498,6 @@ function load_default_countries() {
 }
 
 function parentOfInit() {
-	$("[data-parent-of]").each(function() {
-		var groupSel = $(this).data("parent-of"),
-			state = !$(this).is(":checked");
-		
-		$(groupSel).toggleClass("disabled", state).find("input, select").prop("disabled", state);
-	});
 
 	$("[data-parent-of]").on("change", function(){
 		var groupSel = $(this).data("parent-of"),
