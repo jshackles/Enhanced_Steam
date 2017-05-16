@@ -2772,6 +2772,7 @@ function add_community_profile_links() {
 	storage.get(function(settings) {
 		if (settings.profile_steamgifts === undefined) { settings.profile_steamgifts = true; storage.set({'profile_steamgifts': settings.profile_steamgifts}); }
 		if (settings.profile_steamtrades === undefined) { settings.profile_steamtrades = true; storage.set({'profile_steamtrades': settings.profile_steamtrades}); }
+		if (settings.profile_barter === undefined) { settings.profile_barter = true; storage.set({'profile_barter': settings.profile_barter}); }
 		if (settings.profile_steamrep === undefined) { settings.profile_steamrep = true; storage.set({'profile_steamrep': settings.profile_steamrep}); }
 		if (settings.profile_steamdbcalc === undefined) { settings.profile_steamdbcalc = true; storage.set({'profile_steamdbcalc': settings.profile_steamdbcalc}); }
 		if (settings.profile_astats === undefined) { settings.profile_astats = true; storage.set({'profile_astats': settings.profile_astats}); }
@@ -2804,6 +2805,10 @@ function add_community_profile_links() {
 			"steamtrades": {
 				"link": `//www.steamtrades.com/user/${ steamID }`,
 				"name": "SteamTrades",
+			},
+			"barter": {
+				"link": `//barter.vg/steam/${ steamID }`,
+				"name": "Barter.vg",
 			},
 			"astats": {
 				"link": `//www.achievementstats.com/index.php?action=profile&playerId=${ steamID }`,
