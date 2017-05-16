@@ -143,6 +143,7 @@ var settings_defaults = {
 	"profile_steamtrades": true,
 	"profile_steamrep": true,
 	"profile_steamdbcalc": true,
+	"profile_lestrades": true,
 	"profile_astats": true,
 	"profile_backpacktf": true,
 	"profile_astatsnl": true,
