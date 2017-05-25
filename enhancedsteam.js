@@ -4524,8 +4524,8 @@ function add_steamcardexchange_link(appid){
 // Add link to Lestrade's game page
 function add_lestrades_link(appid){
 	storage.get(function(settings) {
-		if (settings.lestrades === undefined ){ settings.lestrades = false; storage.set({'lestrades': settings.lestrades}); }
-		if (settings.lestrades) {
+		if (settings.showlestrades === undefined ){ settings.showlestrades = false; storage.set({'showlestrades': settings.showlestrades}); }
+		if (settings.showlestrades) {
 			$("#ReportAppBtn").parent().prepend('<a class="btnv6_blue_hoverfade btn_medium lest_btn" target="_blank" href="https://lestrades.com/app/' + appid + '/" style="display: block; margin-bottom: 6px;"><span><i class="ico16" style="background-image:url(' + chrome.extension.getURL("img/lest.png") + ')"></i>&nbsp;&nbsp; ' + localized_strings.view_in + ' Lestrade\'s</span></a>');
 		}
 	});

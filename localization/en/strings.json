@@ -361,6 +361,7 @@
         "send_age_info": "Automatically send age verification when requested",
         "pcgw": "Show PCGamingWiki links",
         "store_steamcards": "Show SteamCardExchange links on store pages",
+		"store_lestrades": "Show Lestrade's links on store pages",
         "spamcommentregex": "Regular Expression string:",
         "hide_owned_homepage": "Items you own on the homepage",
         "saved_note": "Options saved",

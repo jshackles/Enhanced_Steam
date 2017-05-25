@@ -91,6 +91,7 @@ var settings_defaults = {
 	"showpcgw": true,
 	"showclient": true,
 	"showsteamcardexchange": false,
+	"showlestrades": true,
 	"showsteamdb": true,
 	"showastatslink": true,
 	"showwsgf": true,
