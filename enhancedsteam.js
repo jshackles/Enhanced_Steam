@@ -2780,6 +2780,7 @@ function add_community_profile_links() {
 		if (settings.profile_backpacktf === undefined) { settings.profile_backpacktf = true; storage.set({'profile_backpacktf': settings.profile_backpacktf}); }
 		if (settings.profile_astatsnl === undefined) { settings.profile_astatsnl = true; storage.set({'profile_astatsnl': settings.profile_astatsnl}); }
 		if (settings.profile_steamrepcn === undefined) { settings.profile_steamrepcn = true; storage.set({'profile_steamrepcn': settings.profile_steamrepcn}); }
+		if (settings.profile_lestrades === undefined) { settings.profile_lestrades = true; storage.set({'profile_lestrades': settings.profile_lestrades}); }
 		
 		if (settings.profile_permalink === undefined) { settings.profile_permalink = true; storage.set({'profile_permalink': settings.profile_permalink}); }
 		
@@ -2806,6 +2807,10 @@ function add_community_profile_links() {
 			"steamtrades": {
 				"link": `//www.steamtrades.com/user/${ steamID }`,
 				"name": "SteamTrades",
+			},
+			"lestrades": {
+				"link": `//lestrades.com/profiles/${ steamID }`,
+				"name": "Lestrade's",
 			},
 			"astats": {
 				"link": `//www.achievementstats.com/index.php?action=profile&playerId=${ steamID }`,
@@ -4235,6 +4240,16 @@ function add_steamcardexchange_link(appid){
 			if ($(".icon").find('img[src$="/ico_cards.png"]').length > 0) {
 				$("#ReportAppBtn").parent().prepend('<a class="btnv6_blue_hoverfade btn_medium cardexchange_btn" target="_blank" href="http://www.steamcardexchange.net/index.php?gamepage-appid-' + appid + '" style="display: block; margin-bottom: 6px;"><span><i class="ico16" style="background-image:url(' + chrome.extension.getURL("img/steamcardexchange.png") + ')"></i>&nbsp;&nbsp; ' + localized_strings.view_in + ' Steam Card Exchange</span></a>');
 			}
+		}
+	});
+}
+
+// Add link to Lestrade's game page
+function add_lestrades_link(appid){
+	storage.get(function(settings) {
+		if (settings.showlestrades === undefined ){ settings.showlestrades = false; storage.set({'showlestrades': settings.showlestrades}); }
+		if (settings.showlestrades) {
+			$("#ReportAppBtn").parent().prepend('<a class="btnv6_blue_hoverfade btn_medium lest_btn" target="_blank" href="https://lestrades.com/app/' + appid + '/" style="display: block; margin-bottom: 6px;"><span><i class="ico16" style="background-image:url(' + chrome.extension.getURL("img/lest.png") + ')"></i>&nbsp;&nbsp; ' + localized_strings.view_in + ' Lestrade\'s</span></a>');
 		}
 	});
 }
@@ -8948,6 +8963,7 @@ $(document).ready(function(){
 							add_hltb_info(appid);
 							add_steam_client_link(appid);
 							add_pcgamingwiki_link(appid);
+							add_lestrades_link(appid);
 							add_steamcardexchange_link(appid);
 							add_app_page_highlights();
 							add_steamdb_links(appid, "app");

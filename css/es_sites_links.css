@@ -47,3 +47,6 @@
 .es_sites_icons.es_astatsnl_icon:after {
 	background-image: url("chrome-extension://__MSG_@@extension_id__/img/ico/astatsnl.png");
 }
+.es_sites_icons.es_lestrades_icon:after {
+	background-image: url("chrome-extension://__MSG_@@extension_id__/img/ico/lestrades.png");
+}
