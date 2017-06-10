@@ -142,6 +142,7 @@ var settings_defaults = {
 	"profile_astats": true,
 	"profile_backpacktf": true,
 	"profile_astatsnl": true,
+	"profile_steamladder": true,
 	"profile_permalink": true,
 	"steamcardexchange": true,
 	"purchase_dates": true,
