@@ -27,6 +27,12 @@ $(document).ready(function() {
 		.append(inCollectionPane);
 
 
+	// Add filter boxes
+	$('<input type="search" class="item-filter-input" placeholder="Filter by name or author">')
+		.on('input', filterItemList)
+		.insertBefore([notCollectionPane.find('ul'), inCollectionPane.find('ul')]);
+
+
 	// Add buttons to divider
 	$('<a class="es-btn" data-action="toggle-in-collection"><span>&nbsp;</span></a>')
 		.on('click', toggleInCollection)
@@ -43,7 +49,7 @@ $(document).ready(function() {
 			author = $el.find('.itemChoiceCreator').html().trim().substring(4), // (Will help stop XSS attack if a user named an item like `<script>alert('xss');</script>` )
 			itemId = el.id.substr(el.id.lastIndexOf("_") + 1);
 
-		$('<li><span class="item-title">' +title + '</span><span class="item-author"><span class="dim-text">Author: </span>' + author + '</span></li>')
+		$('<li><span class="item-title">' +title + '</span><span class="dim-text">Author: </span><span class="item-author">' + author + '</span></li>')
 			.data('item-id', itemId)
 			.on('click', selectItem)
 			.on('dblclick', toggleInCollection)
@@ -51,6 +57,11 @@ $(document).ready(function() {
 	});
 });
 
+
+// --------------- //
+// Item selection //
+// ------------- //
+/** Handles clicking on a selectable item. */
 function selectItem(e) {
 	var $el = $(this);
 	var sameStatus = lastSelected && (elementInCollection($el) == elementInCollection(lastSelected)); // True if the item just clicked and the previously clicked items are both in or both out of the collection
@@ -89,12 +100,20 @@ function elementInCollection(el) {
 	return el.closest('.item-list-container').is('[data-list-in-collection="true"]');
 }
 
+
+// ---------------- //
+// Request methods //
+// -------------- //
 /** Toggles whether the current selection is in the collection or not. */
 function toggleInCollection() {
 	var sic = elementInCollection(selection);
 	var f = sic ? postRemoveItemFromCollection : postAddItemToCollection; // Get the function needed (function to either add to collection if not in or vice-versa)
 
-	selection.each(function(i, el) { // Loop through all items in selection
+	// Store the filtered results as the new selection so that if the user selects items, filters some out then toggles, we don't end up with a selection in both lists.
+	selection = selection.filter(function(i, el) { // Ignore excluded items
+		return !!$(el).data('include-filter');
+		
+	}).each(function(i, el) { // Loop through all items in selection
 		var $el = $(el)
 			.addClass('loading-overlay');
 
@@ -105,6 +124,10 @@ function toggleInCollection() {
 			$el.removeClass('loading-overlay');
 		});
 	});
+
+	// In case the selection has changed, update the selection classes
+	$('.item-selected').removeClass('item-selected');
+	selection.addClass('item-selected');
 }
 
 /** Sends a POST request to add an item to the current collection.
@@ -141,64 +164,21 @@ function postRemoveItemFromCollection(itemId) {
 }
 
 
-
-
-
-
-/*$(document).ready(function(){
-
-	$('.itemChoice').each(function(_, el) {
-
+// --------------- //
+// Item filtering //
+// ------------- //
+function filterItemList() {
+	var searchTerm = $(this).val();
+	$(this).parent().find('ul').children().each(function(i, el) {
 		var $el = $(el);
-		var itemId = el.id.substr(el.id.lastIndexOf("_") + 1); // Example of el.id: "choice_MySubscribedItems_153370123"
-
-		var $controls = $el.find('.itemChoiceControls').empty();
-		$('<div class="itemChoiceAddItem"><a href="#" class="general_btn">Add</a></div>')
-			.on('click', AddChoiceItem)
-			.appendTo($controls);
-		$('<div class="itemChoiceRemoveItem"><a href="#" class="general_btn">Remove</a></div>')
-			.on('click', RemoveChoiceItem)
-			.appendTo($controls);
-		$('<div class="itemChoiceViewDetails"><a href="http://steamcommunity.com/sharedfiles/filedetails?id=' + itemId + '" target="_blank" class="general_btn">Details</a></div>')
-			.appendTo($controls);
-	});
-});
-
-function AddChoiceItem(e) {
-	var itemEl = $(e.target).closest('.itemChoice'),
-		form = $('#AddChildItemForm'),
-		choiceId = "";
-
-	if (itemEl.hasClass('inCollection'))
-		return;
-
-	itemEl.addClass("loading");
-
-	form.get(0).childid.value = choiceId;
-	$.ajax({
-		url: "http://steamcommunity.com/sharedfiles/addchild",
-		method: "POST",
-		data: form.serialize()
-
-	}).done(function(responseHtml) {
-		var hasError = responseHtml.indexOf("<title>Steam Community :: Error</title>") > -1;
-		console.log(responseHtml);
-
-		if (hasError)
-			alert("An error occured while adding this item to the collection.");
-		else
-			itemEl.addClass("inCollection");
-
-		itemEl.removeClass("loading");
-	});
-
-//	var elem = $( elemID );
-//	if ( elem.hasClassName( "inCollection" ) )
-//		return;
-//	$( 'AddChildItemForm' ).childid.value = childID;
-//	$( 'AddChildItemForm' ).submit();
+		var enabled = searchText($el.find('.item-title').text(), searchTerm) || searchText($el.find('.item-author').text(), searchTerm);
+		$el.data('include-filter', enabled)
+			.css('display', enabled ? "list-item" : "none");
+	})
 }
 
-function RemoveChoiceItem() {
-
-}*/
+/** Returns true if the given needle is in the haystack. */
+function searchText(haystack, needle) {
+	if (needle == "") return true;
+	return haystack.toLowerCase().indexOf(needle.toLowerCase()) > -1;
+}
