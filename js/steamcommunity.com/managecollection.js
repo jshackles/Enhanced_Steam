@@ -51,9 +51,10 @@ $(document).ready(function() {
 
 		$('<li><span class="item-title">' +title + '</span><span class="dim-text">Author: </span><span class="item-author">' + author + '</span></li>')
 			.data('item-id', itemId)
+			.data('include-filter', true)
 			.on('click', selectItem)
 			.on('dblclick', toggleInCollection)
-			.appendTo(($el.hasClass('inCollection') ? inCollectionPane : notCollectionPane).find('ul'));
+			.appendToSorted(($el.hasClass('inCollection') ? inCollectionPane : notCollectionPane).find('ul'), '.item-title');
 	});
 });
 
@@ -119,7 +120,7 @@ function toggleInCollection() {
 
 		f($el.data('item-id')).done(function(success) {
 			if (success)
-				$el.detach().appendTo('.item-list-container[data-list-in-collection="' + (sic ? "false" : "true") + '"] ul'); // Move element to other list
+				$el.detach().appendToSorted('.item-list-container[data-list-in-collection="' + (sic ? "false" : "true") + '"] ul', '.item-title'); // Move element to other list
 
 			$el.removeClass('loading-overlay');
 		});
@@ -182,3 +183,28 @@ function searchText(haystack, needle) {
 	if (needle == "") return true;
 	return haystack.toLowerCase().indexOf(needle.toLowerCase()) > -1;
 }
+
+/** Appends the element to the given parent and sorts the position of this element based on the other children. */
+$.fn.appendToSorted = function(parent, sortElementSelector) {
+	var $parent = $(parent);
+	return this.each(function() {
+		var $toAdd = $(this),
+			toAddVal = $(this).find(sortElementSelector).text().toLowerCase(),
+			beenAdded = false;
+
+		$parent.children().each(function(i) {
+			if (beenAdded) return; // Do nothing if we've already found the place for the child
+
+			var thisChildVal = $(this).find(sortElementSelector).text().toLowerCase();
+
+			if (toAddVal < thisChildVal) { // While toAdd is less, keep looking but as soon as it's greater add it before this child
+				$(this).before($toAdd);
+				beenAdded = true;
+			}
+		});
+
+		// If we've checked over all children and NOT added the item yet, add it at the very end
+		if (!beenAdded)
+			$parent.append($toAdd);
+	});
+};
