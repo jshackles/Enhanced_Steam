@@ -1,4 +1,4 @@
-var selection;
+var selection, lastSelected;
 var form_id, form_sessionid;
 
 $(document).ready(function() {
@@ -32,10 +32,8 @@ $(document).ready(function() {
 		.on('click', toggleInCollection)
 		.appendTo(buttonDivider);
 
-	// Create save button
-	$('<div class="editCollectionControls"><a href="#" class="btn_darkblue_white_innerfade btn_medium saveCollection"><span>Save and Continue</span></a><div style="clear: right"></div></div>')
-		.on('click', function() { /* Do whatever */ } )
-		.appendTo(body);
+	// Move save button
+	$('.editCollectionControls').detach().appendTo(body);
 
 	// Recreate all choice items
 	$('.itemChoice').each(function(_, el) {
@@ -48,30 +46,52 @@ $(document).ready(function() {
 		$('<li><span class="item-title">' +title + '</span><span class="item-author"><span class="dim-text">Author: </span>' + author + '</span></li>')
 			.data('item-id', itemId)
 			.on('click', selectItem)
+			.on('dblclick', toggleInCollection)
 			.appendTo(($el.hasClass('inCollection') ? inCollectionPane : notCollectionPane).find('ul'));
 	});
 });
 
 function selectItem(e) {
 	var $el = $(this);
+	var sameStatus = lastSelected && (elementInCollection($el) == elementInCollection(lastSelected)); // True if the item just clicked and the previously clicked items are both in or both out of the collection
 
+	if (e.shiftKey && sameStatus) {
+		// select all elements between just clicked and last clicked
+		var i0 = $el.index(), i1 = lastSelected.index();
+		selection = $el.closest('ul').children().slice(Math.min(i0, i1), Math.max(i0, i1) + 1);
+
+	} else if (e.ctrlKey && sameStatus) {
+		// add/remove the just clicked into the selection
+		var i = selection.get().indexOf($el.get(0));
+		if (i > -1)
+			selection.splice(i, 1);
+		else
+			selection.push($el.get(0));
+
+	} else {
+		// simply select the clicked element
+		selection = $el;
+	}
+
+	// Update selection classes
 	$('.item-selected').removeClass('item-selected');
-	$el.addClass('item-selected');
-
-	selection = $el;
+	selection.addClass('item-selected');
 
 	// update toggle button icon based on whether the selection is in collection or not
-	$('[data-action="toggle-in-collection"] span').html(selectionInCollection() ? "&lsaquo;" : "&rsaquo;");
+	$('[data-action="toggle-in-collection"] span').html(elementInCollection(selection) ? "&lsaquo;" : "&rsaquo;");
+
+	// Store this element as the last clicked element
+	lastSelected = $el;
 }
 
-/** Returns true if the selection contains items that are currently in the collection. */
-function selectionInCollection() {
-	return selection.closest('.item-list-container').is('[data-list-in-collection="true"]');
+/** Returns true if the given element is in the collection. */
+function elementInCollection(el) {
+	return el.closest('.item-list-container').is('[data-list-in-collection="true"]');
 }
 
 /** Toggles whether the current selection is in the collection or not. */
 function toggleInCollection() {
-	var sic = selectionInCollection();
+	var sic = elementInCollection(selection);
 	var f = sic ? postRemoveItemFromCollection : postAddItemToCollection; // Get the function needed (function to either add to collection if not in or vice-versa)
 
 	selection.each(function(i, el) { // Loop through all items in selection
