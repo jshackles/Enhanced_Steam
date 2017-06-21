@@ -34,29 +34,52 @@ $(document).ready(function() {
 
 
 	// Add buttons to divider
-	$('<a class="es-btn" data-action="toggle-in-collection"><span>&nbsp;</span></a>')
+	$('<a class="es-btn" data-action="toggle-in-collection"><span>&mdash;</span></a>')
 		.on('click', toggleInCollection)
 		.appendTo(buttonDivider);
 
 	// Move save button
 	$('.editCollectionControls').detach().appendTo(body);
 
-	// Recreate all choice items
-	$('.itemChoice').each(function(_, el) {
-		var $el = $(el); // Example of el.id: "choice_MySubscribedItems_153370123"
-
+	// Recreate all choice items (that are not currently in the collection)
+	$('.itemChoice:not(.inCollection)').each(function(_, el) {
+		var $el = $(el);
 		var title = $el.find('.itemChoiceTitle').html().trim(), // Using .html rather than .text because in the case of < or > .text will return those as-is, rather than &lt; or &gt;
 			author = $el.find('.itemChoiceCreator').html().trim().substring(4), // (Will help stop XSS attack if a user named an item like `<script>alert('xss');</script>` )
-			itemId = el.id.substr(el.id.lastIndexOf("_") + 1);
+			itemId = el.id.substr(el.id.lastIndexOf("_") + 1), // Example of el.id: "choice_MySubscribedItems_153370123"
+			type = ($el.find('.itemChoiceType').html() || "item").trim().toLowerCase(); // Get the type of choice item ("Collection" or "Item")
 
-		$('<li><span class="item-title">' +title + '</span><span class="dim-text">Author: </span><span class="item-author">' + author + '</span></li>')
-			.data('item-id', itemId)
-			.data('include-filter', true)
-			.on('click', selectItem)
-			.on('dblclick', toggleInCollection)
-			.appendToSorted(($el.hasClass('inCollection') ? inCollectionPane : notCollectionPane).find('ul'), '.item-title');
+		if (type == "item")
+			createChoiceItem(title, author, itemId)
+				.appendToSorted(notCollectionPane.find('ul'), '.item-title');
+
+		else if (type == "collection")
+			{ /* TODO: do something with collections */ }
 	});
+
+	// Recreate all choice items that are currently in the collection (done separately from the ones not in collection as these need to be sorted in the order they appear, not alphabetically)
+	$('[name="ChildItemsForm"] .managedCollectionItem').each(function(_, el) {
+		var $el = $(el);
+		var title = $el.find('.workshopItemTitle').html().trim(),
+			author = $el.find('.workshopItemAuthorName').html().trim(),
+			itemId = el.id.substr(el.id.lastIndexOf("_") + 1); // Example of el.id: "sharedfile_534343032"
+		
+		createChoiceItem(title, author, itemId)
+			.appendTo(inCollectionPane.find('ul'));
+	})
+
+	// Listen for drag events in the inCollectionPane
+	inCollectionPane.find('ul').on('mousedown', 'li', startItemDrag);
 });
+
+/** Creates and returns a jQuery choice item element with the given title, author and itemId. */
+function createChoiceItem(title, author, itemId) {
+	return $('<li><span class="item-title">' +title + '</span><span class="dim-text">Author: </span><span class="item-author">' + author + '</span></li>')
+		.data('item-id', itemId)
+		.data('include-filter', true)
+		.on('click', selectItem)
+		.on('dblclick', toggleInCollection);
+}
 
 
 // --------------- //
@@ -119,8 +142,12 @@ function toggleInCollection() {
 			.addClass('loading-overlay');
 
 		f($el.data('item-id')).done(function(success) {
-			if (success)
-				$el.detach().appendToSorted('.item-list-container[data-list-in-collection="' + (sic ? "false" : "true") + '"] ul', '.item-title'); // Move element to other list
+			if (success) {
+				$el.detach();
+
+				if (sic) $el.appendToSorted('.item-list-container[data-list-in-collection="false"] ul', '.item-title') // Move element to not-in-collection list (and sort alphabetically)
+				else $el.appendTo('.item-list-container[data-list-in-collection="true"] ul', '.item-title'); // Move element to in-collection list (but do NOT sort alphabetically, add at end)
+			}
 
 			$el.removeClass('loading-overlay');
 		});
@@ -182,6 +209,63 @@ function filterItemList() {
 function searchText(haystack, needle) {
 	if (needle == "") return true;
 	return haystack.toLowerCase().indexOf(needle.toLowerCase()) > -1;
+}
+
+/** Setups up listeners for dragging a list item. */
+function startItemDrag(e) {
+	if (e.offsetX > 46) return; // If the user didn't click on the drag icon part, do nothing
+
+	var $el = $(this), $ul = $(this).parent(),
+		dragIndicator = $('<li class="drag-destination"></li>'),
+		index; // index stores the new index of the item in the list (relative to the visible items, may be out of upper bounds)
+
+	$el.css('display', "none").before(dragIndicator); // Hide clicked element and add the drag indicator at this element's position
+
+	// Setup mouse move event
+	var mm;
+	$(document).on('mousemove', mm = function(e) {
+		var mouseY = e.pageY - $ul.offset().top;
+		index = Math.max(Math.round(mouseY / 54), 0); // 54 is height of a choice list item
+
+		// Get the child that the user's mouse is currently over
+		var insertBefore = $($ul.children().filter(function() {
+			return !$(this).is('.drag-destination') && $(this).css('display') == "list-item"; // Ensure we don't select the drag indicator, and we only select visible elements
+		}).get(index));
+		
+		if (insertBefore.length)
+			dragIndicator.detach().insertBefore(insertBefore); // If that element exists, move the indicator in front of that item
+		else
+			dragIndicator.detach().appendTo($ul); // If that item doesn't exist, the user must be past the end of the list so just add the indicator to the end
+	});
+
+	// Setup mouse release event
+	$(document).one('mouseup', function() {
+		$el.detach().insertBefore(dragIndicator) // Move the dragged element to the position of the drag indicator
+			.css('display', "list-item");
+		dragIndicator.remove();
+
+		// Compile the data to send to the server
+		var data = {
+			id: form_id,
+			sessionid: form_sessionid
+		};
+		$ul.children().each(function(i) {
+			data['children[' + $(this).data('item-id') + '][sort_order]'] = i;
+		});
+		
+		// Send request to server to update order
+		$.ajax({
+			url: "http://steamcommunity.com/sharedfiles/setcollectionsortorder",
+			method: "POST",
+			data: data
+
+		}).done(function(d) {
+			if (d.success != 1)
+				alert("An error occured while trying to update the order of the items.");
+		});
+
+		$(document).off('mousemove', mm);
+	});
 }
 
 /** Appends the element to the given parent and sorts the position of this element based on the other children. */

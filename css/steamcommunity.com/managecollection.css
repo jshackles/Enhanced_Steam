@@ -52,6 +52,7 @@
 	margin: 0;
 	padding: 0;
 	overflow-y: scroll;
+	overflow-x: hidden;
 	user-select: none;
 }
 
@@ -60,6 +61,7 @@
 	border: 1px solid transparent;
 	margin: 4px 4px 4px 0;
 	padding: 6px 12px 10px;
+	cursor: pointer;
 }
 
 .item-list li .item-author,
@@ -80,6 +82,59 @@
 
 .dim-text {
 	color: #A9A9A9;
+}
+
+[data-list-in-collection="true"] ul li {
+	position: relative;
+    padding-left: 50px; /* Space for drag icon */
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAsCAMAAAApWqozAAAAilBMVEX////MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMx4hUDnAAAALXRSTlMAAggMEhUWGRocHSIoNT5ETmFkda3BycrLzM7R1dne4eLm5+jp7/Dx+fr7/P2FwlUzAAAAmklEQVR42u3Qyw6CMBQE0LE8WigICPgAikJVRO3//54xgbgwhuvORM5mZjkZzGZf8Q8+qOzc5DZo3KLrusIFBS/18rjUJQdBXHnsyrwqBsECEL14Jg27MExJVoPUpGNN8IHaD+p1PVaF3/bavHnbTHxjCusZyMRNgCbMHOtuOVkIAt7u5FluWw4KqdVJaQmaoDFNAKrIRJj9uwcl8w5nWVSJbQAAAABJRU5ErkJggg==);
+	background-position: 1px;
+	background-repeat: no-repeat;
+}
+
+[data-list-in-collection="true"] ul li:not(.drag-destination):not(.loading-overlay)::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    background: transparent;
+    width: 46px;
+    height: 48px;
+    top: 0;
+    left: 0;
+	cursor: row-resize;
+}
+
+[data-list-in-collection="true"] ul li.drag-destination {
+	position: relative;
+	padding: 0;
+    height: 1px;
+    background: #B2BCC7;
+
+	margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+[data-list-in-collection="true"] ul li.drag-destination::before,
+[data-list-in-collection="true"] ul li.drag-destination::after {
+	content: " ";
+	display: block;
+	position: absolute;
+
+	border: 10px solid #B2BCC7;
+    border-top-color: transparent;
+    border-left-color: transparent;
+
+	top: 50%;
+}
+
+[data-list-in-collection="true"] ul li.drag-destination::before {
+    transform: translateY(-50%) rotate(-45deg);
+	left: -11px;
+}
+
+[data-list-in-collection="true"] ul li.drag-destination::after {
+    transform: translateY(-50%) rotate(135deg);
+	right: -11px;
 }
 
 
