@@ -8622,7 +8622,7 @@ function add_acrtag_warning() {
 }
 
 function add_review_toggle_button() {
-	$("#review_create").find("h1").append("<div style='float: right;'><a class='btnv6_lightblue_blue btn_mdium' id='es_review_toggle'><span>▲</span></a></div>");
+	$("#review_create").find("h1").append("<a class='btnv6_lightblue_blue btnv6_border_2px btn_medium' style='float: right;' id='es_review_toggle'><span>▲</span></a>");
 	$("#review_container").find("p, .avatar_block, .content").wrapAll("<div id='es_review_section'></div>");
 
 	if (getValue("show_review_section")) {
