@@ -399,6 +399,7 @@
         "market": "Market",
         "inventory": "Inventory",
         "profile": "Profile",
+        "workshop": "Workshop",
         "show_languagewarning": "Show warning if browsing in a language other than",
         "homepage": "Homepage",
         "homepage_default_tab": "Default homepage tab",
@@ -416,6 +417,7 @@
         "show_badge_progress": "Show apps badge progress on store pages",
         "show_wishlist_link": "Show a Wishlist link on profiles",
         "show_wishlist_count": "Show the number of items on Wishlist",
+        "override_workshopcollectioneditor": "Override default Workshop collection editor",
         "lang": {
             "english": "English",
             "brazilian": "Portuguese-Brazil",

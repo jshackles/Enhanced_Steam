@@ -2,7 +2,14 @@ var selection, lastSelected;
 var form_id, form_sessionid;
 
 $(document).ready(function() {
+	storage.get('overrideworkshopcollection', function(settings) {
+		if (settings.overrideworkshopcollection)
+			init();
+	});
+});
 
+/** Initialises the collection overrider. */
+function init() {
 	// Store existing form variables for easy access
 	form_id = $('#AddChildItemForm').get(0).id.value;
 	form_sessionid = $('#AddChildItemForm').get(0).sessionid.value;
@@ -70,7 +77,7 @@ $(document).ready(function() {
 
 	// Listen for drag events in the inCollectionPane
 	inCollectionPane.find('ul').on('mousedown', 'li', startItemDrag);
-});
+}
 
 /** Creates and returns a jQuery choice item element with the given title, author and itemId. */
 function createChoiceItem(title, author, itemId) {
