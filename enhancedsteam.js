@@ -4755,6 +4755,28 @@ function add_lowest_market_price() {
 	}
 }
 
+function add_sold_ammount() {
+	var cc = getStoreRegionCountryCode(),
+		currency = currency_type_to_number(user_currency);
+
+	var link = $(".market_listing_nav a").last().attr("href"),
+		appid = (link.match(/\/(\d+)\/.+$/) || [])[1],
+		market_hash_name = (link.match(/\/\d+\/(.+)$/) || [])[1];
+
+
+	get_http(protocol + "//steamcommunity.com/market/priceoverview/?appid=" + appid + "&country=" + cc + "&currency=" + currency + "&market_hash_name=" + market_hash_name, function(json) {
+		var data = JSON.parse(json);
+
+		if (data["success"]) {
+			$(".market_commodity_orders_header:first, .jqplot-title:first, .market_section_title:first").append(`
+				<div class="es_sold_ammount">
+					${ localized_strings.sold_last_24.replace(`__sold__`, `<span class="market_commodity_orders_header_promote"> ${ data[`volume`] || 0 } </span>`) }
+				</div>
+			`);
+		}
+	});
+}
+
 function add_badge_page_link() {
 	var badgeAppID = (document.URL.match("(?:\/753\/)([0-9]+)(?=-)") || [])[1];
 
@@ -5223,7 +5245,7 @@ function inventory_market_helper(response) {
 						html += localized_strings.starting_at + ': ' + dataLowest;
 						// Check if volume is stored in data
 						if (dataSold) {
-							html += '<br>' + localized_strings.last_24.replace("__sold__", dataSold);
+							html += '<br>' + localized_strings.volume_sold_last_24.replace("__sold__", dataSold);
 						}
 					} else {
 						html += localized_strings.no_price_data;
@@ -5244,7 +5266,7 @@ function inventory_market_helper(response) {
 								html += localized_strings.starting_at + ': ' + data.lowest_price;
 								if (data.volume) { 
 									$(thisItem).data("sold-volume", data.volume);
-									html += '<br>' + localized_strings.last_24.replace("__sold__", data.volume);
+									html += '<br>' + localized_strings.volume_sold_last_24.replace("__sold__", data.volume);
 								}
 							} else {
 								html += localized_strings.no_price_data;
@@ -5280,7 +5302,7 @@ function inventory_market_helper(response) {
 					html += localized_strings.starting_at + ': ' + dataLowest;
 					// Check if volume is stored in data
 					if (dataSold) {
-						html += '<br>' + localized_strings.last_24.replace("__sold__", dataSold);
+						html += '<br>' + localized_strings.volume_sold_last_24.replace("__sold__", dataSold);
 					}
 				} else {
 					html += localized_strings.no_price_data;
@@ -5301,7 +5323,7 @@ function inventory_market_helper(response) {
 							html += localized_strings.starting_at + ': ' + data.lowest_price;
 							if (data.volume) { 
 								$(thisItem).data("sold-volume", data.volume);
-								html += '<br>' + localized_strings.last_24.replace("__sold__", data.volume);
+								html += '<br>' + localized_strings.volume_sold_last_24.replace("__sold__", data.volume);
 							}
 						} else {
 							html += localized_strings.no_price_data;
@@ -9240,6 +9262,7 @@ $(document).ready(function(){
 							keep_ssa_checked();
 							add_background_preview_link();
 							add_market_sort();
+							add_sold_ammount();
 							add_badge_page_link();
 							market_popular_refresh_toggle();
 							break;
