@@ -4755,7 +4755,7 @@ function add_lowest_market_price() {
 	}
 }
 
-function add_sold_ammount() {
+function add_sold_amount() {
 	var cc = getStoreRegionCountryCode(),
 		currency = currency_type_to_number(user_currency);
 
@@ -4769,7 +4769,7 @@ function add_sold_ammount() {
 
 		if (data["success"]) {
 			$(".market_commodity_orders_header:first, .jqplot-title:first, .market_section_title:first").append(`
-				<div class="es_sold_ammount">
+				<div class="es_sold_amount">
 					${ localized_strings.sold_last_24.replace(`__sold__`, `<span class="market_commodity_orders_header_promote"> ${ data[`volume`] || 0 } </span>`) }
 				</div>
 			`);
@@ -9262,7 +9262,7 @@ $(document).ready(function(){
 							keep_ssa_checked();
 							add_background_preview_link();
 							add_market_sort();
-							add_sold_ammount();
+							add_sold_amount();
 							add_badge_page_link();
 							market_popular_refresh_toggle();
 							break;

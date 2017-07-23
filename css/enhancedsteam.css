@@ -2332,31 +2332,31 @@ input[type=checkbox].es_dlc_selection:checked + label {
 
 /***************************************
  * Market listings pages
- * add_sold_ammount()
+ * add_sold_amount()
  **************************************/
 #market_commodity_orders_header {
 	position: relative;
 }
-.market_commodity_orders_header .es_sold_ammount {
+.market_commodity_orders_header .es_sold_amount {
 	position: absolute;
 	top: 36px;
 	right: 0;
 	left: 0;
 }
-.market_section_title .es_sold_ammount {
+.market_section_title .es_sold_amount {
 	font-size: 16px !important;
 }
-.jqplot-title .es_sold_ammount,
-.market_section_title .es_sold_ammount {
+.jqplot-title .es_sold_amount,
+.market_section_title .es_sold_amount {
 	z-index: 999;
 	position: relative;
 	display: inline-block !important;
 }
-.jqplot-title .es_sold_ammount:before,
-.market_section_title .es_sold_ammount:before {
+.jqplot-title .es_sold_amount:before,
+.market_section_title .es_sold_amount:before {
 	content: "(";
 }
-.jqplot-title .es_sold_ammount:after,
-.market_section_title .es_sold_ammount:after {
+.jqplot-title .es_sold_amount:after,
+.market_section_title .es_sold_amount:after {
 	content: ")";
 }
