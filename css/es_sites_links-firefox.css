@@ -19,6 +19,9 @@
 .es_sites_icons.es_backpacktf_icon:after {
 	background-image: url("moz-extension://__MSG_@@extension_id__/img/ico/backpacktf.png");
 }
+.es_sites_icons.es_opendota_icon:after {
+	background-image: url("moz-extension://__MSG_@@extension_id__/img/ico/opendota.png");
+}
 .es_sites_icons.es_astatsnl_icon:after {
 	background-image: url("moz-extension://__MSG_@@extension_id__/img/ico/astatsnl.png");
 }

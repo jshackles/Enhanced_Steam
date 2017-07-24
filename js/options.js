@@ -142,6 +142,7 @@ var settings_defaults = {
 	"profile_steamdbcalc": true,
 	"profile_astats": true,
 	"profile_backpacktf": true,
+	"profile_opendota": false,
 	"profile_astatsnl": true,
 	"profile_permalink": true,
 	"profile_custom": false,
