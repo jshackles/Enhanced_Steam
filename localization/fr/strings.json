@@ -121,7 +121,7 @@
   "notinterested":"Articles marqués \"Pas intéressé\"",
   "mixed_item":"Articles ayant une évaluation variable",
   "negative_item":"Articles ayant une évaluation négative",
-  "price_above":"Articles coûtants plus de",
+  "price_above":"Articles coûtant plus de",
   "price_above_tooltip":"Entrer zéro pour les articles gratuits ou sans prix ; Laisser ce champ vide pour désactiver cette fonctionnalité",
   "news":"Nouveautés",
   "check_system":"Vérifier votre système",
