@@ -125,6 +125,7 @@ var settings_defaults = {
 	"showesbg": true,
 	"quickinv": true,
 	"quickinv_diff": -0.01,
+	"quickinv_diff_percent": false,
 	"showallachievements": false,
 	"showachinstore": true,
 	"showcomparelinks": false,
