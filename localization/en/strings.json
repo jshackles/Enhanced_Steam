@@ -250,6 +250,7 @@
     "user_score": "User Score",
     "user_reviews": "User reviews",
     "review_summary": "__percent__ of the __num__ user reviews for this game are positive.",
+    "review_summary_no_reviews": "No reviews for this game yet.",
     "market_popular_items_toggle": "Toggle live updating for Popular Items",
     "achievements": {
         "option": "Show achievement completion on store pages",
