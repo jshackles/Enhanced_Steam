@@ -3257,10 +3257,12 @@ function wishlist_add_ratings() {
 	}
 
 	function build_review(appid, scores, type) {
-		var percent = ((Math.floor(100 * (scores["p"] / scores["t"])) / 100) * 100).toFixed(),
-			score = (percent >= 70 ? "positive" : (percent >= 40 ? "mixed" : "negative"));
+		var percent = scores["t"] == 0 ? 0 : ((Math.floor(100 * (scores["p"] / scores["t"])) / 100) * 100).toFixed(),
+			score = (percent >= 70 ? "positive" : (percent >= 40 || scores["t"] == 0 ? "mixed" : "negative"));
 
-		var tooltip = localized_strings.review_summary
+		var tooltip = scores["t"] == 0 ?
+					localized_strings.review_summary_no_reviews :
+					localized_strings.review_summary
 						.replace("__percent__", percent + "%")
 						.replace("__num__", scores["t"].toLocaleString());
 
