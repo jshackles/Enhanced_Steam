@@ -117,6 +117,7 @@ var settings_defaults = {
 	"homepage_tab_selection": "remember",
 	"send_age_info": true,
 	"html5video": true,
+	"enableplayerdblclick": false,
 	"contscroll": true,
 	"showdrm": true,
 	"regional_hideworld": false,
