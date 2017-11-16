@@ -7280,7 +7280,7 @@ function set_html5_video() {
 	});
 }
 
-// Set the player to toggle fullscreen on double click, if enabled
+// Set the player to toggle fullscreen on double click if enabled
 function set_player_double_click() {
 	storage.get(function(settings) {
 		if(settings.enableplayerdblclick === undefined) {
@@ -7288,9 +7288,9 @@ function set_player_double_click() {
 			storage.set({'enableplayerdblclick': settings.enableplayerdblclick});
 		}
 		if (settings.enableplayerdblclick) {
-			$('#highlight_player_area').on('dblclick', function(e) { $('.fullscreen_button')[0].click() })
+			$('#highlight_player_area').on('dblclick', function(e) { $('.fullscreen_button')[0].click() });
 		}
-	})
+	});
 }
 
 var get_store_session = (function () {
