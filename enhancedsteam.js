@@ -1,4 +1,4 @@
-var version = "9.7";
+var version = "9.8";
 
 var console_info = ["%c Enhanced %cSteam v" + version + " by jshackles %c http://www.enhancedsteam.com ", "background: #000000;color: #7EBE45", "background: #000000;color: #ffffff", ""];
 console.log.apply(console, console_info);
@@ -2497,7 +2497,7 @@ function display_coupon_message(appid) {
 			if (!($price_div.find(".game_purchase_discount").length > 0 && coupon_data["discount_doesnt_stack"])) {
 				// If not (existing discounts and coupon does not stack)
 
-				$price_div[0].innerHTML = ""+
+				$('#price_div:first').html($(""+
 					"<div class=\"game_purchase_action_bg\">" +
 					"    <div class=\"discount_block game_purchase_discount\">" +
 					"        <div class=\"discount_pct\">-" + coupon_data["discount"] + "%</div>" +
@@ -2509,7 +2509,7 @@ function display_coupon_message(appid) {
 					"<div class=\"btn_addtocart\">" +
 					"        <a class=\"btnv6_green_white_innerfade btn_medium\" href=\"javascript:addToCart( " + cart_id + ");\"><span>" + localized_strings.add_to_cart + "</span></a>" +
 					"    </div>" +
-					"</div>";
+					"</div>"));
 			}
 		}
 	});
@@ -3319,6 +3319,33 @@ function change_wishlist_format() {
 	});
 }
 
+function add_wishlist_hover() {
+	$('head').append('<link rel="stylesheet" href="' + protocol + '//store.akamai.steamstatic.com/public/css/v6/store.css" type="text/css" />');
+	var hover_div = $("\t\t<div class=\"hover game_hover\" id=\"global_hover\" style=\"display: none; left: 0px; top: 0;\">\r\n\t\t\t<div class=\"game_hover_box hover_box\">\r\n\t\t\t\t<div class=\"content\" id=\"global_hover_content\">\r\n\t\t\t\t<\/div>\r\n\t\t\t<\/div>\r\n\t\t\t<div class=\"hover_arrow_left\" style=\"left: 6px;\"><\/div>\r\n\t\t\t<\/div>");
+	$(document.body).append( hover_div );
+	$(".wishlistRow").hover(function() {
+		var id = $(this).attr("id").replace("game_", "");
+		var top = $(this).position().top + 208;
+		var left = $("#wishlist_items").offset().left + 932;
+		if ($("#hover_app_" + id).length > 0) {
+			hover_div.find( '.content' ).children().hide();
+			hover_div.css("top", top).css("left", left);
+			$("#hover_app_" + id).show();
+			hover_div.show();
+		} else {
+			$.get(protocol + '//store.steampowered.com/apphover/' + id + "&pagev6=true").done(function(html) {
+				var content = $(html);
+				hover_div.find( '.content' ).children().hide();
+				hover_div.find( '.content' ).append( content );
+				hover_div.css("top", top).css("left", left);
+				hover_div.show();
+			});
+		}
+	}, function() {
+		hover_div.hide();
+	});
+}
+
 // TODO: Cache this data, but only the required entries! Store the data combined in one row
 // but update apps individually based on "release_date.coming_soon". Unreleased apps will be
 // updated at least once a day while others can be updated once a week. If more than three
@@ -3424,7 +3451,7 @@ function wishlist_highlight_apps() {
 }
 
 var processing = false;
-var search_page = 2;
+var search_page = +$("#search_current_page").val() + 1;
 
 function load_search_results () {
 	if (!processing) {
@@ -3497,7 +3524,7 @@ function endless_scrolling() {
 				$(".search_pagination_left").text(localized_strings.results.replace("__num__", result_count));
 			}
 
-			search_page = 2;
+			search_page = +$("#search_current_page").val() + 1;
 			$(window).scroll(function () {
 				// if the pagination element is in the viewport, continue loading
 				if (is_element_in_viewport($(".search_pagination_left"))) {
@@ -9180,6 +9207,7 @@ $(document).ready(function(){
 					switch (true) {
 						case /^\/(?:id|profiles)\/.+\/wishlist/.test(path):
 							change_wishlist_format();
+							add_wishlist_hover();
 							alternative_linux_icon();
 							appdata_on_wishlist();
 							wishlist_highlight_apps();
