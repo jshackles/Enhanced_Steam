@@ -3451,7 +3451,7 @@ function wishlist_highlight_apps() {
 }
 
 var processing = false;
-var search_page = 2;
+var search_page = +$("#search_current_page").val() + 1;
 
 function load_search_results () {
 	if (!processing) {
@@ -3524,7 +3524,7 @@ function endless_scrolling() {
 				$(".search_pagination_left").text(localized_strings.results.replace("__num__", result_count));
 			}
 
-			search_page = 2;
+			search_page = +$("#search_current_page").val() + 1;
 			$(window).scroll(function () {
 				// if the pagination element is in the viewport, continue loading
 				if (is_element_in_viewport($(".search_pagination_left"))) {
