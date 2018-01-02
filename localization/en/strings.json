@@ -398,7 +398,7 @@
         "inventory_nav_text": "Show advanced navigation on inventory page",
         "carousel_description": "Show app descriptions on storefront carousel",
         "market_total": "Show transaction summary on Market",
-        "market_showlowestprice": "Display the lowest price column in active listings. Disable this if often get 429s or 403s.",
+        "market_showlowestprice": "Show the lowest price column in active listings. Disable this if you often get 429/403/Access Denied errors.",
         "hide_install": "Hide \"Install Steam\" button",
         "lowestprice_coupon": "Include coupon codes in price comparison",
         "general": "General",
