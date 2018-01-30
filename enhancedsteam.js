@@ -4948,6 +4948,7 @@ function account_total_spent() {
 											calc_value = parsed.value;
 										}
 										if (type.match(/^Purchase/)) game_total += calc_value;
+										if (type.match(/^Refund/)) game_total -= calc_value;
 										if (type.match("Market Transaction")) market_total += calc_value;
 										if (type.match("Gift Purchase")) { gift_total += calc_value; }
 										if (type.match("In-Game Purchase")) ingame_total += calc_value;
