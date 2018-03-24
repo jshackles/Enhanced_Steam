@@ -1771,8 +1771,9 @@ function add_wishlist_pricehistory() {
 				var cc = getStoreRegionCountryCode();
 
 				function get_price_data(node, id) {
-					html = "<div class='es_lowest_price' id='es_price_" + id + "' style='float: right;'><div class='gift_icon' id='es_line_chart_" + id + "'><img src='" + chrome.extension.getURL("img/line_chart.png") + "'></div><span id='es_price_loading_" + id + "'>" + localized_strings.loading + "</span>";
-					$(node).find(".platform_icons").append(html);
+					html = "<div class='es_lowest_price wish_list' id='es_price_" + id + "' style='float: right;'><div class='gift_icon' id='es_line_chart_" + id + "'><img src='" + chrome.extension.getURL("img/line_chart.png") + "'></div><span id='es_price_loading_" + id + "'>" + localized_strings.loading + "</span>";
+					
+					$(node).find(".lower_container").append(html);
 
 					get_http("https://api.enhancedsteam.com/pricev3/?appid=" + id + "&stores=" + storestring + "&cc=" + cc + "&coupon=" + settings.showlowestpricecoupon, function (txt) {
 						var data = JSON.parse(txt);
@@ -1853,24 +1854,29 @@ function add_wishlist_pricehistory() {
 					});
 				}
 
-				var timeoutId;
-				$(".wishlist_row").hover(function() {
-					var node = $(this);
-					var appid = node.attr("data-app-id");
-					if (!timeoutId) {
-						timeoutId = window.setTimeout(function() {					
-							timeoutId = null;						
-							if ($("#es_price_" + appid).length == 0) {							
-								get_price_data(node, appid);
-							}	
-						}, 1000);
+				function refresh_wishlist_rows_prices() {
+					$(".wishlist_row").each(function() {
+						var node = $(this);
+						var appid = node.attr("data-app-id");
+
+						if ($("#es_price_" + appid).length == 0) {
+							get_price_data(node, appid);
+						}
+					});
+				}
+				
+				function checkWishListContainer() {
+					if($(".wishlist_row")[0] != null) {
+						refresh_wishlist_rows_prices();
+					} else {
+						setTimeout(checkWishListContainer, 100);
 					}
-				},
-				function() {
-					if (timeoutId) {
-						window.clearTimeout(timeoutId);
-						timeoutId = null;
-					}
+				}
+
+				checkWishListContainer();
+
+				$(window).on("scroll", function() {
+					refresh_wishlist_rows_prices();
 				});
 			}
 		}
