@@ -1,4 +1,4 @@
-var version = "9.8";
+var version = "9.9";
 
 var console_info = ["%c Enhanced %cSteam v" + version + " by jshackles %c http://www.enhancedsteam.com ", "background: #000000;color: #7EBE45", "background: #000000;color: #ffffff", ""];
 console.log.apply(console, console_info);
@@ -1360,7 +1360,8 @@ function load_inventory() {
 }
 
 function add_empty_wishlist_buttons() {
-	if (is_signed_in && window.location.href.startsWith(profile_url)) {
+	var your_wishlist = profile_url.replace("steamcommunity.com/", "store.steampowered.com/wishlist/");
+	if (is_signed_in && window.location.href.startsWith(your_wishlist)) {
 		storage.get(function(settings) {
 			if (settings.showemptywishlist === undefined) { 
 				settings.showemptywishlist = true; 
@@ -1368,199 +1369,12 @@ function add_empty_wishlist_buttons() {
 			}
 
 			if (settings.showemptywishlist) {
-				var empty_buttons = $("<div class='btn_save' id='es_empty_wishlist'>" + localized_strings.empty_wishlist + "</div>");
-				$(".save_actions_enabled").filter(":last").after(empty_buttons);
+				var empty_buttons = $("<div id='es_empty_wishlist'>" + localized_strings.empty_wishlist + "</div><div style='clear: both;'></div>");
+				$("#wishlist_ctn").after(empty_buttons);
 				$("#es_empty_wishlist").click(empty_wishlist);
 			}
 		});
 	}
-}
-
-function add_wishlist_sorts() {
-	var sorts = ["rank", "added", "name", "price", "score", "discount", "discountabs"],
-		sorted = getCookie("wishlist_sort2") || "rank",
-		linksHtml = "";
-
-	updateRankMode(sorted);
-
-	// Build dropdown links HTML
-	$("#wishlist_sort_options").children("a, span").hide().each(function(i, link){
-		linksHtml += '<a class="es_wl_sort popup_menu_item by_' + sorts[i] + '" data-sort-by="' + sorts[i] + '" href="?sort=' + sorts[i] + '">' + $(this).text().trim() + '</a>';
-	});
-	linksHtml += '<a class="es_wl_sort popup_menu_item by_score" data-sort-by="score" href="?sort=score">' + localized_strings.user_reviews + '</a>';
-	linksHtml += '<a class="es_wl_sort popup_menu_item by_discount" data-sort-by="discount" href="?sort=discount">' + localized_strings.discountper + '</a>';
-	linksHtml += '<a class="es_wl_sort popup_menu_item by_discountabs" data-sort-by="discountabs" href="?sort=discountabs">' + localized_strings.discountabs + '</a>';
-
-	// Cleanup spaces 
-	$("#wishlist_sort_options").contents().each(function(i, node){
-		if (i === 0) $(node).wrap("<span />");
-		node.nodeValue = $(node).text().trim();
-	});
-
-	// Insert dropdown options links
-	$("#wishlist_sort_options").append(`
-		<div id="es_sort_flyout" class="popup_block_new flyout_tab_flyout responsive_slidedown" style="visibility: visible; top: 42px; left: 305px; display: none; opacity: 1;">
-			<div class="popup_body popup_menu">` + linksHtml + `</div>
-		</div>
-	`);
-
-	// Insert dropdown button
-	$("#wishlist_sort_options").find("span").first().after(`
-		<div class="store_nav">
-			<div class="tab flyout_tab" id="es_sort_tab" data-flyout="es_sort_flyout" data-flyout-align="right" data-flyout-valign="bottom">
-				<span class="pulldown">
-					<div id="es_sort_active" style="display: inline;">` + $("#es_sort_flyout").find("a.by_" + sorted).text() + `</div>
-					<span></span>
-				</span>
-			</div>
-		</div>
-	`);
-	
-	runInPageContext(function() { BindAutoFlyoutEvents(); });
-
-	// Initiate "discounted" sorts if necessary
-	if (sorted == "score") {
-		sort_wishlist(".es_wishlist_score", sorted, false, function(val){
-			return parseInt(val);
-		});
-	} else if (sorted == "discount") {
-		sort_wishlist(".discount_pct", sorted, true, function(val){
-			return parseInt(val);
-		});
-	} else if (sorted == "discountabs") {
-		add_wishlist_discountabs();
-		sort_wishlist(".es_discountabs_raw", sorted, true, function(val){
-			return parseFloat(val);
-		});
-	} else {
-		$("a.by_" + sorted).addClass("active");
-	}
-
-	// Bind sort actions to links
-	$(document).on("click", "a.es_wl_sort:not(.by_added)", function(e){
-		e.preventDefault();
-
-		// Don't sort again if sort is active
-		if (!$(this).hasClass("active")) {
-			var sort_by = $(this).data("sort-by");
-			switch (sort_by) {
-				case "rank":
-					sort_wishlist(".wishlist_rank, .wishlist_rank_ro", sort_by, true);
-					break;
-				case "added":
-					// Can't do this one... could make a request for it tho...
-					break;
-				case "name":
-					sort_wishlist("h4.ellipsis", sort_by, null, function(val){
-						return val.toLowerCase();
-					});
-					break;
-				case "price":
-					sort_wishlist(".price, .discount_final_price", sort_by, true, function(val){
-						return Number(val.replace(/\-/g, "0").replace(/,/g, ".").replace(/[^0-9\.]+\.?/g, "")) || 31337;
-					});
-					break;
-				case "score":
-					sort_wishlist(".es_wishlist_score", sort_by, false, function(val){
-						return parseInt(val);
-					});
-					break;
-				case "discount":
-					sort_wishlist(".discount_pct", sort_by, true, function(val){
-						return parseInt(val);
-					});
-					break;
-				case "discountabs":
-					add_wishlist_discountabs();
-					sort_wishlist(".es_discountabs_raw", sort_by, true, function(val){
-						return parseFloat(val);
-					});
-					break;
-			}
-			updateRankMode(sort_by);
-
-			// Change text of dropdown button to reflect current selection
-			$("#es_sort_active").text($(this).text());
-		}
-
-		$("#es_sort_flyout").fadeOut();
-	});
-
-	function sort_wishlist(sel, cookieVal, asc, fn) {
-		asc = asc === undefined ? false : asc;
-		fn = fn || function(val){ return val };
-
-		var T = asc === true ? 1 : -1,
-			F = asc === true ? -1 : 1;
-
-		var $rows = $(sel).closest(".wishlist_row");
-
-		$rows.sort(function(a, b){
-			a = fn($(a).find(sel).val() || $(a).find(sel).text().trim());
-			b = fn($(b).find(sel).val() || $(b).find(sel).text().trim());
-
-			if (a == b) return 0;
-			if (asc === true) {
-				return a - b;
-			} else if (asc === false) {
-				return b - a;
-			} else {
-				return a < b ? T : F;
-			}
-		});
-
-		$rows.detach().prependTo($("#wishlist_items"));
-		
-		if (cookieVal) {
-			var dateExpires = new Date();
-			dateExpires.setTime( dateExpires.getTime() + 1000 * 60 * 60 * 1 );
-			document.cookie = 'wishlist_sort2=' + cookieVal + '; expires=' + dateExpires.toGMTString() + ';path=/';
-
-			$("a.es_wl_sort").removeClass("active");
-			$("a.by_" + cookieVal).addClass("active");
-		}
-	}
-
-	function updateRankMode(sort_by) {
-		if ($('.save_actions_enabled').length) {
-			if (sort_by == "rank") {
-				runInPageContext(function() {
-					g_bRankMode = true;
-					Sortable.create($('wishlist_items'), {tag: 'div', scroll: window, onUpdate: UpdateWishlistOrdering, starteffect: function(e) {e.addClassName("inDrag")}, endeffect: function(e) {e.removeClassName("inDrag")}});
-					jQuery(".wishlist_row").each(function() {
-						Event.observe(this, "mousedown", BlurRanks);
-					}).addClass("sortableRow");
-				});
-			} else {
-				runInPageContext(function() {
-					g_bRankMode = false;
-					Sortable.destroy($('wishlist_items'));
-					jQuery(".wishlist_row").each(function() {
-						Event.stopObserving(this, "mousedown");
-					}).removeClass("sortableRow");
-				});
-			}
-		}
-	}
-}
-
-// Calculate absolute discount value of each discounted item on wishlist
-function add_wishlist_discountabs() {
-	var price_cache = {};
-
-	$(".discount_pct").not(".es_has_discountabs").each(function(){
-		var $this = $(this).addClass("es_has_discountabs"),
-			absolute_discount = absolute_discount_for_wishlist_row($this.closest(".wishlist_row"), price_cache);
-
-		$this.append("<div class='es_discountabs'>(" + formatCurrency(absolute_discount) + ")</div><input class='es_discountabs_raw' type='hidden' value='" + absolute_discount + "' />");
-	});
-}
-
-function absolute_discount_for_wishlist_row($this, price_cache) {
-	var finalPrice = memoized_parse_currency($this.find(".discount_final_price").text(), price_cache),
-		originalPrice = memoized_parse_currency($this.find(".discount_original_price").text(), price_cache);
-
-	return finalPrice.value - originalPrice.value;
 }
 
 function memoized_parse_currency(str, cache) {
@@ -1583,7 +1397,7 @@ function add_wishlist_total(showTotal) {
 			var parsed = parse_currency($node.find(search).text().trim());
 
 			if (parsed) {
-				gamelist += $node.find("h4").text().trim() + ", ";
+				gamelist += $node.find(".title").text().trim() + ", ";
 				total += parsed.value;
 				apps += get_appid($node.find(".btnv6_blue_hoverfade").attr("href")) + ",";
 				items ++;
@@ -1591,19 +1405,17 @@ function add_wishlist_total(showTotal) {
 		}
 
 		$('.wishlist_row').each(function(){
-			var $this = $(this);
+			if ($(this).find("div[class='price']").length != 0 && $this.find("div[class='price']").text().trim() != "")
+				calculate_node($(this), "div[class='price']");
 
-			if ($this.find("div[class='price']").length != 0 && $this.find("div[class='price']").text().trim() != "")
-				calculate_node($this, "div[class='price']");
-
-			if ($this.find("div[class='discount_final_price']").length != 0)
-				calculate_node($this, "div[class='discount_final_price']");
+			if ($(this).find("div[class='discount_final_price']").length != 0)
+				calculate_node($(this), "div[class='discount_final_price']");
 		});
 		gamelist = gamelist.replace(/, $/, "");
 
 		total = formatCurrency(parseFloat(total));
 
-		$(".games_list").after(`
+		$("#wishlist_ctn").after(`
 			<div class='es_wishlist_total'>
 				<div class='game_area_purchase_game'>
 					<h1>` + localized_strings.wishlist + `</h1>
@@ -1617,7 +1429,7 @@ function add_wishlist_total(showTotal) {
 			</div>
 		`);
 	} else {
-		$(".games_list").after("<div class='es_show_wishlist_total btn_darkblue_white_innerfade'><span>" + localized_strings.show_wishlist_total + "<span></div>");
+		$("#wishlist_ctn").after("<div class='es_show_wishlist_total btn_darkblue_white_innerfade'><span>" + localized_strings.show_wishlist_total + "<span></div>");
 		$(document).on("click", ".es_show_wishlist_total", function(){
 			$(this).remove();
 			add_wishlist_total(true);
@@ -1767,12 +1579,14 @@ function add_wishlist_pricehistory() {
 			});
 
 			if (storestring !== "") {
+				var hover_div = $("\t\t<div class=\"hover game_hover\" id=\"global_hover\" style=\"display: none; left: 0px; top: 0;\">\r\n\t\t\t<div class=\"game_hover_box hover_box\">\r\n\t\t\t\t<div class=\"content\" id=\"global_hover_content\">\r\n\t\t\t\t<\/div>\r\n\t\t\t<\/div>\r\n\t\t\t<div class=\"hover_arrow_left\" style=\"left: 6px;\"><\/div>\r\n\t\t\t<\/div>");
+				$(document.body).append( hover_div );
+
 				// Get country code from Steam cookie
 				var cc = getStoreRegionCountryCode();
 
 				function get_price_data(node, id) {
-					html = "<div class='es_lowest_price wish_list' id='es_price_" + id + "' style='float: right;'><div class='gift_icon' id='es_line_chart_" + id + "'><img src='" + chrome.extension.getURL("img/line_chart.png") + "'></div><span id='es_price_loading_" + id + "'>" + localized_strings.loading + "</span>";
-					
+					html = "<div class='es_lowest_price wish_list' id='es_price_" + id + "' style='float: right;'><div class='gift_icon' id='es_line_chart_" + id + "'><img src='" + chrome.extension.getURL("img/line_chart.png") + "'></div><span id='es_price_loading_" + id + "'>" + localized_strings.loading + "</span>";				
 					$(node).find(".lower_container").append(html);
 
 					get_http("https://api.enhancedsteam.com/pricev3/?appid=" + id + "&stores=" + storestring + "&cc=" + cc + "&coupon=" + settings.showlowestpricecoupon, function (txt) {
@@ -1842,10 +1656,10 @@ function add_wishlist_pricehistory() {
 								$("#es_price_loading_" + id).remove();
 								$("#es_price_" + id).append(line2 + line3);
 								$("#es_line_chart_" + id).css("top", (($("#es_price_" + id).outerHeight() - 20) / 2) + "px");
-								return;	
+								return;
 							}
 
-							if (data["lowest"] === null && data["price"] === null) {					
+							if (data["lowest"] === null && data["price"] === null) {
 								$("#es_price_loading_" + id).remove();
 								$("#es_price_" + id).append(localized_strings.no_results_found);
 								return;
@@ -2995,15 +2809,9 @@ function add_wishlist_profile_link() {
 					`);
 
 					if (settings.show_wishlist_count) {
-						get_http(protocol + "//steamcommunity.com/profiles/" + steamID + "/wishlist", function(txt) {
-							var count = txt.match(/id="game_(\d+)"/g);
-
-							if (count) {
-								$("#es_wishlist_count").text(count.length.toLocaleString('en-US'));
-							} else {
-								$("#es_wishlist_link").remove();
-							}
-						});
+						if ($(".gamecollector_showcase").length > 0) {
+							$("#es_wishlist_count").text($(".gamecollector_showcase").find(".showcase_stat:last").find(".value").text());
+						}
 					}
 				}
 			}
@@ -3021,9 +2829,9 @@ function add_supporter_badges() {
 
 			for (i=0; i < data["badges"].length; i++) {
 				if (data["badges"][i].link) {
-					html += '<div class="profile_badges_badge" data-community-tooltip="Enhanced Steam<br>' + data["badges"][i].title + '"><a href="' + data["badges"][i].link + '"><img src="' + data["badges"][i].img + '"></a></div>';
+					html += '<div class="profile_badges_badge" data-tooltip-html="Enhanced Steam<br>' + data["badges"][i].title + '"><a href="' + data["badges"][i].link + '"><img src="' + data["badges"][i].img + '"></a></div>';
 				} else {
-					html += '<div class="profile_badges_badge" data-community-tooltip="Enhanced Steam<br>' + data["badges"][i].title + '"><img src="' + data["badges"][i].img + '"></div>';
+					html += '<div class="profile_badges_badge" data-tooltip-html="Enhanced Steam<br>' + data["badges"][i].title + '"><img src="' + data["badges"][i].img + '"></div>';
 				}
 			}
 
@@ -3031,7 +2839,7 @@ function add_supporter_badges() {
 			$(".profile_badges").after(html);
 			$("#es_supporter_badges .profile_badges_badge:nth-child(4n+1)").addClass("last").css("margin-bottom", "16px");
 			$("#es_supporter_badges .profile_badges_badge:last").css("margin-bottom", "0px");
-			runInPageContext(function() { BindCommunityTooltip( $J('[data-community-tooltip]') ); });
+			runInPageContext(function() { SetupTooltips( { tooltipCSSClass: 'community_tooltip'} ); });
 		}
 	});
 }
@@ -3164,73 +2972,44 @@ var get_app_subid = function(appid) {
 };
 
 function wishlist_highlight_apps() {
-	var uid = window.location.pathname.replace("/wishlist/profiles/", "").replace("/", "");
-	if (is_signed_in != uid) {
-		storage.get(function(settings) {
-			$.when.apply($, [dynamicstore_promise, get_store_session]).done(function(data, store_sessionid) {
-				var ownedapps = data.rgOwnedApps;
-				var wishlistapps = data.rgWishlist;
-				
-				$("div.wishlist_row").each(function(i, node) {
-					var appid = Number(get_appid_wishlist(node.id)),
-						owned = ownedapps.indexOf(appid) != -1,
-						wishlisted = wishlistapps.indexOf(appid) != -1;
+	if (is_signed_in) {
+		var log_in_image = $("#global_actions").find("img:last").attr("src");
+		var user_image = $(".wishlist_header").find("img:first").attr("src").replace("_full", "");
 
-					// Add "Add to your wishlist" link
-					if (!owned && !wishlisted) {
-						$(node).find(".wishlist_added_on").append('<span>(<a class="es_wishlist_add" data-appid="' + appid + '">' + localized_strings.add_to_wishlist + '</a>)</span>');
-					}
+		if (log_in_image != user_image) {
+			storage.get(function(settings) {
+				$.when.apply($, [dynamicstore_promise, get_store_session]).done(function(data, store_sessionid) {
+					var ownedapps = data.rgOwnedApps;
+					var wishlistapps = data.rgWishlist;
+					
+					$("div.wishlist_row").each(function(i, node) {
+						var appid = Number($(node).attr("data-app-id")),
+							owned = ownedapps.indexOf(appid) != -1,
+							wishlisted = wishlistapps.indexOf(appid) != -1;
 
-					// Highlight as owned
-					if (owned) {
-						$(node).addClass("ds_collapse_flag ds_flagged ds_owned");
-						if (settings.highlight_owned) {
-							highlight_owned($(node)[0]);
-						} else {
-							$(node).append('<div class="ds_flag ds_owned_flag">' + localized_strings.library.in_library.toUpperCase() + '&nbsp;&nbsp;</div>');
-						}
-					}
-
-					// Highlight as wishlisted
-					if (wishlisted) {
-						$(node).addClass("ds_collapse_flag ds_flagged ds_wishlist");
-						if (settings.highlight_wishlist) {
-							highlight_wishlist($(node)[0]);
-						} else {
-							$(node).append('<div class="ds_flag ds_wishlist_flag">' + localized_strings.on_wishlist.toUpperCase() + '&nbsp;&nbsp;</div>');
-						}	
-					}
-				});
-
-				// Bind actions to "Add to your wishlist" buttons
-				$("a.es_wishlist_add").on("click", function(){
-					var $el = $(this),
-						$wishlistRow = $(this).closest("div.wishlist_row");
-
-					$.ajax({
-						type: "POST",
-						url: protocol + "//store.steampowered.com/api/addtowishlist",
-						data: {
-							sessionid: store_sessionid,
-							appid: $el.data("appid")
-						}
-					}).done(function(){
-						$el.parent().remove();
-
-						// Highlight the row as wishlisted
-						$wishlistRow.addClass("ds_collapse_flag ds_flagged ds_wishlist");
-						if (settings.highlight_wishlist) {
-							highlight_wishlist($wishlistRow[0]);
-						} else {
-							$wishlistRow.append('<div class="ds_flag ds_wishlist_flag">' + localized_strings.on_wishlist.toUpperCase() + '&nbsp;&nbsp;</div>');
+						// Highlight as owned
+						if (owned) {
+							$(node).addClass("ds_collapse_flag ds_flagged ds_owned");
+							if (settings.highlight_owned) {
+								highlight_owned($(node)[0]);
+							} else {
+								$(node).append('<div class="ds_flag ds_owned_flag">' + localized_strings.library.in_library.toUpperCase() + '&nbsp;&nbsp;</div>');
+							}
 						}
 
-						// Clear dynamicstore cache
-						chrome.storage.local.remove("dynamicstore");
+						// Highlight as wishlisted
+						if (wishlisted) {
+							$(node).addClass("ds_collapse_flag ds_flagged ds_wishlist");
+							if (settings.highlight_wishlist) {
+								highlight_wishlist($(node)[0]);
+							} else {
+								$(node).append('<div class="ds_flag ds_wishlist_flag">' + localized_strings.on_wishlist.toUpperCase() + '&nbsp;&nbsp;</div>');
+							}	
+						}
 					});
 				});
 			});
-		});
+		}
 	}
 }
 
@@ -8949,13 +8728,14 @@ $(document).ready(function(){
 							break;
 
 						case /^\/wishlist\/(?:id|profiles)\/.+(\/.*)?/.test(path):
-							wishlist_highlight_apps();
+							setTimeout(function() {
+								wishlist_highlight_apps();
+								add_wishlist_total();
+							}, 1500);
 							fix_app_image_not_found();
 							add_empty_wishlist_buttons();
-							add_wishlist_total();
 							add_wishlist_pricehistory();
 							add_wishlist_notes();
-							add_wishlist_sorts();
 
 							// Wishlist highlights
 							load_inventory().done(function() {
