@@ -6889,6 +6889,19 @@ function set_html5_video() {
 	});
 }
 
+// Set the player to toggle fullscreen on double click if enabled
+function set_player_double_click() {
+	storage.get(function(settings) {
+		if(settings.enableplayerdblclick === undefined) {
+			settings.enableplayerdblclick = false;
+			storage.set({'enableplayerdblclick': settings.enableplayerdblclick});
+		}
+		if (settings.enableplayerdblclick) {
+			$('#highlight_player_area').on('dblclick', function(e) { $('.fullscreen_button')[0].click() });
+		}
+	});
+}
+
 var get_store_session = (function () {
 	var deferred = new $.Deferred();
 
@@ -8789,6 +8802,7 @@ $(document).ready(function(){
 					bind_ajax_content_highlighting();
 					hide_trademark_symbols();
 					set_html5_video();
+					set_player_double_click();
 					//get_store_session();
 					fix_menu_dropdown();
 					break;
