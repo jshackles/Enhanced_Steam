@@ -982,6 +982,33 @@ function validate_price (priceText, event) {
 	return !(Number.isNaN(price));
 }
 
+function apply_uncensor_exists (node, uncensor_json) {
+	var appid = parseInt($(node).attr("data-ds-appid"));
+	if ($.inArray(appid, uncensor_json["exists"]) > -1) $(node).hide();
+	if ($(document).height() <= $(window).height()) {
+		load_search_results()
+	}
+}
+
+function apply_uncensor_unsure (node, uncensor_json) {
+	var appid = parseInt($(node).attr("data-ds-appid"));
+	if ($.inArray(appid, uncensor_json["unsure"]) > -1) $(node).hide();
+	if ($(document).height() <= $(window).height()) {
+		load_search_results()
+	}
+}
+
+function apply_uncensor_not_exists (node, uncensor_json) {
+	var appid = parseInt($(node).attr("data-ds-appid"));
+	if( ($.inArray(appid, uncensor_json["exists"]) === -1)
+	 && ($.inArray(appid, uncensor_json["unsure"]) === -1)) {
+		$(node).hide();
+	}
+	if ($(document).height() <= $(window).height()) {
+		load_search_results()
+	}
+}
+
 function hexToRgb(hex) {
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 	return result ? {
@@ -3404,6 +3431,90 @@ function add_hide_buttons_to_search() {
 				add_hide_buttons_to_search_click()
 			}
 		}
+	});
+}
+
+function add_uncensor_buttons_to_search() {
+	storage.get(function(settings) {
+		if (settings.uncensor_exists === undefined) { settings.uncensor_exists = false; storage.set({'uncensor_exists': settings.uncensor_exists}); }
+		if (settings.uncensor_unsure === undefined) { settings.uncensor_unsure = false; storage.set({'uncensor_unsure': settings.uncensor_unsure}); }
+		if (settings.uncensor_not_exists === undefined) { settings.uncensor_not_exists = false; storage.set({'uncensor_not_exists': settings.uncensor_not_exists}); }
+		
+		$("#advsearchform").find(".rightcol").prepend(`
+			<div class='block' id='es_uncensor_menu'>
+				<div class='block_header'><div>` + localized_strings.narrow_by_uncensor + `</div></div>
+				<div class='block_content block_content_inner' style='height: 90px;' id='es_uncensor_options'>
+					<div class='tab_filter_control' id='es_uncensor_exists'>
+						<div class='tab_filter_control_checkbox'></div>
+						<span class='tab_filter_control_label'>` + localized_strings.uncensor_exists + `</span>
+					</div>
+					<div class='tab_filter_control' id='es_uncensor_unsure'>
+						<div class='tab_filter_control_checkbox'></div>
+						<span class='tab_filter_control_label'>` + localized_strings.uncensor_unsure + `</span>
+					</div>
+					<div class='tab_filter_control' id='es_uncensor_not_exists'>
+						<div class='tab_filter_control_checkbox'></div>
+						<span class='tab_filter_control_label'>` + localized_strings.uncensor_not_exists + `</span>
+					</div>
+				</div>
+			</div>
+		`);
+
+		if (settings.uncensor_exists) {
+			$("#es_uncensor_exists").addClass("checked");
+		}
+
+		if (settings.uncensor_unsure) {
+			$("#es_uncensor_unsure").addClass("checked");
+		}
+
+		if (settings.uncensor_not_exists) {
+			$("#es_uncensor_not_exists").addClass("checked");
+		}
+
+		function add_uncensor_buttons_to_search_click() {
+			$(".search_result_row").each(function() {
+				$(this).css("display", "block");
+				// Get uncensor patch data
+				var uncensor_json = {"exists":[570, 211820],"unsure":[730,280160]};
+				if ($("#es_uncensor_exists").is(".checked")) { apply_uncensor_exists(this, uncensor_json); }
+				if ($("#es_uncensor_unsure").is(".checked")) { apply_uncensor_unsure(this, uncensor_json); }
+				if ($("#es_uncensor_not_exists").is(".checked")) { apply_uncensor_not_exists(this, uncensor_json); }
+			});
+		}
+
+		$("#es_uncensor_exists").click(function() {
+			if ($("#es_uncensor_exists").hasClass("checked")) {
+				$("#es_uncensor_exists").removeClass("checked");
+				storage.set({'uncensor_exists': false });
+			} else {
+				$("#es_uncensor_exists").addClass("checked");
+				storage.set({'uncensor_exists': true });
+			}
+			add_uncensor_buttons_to_search_click();
+		});
+
+		$("#es_uncensor_unsure").click(function() {
+			if ($("#es_uncensor_unsure").hasClass("checked")) {
+				$("#es_uncensor_unsure").removeClass("checked");
+				storage.set({'uncensor_unsure': false });
+			} else {
+				$("#es_uncensor_unsure").addClass("checked");
+				storage.set({'uncensor_unsure': true });
+			}
+			add_uncensor_buttons_to_search_click();
+		});
+
+		$("#es_uncensor_not_exists").click(function() {
+			if ($("#es_uncensor_not_exists").hasClass("checked")) {
+				$("#es_uncensor_not_exists").removeClass("checked");
+				storage.set({'uncensor_not_exists': false });
+			} else {
+				$("#es_uncensor_not_exists").addClass("checked");
+				storage.set({'uncensor_not_exists': true });
+			}
+			add_uncensor_buttons_to_search_click();
+		});
 	});
 }
 
@@ -8726,6 +8837,7 @@ $(document).ready(function(){
 						case /^\/search\/.*/.test(path):
 							endless_scrolling();
 							add_hide_buttons_to_search();
+							add_uncensor_buttons_to_search();
 							add_exclude_tags_to_search();
 							break;
 
