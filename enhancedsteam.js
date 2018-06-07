@@ -984,7 +984,7 @@ function validate_price (priceText, event) {
 
 function apply_uncensor_exists (node, uncensor_json) {
 	var appid = parseInt($(node).attr("data-ds-appid"));
-	if ($.inArray(appid, uncensor_json["exists"]) > -1) $(node).hide();
+	if ($.inArray(appid, uncensor_json["exists"]) === -1) $(node).hide();
 	if ($(document).height() <= $(window).height()) {
 		load_search_results()
 	}
@@ -992,7 +992,10 @@ function apply_uncensor_exists (node, uncensor_json) {
 
 function apply_uncensor_unsure (node, uncensor_json) {
 	var appid = parseInt($(node).attr("data-ds-appid"));
-	if ($.inArray(appid, uncensor_json["unsure"]) > -1) $(node).hide();
+	if (($.inArray(appid, uncensor_json["exists"]) > -1)
+	  | ($.inArray(appid, uncensor_json["not_exists"]) > -1)) {
+		$(node).hide();
+	}
 	if ($(document).height() <= $(window).height()) {
 		load_search_results()
 	}
@@ -1000,10 +1003,7 @@ function apply_uncensor_unsure (node, uncensor_json) {
 
 function apply_uncensor_not_exists (node, uncensor_json) {
 	var appid = parseInt($(node).attr("data-ds-appid"));
-	if( ($.inArray(appid, uncensor_json["exists"]) === -1)
-	 && ($.inArray(appid, uncensor_json["unsure"]) === -1)) {
-		$(node).hide();
-	}
+	if ($.inArray(appid, uncensor_json["not_exists"]) === -1) $(node).hide();
 	if ($(document).height() <= $(window).height()) {
 		load_search_results()
 	}
@@ -3473,13 +3473,14 @@ function add_uncensor_buttons_to_search() {
 		}
 
 		function add_uncensor_buttons_to_search_click() {
-			$(".search_result_row").each(function() {
-				$(this).css("display", "block");
-				// Get uncensor patch data
-				var uncensor_json = {"exists":[570, 211820],"unsure":[730,280160]};
-				if ($("#es_uncensor_exists").is(".checked")) { apply_uncensor_exists(this, uncensor_json); }
-				if ($("#es_uncensor_unsure").is(".checked")) { apply_uncensor_unsure(this, uncensor_json); }
-				if ($("#es_uncensor_not_exists").is(".checked")) { apply_uncensor_not_exists(this, uncensor_json); }
+			$.getJSON('https://www.uncensorpat.ch/api/get-data', function(uncensor_json) {
+				console.log(uncensor_json);
+				$(".search_result_row").each(function() {
+					$(this).css("display", "block");
+					if ($("#es_uncensor_exists").is(".checked")) { apply_uncensor_exists(this, uncensor_json); }
+					if ($("#es_uncensor_unsure").is(".checked")) { apply_uncensor_unsure(this, uncensor_json); }
+					if ($("#es_uncensor_not_exists").is(".checked")) { apply_uncensor_not_exists(this, uncensor_json); }
+				});
 			});
 		}
 
