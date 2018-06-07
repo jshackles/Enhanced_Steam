@@ -251,7 +251,7 @@
     "tag_short": "Use short tags to save space",
     "no_price_data": "No price data available",
     "exclude_tags": "Exclude tags",
-    "narrow_by_uncensor": "Hide by uncensor patch",
+    "narrow_by_uncensor": "Filter by uncensor patch",
     "uncensor_exists": "Available",
     "uncensor_unsure": "Unsure",
     "uncensor_not_exists": "Doesn't exist",
