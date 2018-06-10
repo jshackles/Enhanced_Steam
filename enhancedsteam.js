@@ -982,32 +982,56 @@ function validate_price (priceText, event) {
 	return !(Number.isNaN(price));
 }
 
-function apply_uncensor_exists (node, uncensor_json) {
-	var appid = parseInt($(node).attr("data-ds-appid"));
-	if ($.inArray(appid, uncensor_json["exists"]) === -1) $(node).hide();
-	if ($(document).height() <= $(window).height()) {
-		load_search_results()
-	}
-}
+var uncensorpatch_module = (function () {
+	var uncensor_json = null;
+	
+	var pub = {};
 
-function apply_uncensor_unsure (node, uncensor_json) {
-	var appid = parseInt($(node).attr("data-ds-appid"));
-	if (($.inArray(appid, uncensor_json["exists"]) > -1)
-	  | ($.inArray(appid, uncensor_json["not_exists"]) > -1)) {
-		$(node).hide();
+	pub.apply_uncensor_node = function (node) {
+		if(uncensor_json === null) pub.get_json();
+		else {
+			var appid = parseInt($(node).attr("data-ds-appid"));
+			if ($("#es_uncensor_exists").is(".checked")) {
+				if ($.inArray(appid, uncensor_json["exists"]) === -1) $(node).hide();
+			}
+			if ($("#es_uncensor_unsure").is(".checked")) {
+				if (($.inArray(appid, uncensor_json["exists"]) > -1)
+				  | ($.inArray(appid, uncensor_json["not_exists"]) > -1)) {
+					$(node).hide();
+				}
+			}
+			if ($("#es_uncensor_not_exists").is(".checked")) {
+				if ($.inArray(appid, uncensor_json["not_exists"]) === -1) $(node).hide();
+			}
+			if ($(document).height() <= $(window).height()) {
+				load_search_results()
+			}
+		}
 	}
-	if ($(document).height() <= $(window).height()) {
-		load_search_results()
-	}
-}
 
-function apply_uncensor_not_exists (node, uncensor_json) {
-	var appid = parseInt($(node).attr("data-ds-appid"));
-	if ($.inArray(appid, uncensor_json["not_exists"]) === -1) $(node).hide();
-	if ($(document).height() <= $(window).height()) {
-		load_search_results()
+	pub.apply_uncensor = function () {
+		if(uncensor_json === null) pub.get_json();
+		else {
+			$(".search_result_row").each(function() {
+				$(this).css("display", "block");
+				pub.apply_uncensor_node(this);
+			});
+		}
 	}
-}
+
+	pub.get_json = function () {
+		if(uncensor_json === null) {
+			$.getJSON('https://www.uncensorpat.ch/api/get-data', function(ret_json) {
+				uncensor_json = ret_json;
+				pub.apply_uncensor();
+			});
+		} else {
+			pub.apply_uncensor();
+		}
+	}
+
+	return pub;
+}());
 
 function hexToRgb(hex) {
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -3473,15 +3497,7 @@ function add_uncensor_buttons_to_search() {
 		}
 
 		function add_uncensor_buttons_to_search_click() {
-			$.getJSON('https://www.uncensorpat.ch/api/get-data', function(uncensor_json) {
-				console.log(uncensor_json);
-				$(".search_result_row").each(function() {
-					$(this).css("display", "block");
-					if ($("#es_uncensor_exists").is(".checked")) { apply_uncensor_exists(this, uncensor_json); }
-					if ($("#es_uncensor_unsure").is(".checked")) { apply_uncensor_unsure(this, uncensor_json); }
-					if ($("#es_uncensor_not_exists").is(".checked")) { apply_uncensor_not_exists(this, uncensor_json); }
-				});
-			});
+			uncensorpatch_module.get_json();
 		}
 
 		$("#es_uncensor_exists").click(function() {
