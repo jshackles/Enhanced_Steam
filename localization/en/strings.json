@@ -425,6 +425,7 @@
         "show_badge_progress": "Show apps badge progress on store pages",
         "show_wishlist_link": "Show a Wishlist link on profiles",
         "show_wishlist_count": "Show the number of items on Wishlist",
+        "show_uncensorpatch_info": "Show UncensorPat.ch info and filters (18+ only)",
         "lang": {
             "english": "English",
             "brazilian": "Portuguese-Brazil",

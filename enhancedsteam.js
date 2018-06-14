@@ -988,46 +988,58 @@ var uncensorpatch_module = (function () {
 	var pub = {};
 
 	pub.apply_uncensor_node = function (node) {
-		if(uncensor_json === null) pub.get_json();
-		else {
-			var appid = parseInt($(node).attr("data-ds-appid"));
-			if ($("#es_uncensor_exists").is(".checked")) {
-				if ($.inArray(appid, uncensor_json["exists"]) === -1) $(node).hide();
-			}
-			if ($("#es_uncensor_unsure").is(".checked")) {
-				if (($.inArray(appid, uncensor_json["exists"]) > -1)
-				  | ($.inArray(appid, uncensor_json["not_exists"]) > -1)) {
-					$(node).hide();
+		storage.get(function (settings) {
+			if (settings.show_uncensorpatch_info) {
+				if(uncensor_json === null) pub.get_json();
+				else {
+					var appid = parseInt($(node).attr("data-ds-appid"));
+					if ($("#es_uncensor_exists").is(".checked")) {
+						if ($.inArray(appid, uncensor_json["exists"]) === -1) $(node).hide();
+					}
+					if ($("#es_uncensor_unsure").is(".checked")) {
+						if (($.inArray(appid, uncensor_json["exists"]) > -1)
+						| ($.inArray(appid, uncensor_json["not_exists"]) > -1)) {
+							$(node).hide();
+						}
+					}
+					if ($("#es_uncensor_not_exists").is(".checked")) {
+						if ($.inArray(appid, uncensor_json["not_exists"]) === -1) $(node).hide();
+					}
+					if ($(document).height() <= $(window).height()) {
+						load_search_results()
+					}
 				}
 			}
-			if ($("#es_uncensor_not_exists").is(".checked")) {
-				if ($.inArray(appid, uncensor_json["not_exists"]) === -1) $(node).hide();
-			}
-			if ($(document).height() <= $(window).height()) {
-				load_search_results()
-			}
-		}
+		});
 	}
 
 	pub.apply_uncensor = function () {
-		if(uncensor_json === null) pub.get_json();
-		else {
-			$(".search_result_row").each(function() {
-				$(this).css("display", "block");
-				pub.apply_uncensor_node(this);
-			});
-		}
+		storage.get(function (settings) {
+			if (settings.show_uncensorpatch_info) {
+				if(uncensor_json === null) pub.get_json();
+				else {
+					$(".search_result_row").each(function() {
+						$(this).css("display", "block");
+						pub.apply_uncensor_node(this);
+					});
+				}
+			}
+		});
 	}
 
 	pub.get_json = function () {
-		if(uncensor_json === null) {
-			$.getJSON('https://www.uncensorpat.ch/api/get-data', function(ret_json) {
-				uncensor_json = ret_json;
-				pub.apply_uncensor();
-			});
-		} else {
-			pub.apply_uncensor();
-		}
+		storage.get(function (settings) {
+			if (settings.show_uncensorpatch_info) {
+				if(uncensor_json === null) {
+					$.getJSON('https://www.uncensorpat.ch/api/get-data', function(ret_json) {
+						uncensor_json = ret_json;
+						pub.apply_uncensor();
+					});
+				} else {
+					pub.apply_uncensor();
+				}
+			}
+		});
 	}
 
 	return pub;
@@ -3460,78 +3472,84 @@ function add_hide_buttons_to_search() {
 
 function add_uncensor_buttons_to_search() {
 	storage.get(function(settings) {
-		if (settings.uncensor_exists === undefined) { settings.uncensor_exists = false; storage.set({'uncensor_exists': settings.uncensor_exists}); }
-		if (settings.uncensor_unsure === undefined) { settings.uncensor_unsure = false; storage.set({'uncensor_unsure': settings.uncensor_unsure}); }
-		if (settings.uncensor_not_exists === undefined) { settings.uncensor_not_exists = false; storage.set({'uncensor_not_exists': settings.uncensor_not_exists}); }
-		
-		$("#advsearchform").find(".rightcol").prepend(`
-			<div class='block' id='es_uncensor_menu'>
-				<div class='block_header'><div>` + localized_strings.narrow_by_uncensor + `</div></div>
-				<div class='block_content block_content_inner' style='height: 90px;' id='es_uncensor_options'>
-					<div class='tab_filter_control' id='es_uncensor_exists'>
-						<div class='tab_filter_control_checkbox'></div>
-						<span class='tab_filter_control_label'>` + localized_strings.uncensor_exists + `</span>
-					</div>
-					<div class='tab_filter_control' id='es_uncensor_unsure'>
-						<div class='tab_filter_control_checkbox'></div>
-						<span class='tab_filter_control_label'>` + localized_strings.uncensor_unsure + `</span>
-					</div>
-					<div class='tab_filter_control' id='es_uncensor_not_exists'>
-						<div class='tab_filter_control_checkbox'></div>
-						<span class='tab_filter_control_label'>` + localized_strings.uncensor_not_exists + `</span>
+		if (settings.show_uncensorpatch_info) {
+			if (settings.uncensor_exists === undefined) { settings.uncensor_exists = false; storage.set({'uncensor_exists': settings.uncensor_exists}); }
+			if (settings.uncensor_unsure === undefined) { settings.uncensor_unsure = false; storage.set({'uncensor_unsure': settings.uncensor_unsure}); }
+			if (settings.uncensor_not_exists === undefined) { settings.uncensor_not_exists = false; storage.set({'uncensor_not_exists': settings.uncensor_not_exists}); }
+			
+			$("#advsearchform").find(".rightcol").prepend(`
+				<div class='block' id='es_uncensor_menu'>
+					<div class='block_header'><div>` + localized_strings.narrow_by_uncensor + `</div></div>
+					<div class='block_content block_content_inner' style='height: 90px;' id='es_uncensor_options'>
+						<div class='tab_filter_control' id='es_uncensor_exists'>
+							<div class='tab_filter_control_checkbox'></div>
+							<span class='tab_filter_control_label'>` + localized_strings.uncensor_exists + `</span>
+						</div>
+						<div class='tab_filter_control' id='es_uncensor_unsure'>
+							<div class='tab_filter_control_checkbox'></div>
+							<span class='tab_filter_control_label'>` + localized_strings.uncensor_unsure + `</span>
+						</div>
+						<div class='tab_filter_control' id='es_uncensor_not_exists'>
+							<div class='tab_filter_control_checkbox'></div>
+							<span class='tab_filter_control_label'>` + localized_strings.uncensor_not_exists + `</span>
+						</div>
 					</div>
 				</div>
-			</div>
-		`);
+			`);
 
-		if (settings.uncensor_exists) {
-			$("#es_uncensor_exists").addClass("checked");
-		}
-
-		if (settings.uncensor_unsure) {
-			$("#es_uncensor_unsure").addClass("checked");
-		}
-
-		if (settings.uncensor_not_exists) {
-			$("#es_uncensor_not_exists").addClass("checked");
-		}
-
-		function add_uncensor_buttons_to_search_click() {
-			uncensorpatch_module.get_json();
-		}
-
-		$("#es_uncensor_exists").click(function() {
-			if ($("#es_uncensor_exists").hasClass("checked")) {
-				$("#es_uncensor_exists").removeClass("checked");
-				storage.set({'uncensor_exists': false });
-			} else {
+			if (settings.uncensor_exists) {
 				$("#es_uncensor_exists").addClass("checked");
-				storage.set({'uncensor_exists': true });
 			}
-			add_uncensor_buttons_to_search_click();
-		});
 
-		$("#es_uncensor_unsure").click(function() {
-			if ($("#es_uncensor_unsure").hasClass("checked")) {
-				$("#es_uncensor_unsure").removeClass("checked");
-				storage.set({'uncensor_unsure': false });
-			} else {
+			if (settings.uncensor_unsure) {
 				$("#es_uncensor_unsure").addClass("checked");
-				storage.set({'uncensor_unsure': true });
 			}
-			add_uncensor_buttons_to_search_click();
-		});
 
-		$("#es_uncensor_not_exists").click(function() {
-			if ($("#es_uncensor_not_exists").hasClass("checked")) {
-				$("#es_uncensor_not_exists").removeClass("checked");
-				storage.set({'uncensor_not_exists': false });
-			} else {
+			if (settings.uncensor_not_exists) {
 				$("#es_uncensor_not_exists").addClass("checked");
-				storage.set({'uncensor_not_exists': true });
 			}
-			add_uncensor_buttons_to_search_click();
-		});
+
+			function add_uncensor_buttons_to_search_click() {
+				uncensorpatch_module.get_json();
+			}
+
+			if (settings.uncensor_exists | settings.uncensor_unsure | settings.uncensor_not_exists) {
+				add_uncensor_buttons_to_search_click();
+			}
+
+			$("#es_uncensor_exists").click(function() {
+				if ($("#es_uncensor_exists").hasClass("checked")) {
+					$("#es_uncensor_exists").removeClass("checked");
+					storage.set({'uncensor_exists': false });
+				} else {
+					$("#es_uncensor_exists").addClass("checked");
+					storage.set({'uncensor_exists': true });
+				}
+				add_uncensor_buttons_to_search_click();
+			});
+
+			$("#es_uncensor_unsure").click(function() {
+				if ($("#es_uncensor_unsure").hasClass("checked")) {
+					$("#es_uncensor_unsure").removeClass("checked");
+					storage.set({'uncensor_unsure': false });
+				} else {
+					$("#es_uncensor_unsure").addClass("checked");
+					storage.set({'uncensor_unsure': true });
+				}
+				add_uncensor_buttons_to_search_click();
+			});
+
+			$("#es_uncensor_not_exists").click(function() {
+				if ($("#es_uncensor_not_exists").hasClass("checked")) {
+					$("#es_uncensor_not_exists").removeClass("checked");
+					storage.set({'uncensor_not_exists': false });
+				} else {
+					$("#es_uncensor_not_exists").addClass("checked");
+					storage.set({'uncensor_not_exists': true });
+				}
+				add_uncensor_buttons_to_search_click();
+			});
+		}
 	});
 }
 
@@ -6687,6 +6705,7 @@ function bind_ajax_content_highlighting() {
 					endless_scrolling();
 					start_highlights_and_tags();
 					process_early_access();
+					uncensorpatch_module.apply_uncensor(node);
 				}
 
 				if ($(node).children('div')[0] && $(node).children('div')[0].classList.contains("blotter_day")) {
@@ -6709,6 +6728,7 @@ function bind_ajax_content_highlighting() {
 					check_early_access(node);
 					apply_rate_filter(node);
 					apply_price_filter(node);
+					uncensorpatch_module.apply_uncensor_node(node);
 				}
 
 				if (node.classList && node.classList.contains("market_listing_row_link")) highlight_market_items();
