@@ -104,6 +104,7 @@ var settings_defaults = {
 	"show_early_access": true,
 	"show_alternative_linux_icon": false,
 	"show_itad_button": false,
+	"show_uncensorpatch_info": false,
 	"skip_got_steam": false,
 	
 	"hideinstallsteambutton": false,
