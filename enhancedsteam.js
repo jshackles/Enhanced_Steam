@@ -3479,19 +3479,19 @@ function add_uncensor_buttons_to_search() {
 			
 			$("#advsearchform").find(".rightcol").prepend(`
 				<div class='block' id='es_uncensor_menu'>
-					<div class='block_header'><div>` + localized_strings.narrow_by_uncensor + `</div></div>
+					<div class='block_header'><div>` + localized_strings.uncensor.narrow_by + `</div></div>
 					<div class='block_content block_content_inner' style='height: 90px;' id='es_uncensor_options'>
 						<div class='tab_filter_control' id='es_uncensor_exists'>
 							<div class='tab_filter_control_checkbox'></div>
-							<span class='tab_filter_control_label'>` + localized_strings.uncensor_exists + `</span>
+							<span class='tab_filter_control_label'>` + localized_strings.uncensor.exists + `</span>
 						</div>
 						<div class='tab_filter_control' id='es_uncensor_unsure'>
 							<div class='tab_filter_control_checkbox'></div>
-							<span class='tab_filter_control_label'>` + localized_strings.uncensor_unsure + `</span>
+							<span class='tab_filter_control_label'>` + localized_strings.uncensor.unsure + `</span>
 						</div>
 						<div class='tab_filter_control' id='es_uncensor_not_exists'>
 							<div class='tab_filter_control_checkbox'></div>
-							<span class='tab_filter_control_label'>` + localized_strings.uncensor_not_exists + `</span>
+							<span class='tab_filter_control_label'>` + localized_strings.uncensor.not_exists + `</span>
 						</div>
 					</div>
 				</div>
@@ -4084,6 +4084,31 @@ function add_hltb_info(appid) {
 			}
 		});
 	}
+}
+
+function add_uncensor_patch_info(appid) {
+	storage.get(function(settings) {
+		if (settings.show_uncensorpatch_info) {
+			$.getJSON('https://www.uncensorpat.ch/api/game/'+appid, function(game_uncensor_json) {
+				uncensor_patch_html = "<div class='block responsive_apppage_details_right heading'>" + localized_strings.uncensor.title + "</div>"
+					+ "<div class='block game_details underlined_links'>"
+					+ "<div class='block_content'><div class='block_content_inner'><div class='details_block'>"
+					+ "<b>" + localized_strings.uncensor.status + " </b>";
+				if (game_uncensor_json["exists"]) {
+					uncensor_patch_html += localized_strings.uncensor.exists + "</div>"
+						+ "<a class='linkbar' href='https://www.uncensorpat.ch/game/"+appid+"' target='_blank'>"
+						+ localized_strings.uncensor.visit
+						+ " <img src='https://steamstore-a.akamaihd.net/public/images/v5/ico_external_link.gif' border='0' align='bottom'></a>";
+				} else if (game_uncensor_json["investigated"]) {
+					uncensor_patch_html += localized_strings.uncensor.not_exists + "</div>";
+				} else {
+					uncensor_patch_html += localized_strings.uncensor.unsure + "</div>";
+				}
+				uncensor_patch_html += "</div></div></div>";
+				$("div.game_details:first").after(uncensor_patch_html);
+			});
+		}
+	});
 }
 
 // Add link to game pages on pcgamingwiki.com
@@ -8795,6 +8820,7 @@ $(document).ready(function(){
 
 							add_widescreen_certification(appid);
 							add_hltb_info(appid);
+							add_uncensor_patch_info(appid);
 							add_steam_client_link(appid);
 							add_pcgamingwiki_link(appid);
 							add_steamcardexchange_link(appid);
