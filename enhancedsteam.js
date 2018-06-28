@@ -2867,7 +2867,7 @@ function add_supporter_badges() {
 
 function add_twitch_info() {
 	$(".profile_leftcol *").first().prepend("<div class='profile_customization' id='es_twitch' style='display: none;'></div>");
-	var search = $(".profile_summary").find("a[href*='twitch.tv/']")[0];
+	var search = $(".profile_summary, .customtext_showcase").find("a[href*='twitch.tv/']")[0];
 	if (search) {
 		var twitch_id = $(search).attr("href").match(/twitch\.tv\/(.+)/)[1];
 		if (twitch_id) {
