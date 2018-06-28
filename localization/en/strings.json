@@ -157,6 +157,7 @@
     "visit_store": "Visit Store Page",
     "all": "All",
     "total_spent": "Total Spent",
+    "external_funds": "External Funds Used",
     "games_with_drops": "__dropsgames__ games with drops remaining",
     "binder_view": "Binder View",
     "view_stats": "View stats",
@@ -255,6 +256,7 @@
     "user_reviews": "User reviews",
     "review_summary": "__percent__ of the __num__ user reviews for this game are positive.",
     "market_popular_items_toggle": "Toggle live updating for Popular Items",
+    "show_progressbar": "Show Enhanced Steam progress and status bar",
     "achievements": {
         "option": "Show achievement completion on store pages",
         "achievements": "Achievements",

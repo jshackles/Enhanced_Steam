@@ -84,7 +84,6 @@ var settings_defaults = {
 	"showregionalprice": "mouse",
 	"regional_countries": ["us", "gb", "eu1", "ru", "br", "au", "jp"],
 
-	"showtotal": true,
 	"showmarkettotal": false,
 	"showsteamrepapi": true,
 	"showmcus": true,
@@ -150,10 +149,10 @@ var settings_defaults = {
 	"profile_custom_icon": "www.google.com/images/branding/product/ico/googleg_lodp.ico",
 	"steamcardexchange": true,
 	"purchase_dates": true,
-	"add_to_cart_wishlist": true,
 	"show_badge_progress": true,
 	"show_wishlist_link": true,
-	"show_wishlist_count": true
+	"show_wishlist_count": true,
+	"show_progressbar": true
 };
 
 // Saves options to localStorage

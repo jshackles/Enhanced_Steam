@@ -1,4 +1,20 @@
-﻿v9.8
+﻿v9.9
+-----
+: Fixed a bug that caused custom wallet amounts not to process correctly
+: Fixed numerous broken images that were the result of being served from domains with invalid SSL
+- Removed Enhanced Steam's "Account Total" feature replaced by a link to Valve's official stats
+
+
+v9.8.1
+-----
++ Updated jQuery library to v3.3.1
++ Added the ability to toggle video player fullscreen with double clicks
+: Fixed several bugs introduced by jQuery library update
+: Fixed multiple bugs caused by Valve retiring their BindTooltips functions
+: Fixed a bug that caused some options page elements not to localize correctly
+: Fixed a bug where the HD control wasn't added to videos in the store under some circumstances
+
+v9.8
 -----
 + Improved performance of inventory market total calculations
 : Fixed a bug that caused quick sell and instant sell functions to not work correctly in Firefox

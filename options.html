@@ -151,7 +151,7 @@
 						<input type="checkbox" id="tag_short" data-setting="tag_short"><label for="tag_short" id="tag_short_text" data-locale-text="options.tag_short">Use short tags to save space</label>
 					</li>
 				</div>
-				<li class="header" id="hide_text" data-locale-text="options.hide">Hide</li>
+				<li class="header" id="hide_text" data-locale-text="hide">Hide</li>
 				<li><input type="checkbox" id="hide_owned" data-setting="hide_owned"><label for="hide_owned" id="hide_owned_text" data-locale-text="options.hide_owned">Items you own in search results</label></li>
 				<li><input type="checkbox" id="hidetmsymbols" data-setting="hidetmsymbols"><label for="hidetmsymbols" id="hidetmsymbols_text" data-locale-text="options.hidetmsymbols">Trademark and Copyright symbols in game titles</label></li>
 				<li><input type="checkbox" id="hideinstallsteambutton" data-setting="hideinstallsteambutton"><label for="hideinstallsteambutton" id="store_hide_install_text" data-locale-text="options.hide_install">Hide "Install Steam" button</label></li>
@@ -200,6 +200,7 @@
 					</select>
 				</li>
 				<li class="header" id="store_general" data-locale-text="options.general">General</li>
+				<li><input type="checkbox" id="show_progressbar" data-setting="show_progressbar"><label for="show_progressbar" id="show_progressbar_text" data-locale-text="options.show_progressbar">Show Enhanced Steam progress and status bar</label></li>
 				<li><input type="checkbox" id="version_show" data-setting="version_show"><label for="version_show" id="version_show_text" data-locale-text="options.version_show">Show change log when Enhanced Steam updates</label></li>
 				<li><input type="checkbox" id="replaceaccountname" data-setting="replaceaccountname"><label for="replaceaccountname" id="store_replace_account_name" data-locale-text="options.replace_account_name">Replace account name with community name</label></li>
 				<li><input type="checkbox" id="showfakeccwarning" data-setting="showfakeccwarning"><label for="showfakeccwarning" id="header_showfakeccwarning_text" data-locale-text="options.show_regionwarning">Show warning if browsing in non-account region</label></li>
@@ -217,7 +218,7 @@
 				<li><input type="checkbox" id="show_badge_progress" data-setting="show_badge_progress"><label for="show_badge_progress" id="show_badge_progress_text" data-locale-text="options.show_badge_progress">Show apps badge progress on store pages</label></li>
 				<li><input type="checkbox" id="show_alternative_linux_icon" data-setting="show_alternative_linux_icon"><label for="show_alternative_linux_icon" id="show_alternative_linux_icon_text" data-locale-text="options.show_alternative_linux_icon">Show alternative Linux icon</label>
 				<li><input type="checkbox" id="skip_got_steam" data-setting="skip_got_steam"><label for="skip_got_steam" id="skip_got_steam_text" data-locale-text="options.skip_got_steam">Skip the 'Got Steam?' window</label>
-				<li class="header" id="store_general_thirdparty">Options for information from 3rd party sites</li>
+				<li class="header" id="store_general_thirdparty" data-locale-text="options.store_general_thirdparty">Options for information from 3rd party sites</li>
 				<li><input type="checkbox" id="show_keylol_links" data-setting="show_keylol_links"><label for="show_keylol_links" id="store_keylol_text">Show Keylol links on app pages</label></li>
 				<li><input type="checkbox" id="showmcus" data-setting="showmcus"><label for="showmcus" id="store_metacritic_text" data-locale-text="options.metacritic">Show Metacritic user scores</label></li>
 				<li><input type="checkbox" id="showoc" data-setting="showoc"><label for="showoc" id="store_opencritic_text" data-locale-text="options.opencritic">Show Opencritic.com information</label></li>
@@ -448,12 +449,6 @@
 					</select>
 				</li>
 					<li class="header" id="community_general" data-locale-text="options.general">General</li>
-					<li>
-						<input type="checkbox" id="showtotal" data-setting="showtotal"><label for="showtotal" id="total_spent_text" data-locale-text="options.total_spent">Show total spent on account page</label>
-					</li>
-					<li>
-						<input type="checkbox" id="add_to_cart_wishlist" data-setting="add_to_cart_wishlist"><label for="add_to_cart_wishlist" id="add_to_cart_wishlist_text" data-locale-text="options.add_to_cart_wishlist">Show "Add to Cart" button on Wishlists</label>
-					</li>
 					<li>
 						<input type="checkbox" id="showallachievements" data-setting="showallachievements"><label for="showallachievements" id="allachievements_text" data-locale-text="options.showallachievements">Show achievement stats on "All Games" page</label>
 					</li>
