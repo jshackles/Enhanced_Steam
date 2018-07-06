@@ -8590,6 +8590,49 @@ function market_popular_refresh_toggle() {
 	}
 }
 
+
+
+function add_token_buttons() {
+
+    $(".content").find(".btnv6_blue_hoverfade").first().after(` <a id="es-removeTokens" class="btnv6_blue_hoverfade btn_small btn_uppercase generate_button"><span>Revoke All Invites</span></a>`);
+
+    runInPageContext(`
+        function() {
+            CreateInvite = function() { 
+                    $J( '#invite_throbber' ).show();
+                    $J.ajax({
+                        url: 'https://steamcommunity.com/invites/ajaxcreate',
+                        type: 'POST',
+                        data: {
+                        sessionid: g_sessionID,
+                        steamid_user: g_steamID
+                    }
+                }).fail(function (jqxhr) {
+                    $J( '#invite_throbber' ).hide();
+                }).done(function (data) {
+                    $J( '#invite_throbber' ).hide();
+                if ( data.success == 1 ) {
+                    $J( '#invite_throbber' ).hide();
+                    AppendInvite( data.invite, '#invite_container'  );
+                    g_rgTokens.push(data.invite);
+                }
+                });
+            };
+        }`);
+
+    $("#es-removeTokens").on('click', function () {
+        runInPageContext(`
+        function(){
+            for (i = 0; i < g_rgTokens.length; i++){
+                if (g_rgTokens[i].valid) { RevokeToken(g_rgTokens[i].invite_token); }
+            }
+        }`);
+    });
+
+}
+
+
+
 $(document).ready(function(){
 	var path = window.location.pathname.replace(/\/+/g, "/");
 
@@ -8841,8 +8884,9 @@ $(document).ready(function(){
 							break;
 
 						case /^\/(?:id|profiles)\/.+\/friends(?:[/#?]|$)/.test(path):
-							add_friends_sort();
-							break;
+                            add_friends_sort();
+                            add_token_buttons();
+                            break;
 
 						case /^\/(?:id|profiles)\/.+\/tradeoffers/.test(path):
 							add_decline_button();
