@@ -8884,8 +8884,8 @@ $(document).ready(function(){
 							break;
 
 						case /^\/(?:id|profiles)\/.+\/friends(?:[/#?]|$)/.test(path):
-                            add_friends_sort();
-                            add_token_buttons();
+							add_friends_sort();
+							add_token_buttons();
                             break;
 
 						case /^\/(?:id|profiles)\/.+\/tradeoffers/.test(path):
