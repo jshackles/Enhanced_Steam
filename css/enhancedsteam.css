@@ -1231,6 +1231,87 @@ input[type=checkbox].es_dlc_selection:checked + label {
 }
 
 /***************************************
+ * App pages
+ * add_fullscreen_screenshots_button()
+ **************************************/
+.es_fullscreen_toggle {
+	position: absolute;
+	right: 18%;
+	top: 0;
+}
+.es_fullscreen_toggle i {
+	display: block;
+	background-image: url('data:image/gif;base64,R0lGODlhEAAgAIABAP///////yH5BAEAAAEALAAAAAAQACAAAAJAjH+gC+jB1HNxpmqjnHVz31iQOIoh5D0Spmom+y0kypDaOWf2hVMNjLi9asNUTFZECpO9FjIDDLqOvyYvscsVAAA7');
+	background-position: top left;
+	width: 16px;
+	height: 16px;
+	margin: 5px;
+}
+.screenshot_popup_modal_content.es_fullscreen .es_fullscreen_toggle i {
+	background-position: bottom left;
+}
+.screenshot_popup_modal_content.es_fullscreen {
+	padding: 0;
+	width: 100%;
+	/* fullscreen fix for Chrome */
+	height: 100%;
+}
+.screenshot_popup_modal_content.es_fullscreen .screenshot_popup_modal_title {
+	/* position: absolute; */
+	display: none;
+}
+.screenshot_popup_modal_content.es_fullscreen .screenshot_img_ctn {
+	width: 100%;
+	height: 100%;
+}
+.screenshot_popup_modal_content.es_fullscreen .screenshot_img_ctn > img {
+	max-width: 100% !important;
+	max-height: 100% !important;
+	object-fit: scale-down;
+	width: 100%;
+	height: 100%;
+}
+.screenshot_popup_modal_content.es_fullscreen .screenshot_popup_modal_footer {
+	position: absolute;
+	width: 100%;
+	bottom: 0;
+	overflow: visible;
+}
+.screenshot_popup_modal_content.es_fullscreen .screenshot_popup_modal_footer > .btn_medium {
+	opacity: 0;
+	transition: opacity 0.25s ease-in-out;
+}
+.screenshot_popup_modal_content.es_fullscreen .screenshot_popup_modal_footer:hover > .btn_medium {
+	opacity: 1;
+}
+.screenshot_popup_modal_content.es_fullscreen .screenshot_popup_modal_footer > div:first-child {
+	display: inline-block;
+	background: rgba(103, 193, 245, 0.2);
+	border-radius: 100px;
+	padding: 0 1em;
+}
+.screenshot_popup_modal_content.es_fullscreen .screenshot_popup_modal_footer > .previous:before {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 200%;
+	height: 10000%;
+}
+@keyframes es_screenshot_popup_modal_hook {
+	from {
+		opacity: 0.99;
+	}
+	to {
+		opacity: 1;
+	}
+}
+.screenshot_popup_modal {
+	animation-duration: 0.001s;
+	animation-name: es_screenshot_popup_modal_hook;
+}
+
+/***************************************
  * Store and Community
  * add_language_warning(),
  * add_fake_country_code_warning()

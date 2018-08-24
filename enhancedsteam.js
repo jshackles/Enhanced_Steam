@@ -5256,6 +5256,52 @@ function dlc_data_from_site(appid) {
 	}
 }
 
+function add_fullscreen_screenshots_button() {
+	function es_toggleFullScreen(element = doc.documentElement) {
+		var doc = window.document;
+		var requestFullScreen = element.requestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullScreen;
+		var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen;
+		if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement) {
+			requestFullScreen.call(element);
+		} else {
+			cancelFullScreen.call(doc);
+		}
+	}
+
+	function es_fullScreenChangeHandler(event) {
+		var es_fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+		if (es_fullscreenElement) {
+			if (es_fullscreenElement.classList.contains("screenshot_popup_modal_content")) {
+				$(".screenshot_popup_modal_content").addClass("es_fullscreen");
+			}
+		} else {
+			$(".screenshot_popup_modal_content").removeClass("es_fullscreen");
+		}
+	}
+
+	if ("onfullscreenchange" in document) {
+		document.addEventListener("fullscreenchange", es_fullScreenChangeHandler, false);
+	}
+	if ("onmozfullscreenchange" in document) {
+		document.addEventListener("mozfullscreenchange", es_fullScreenChangeHandler, false);
+	}
+	if ("onwebkitfullscreenchange" in document) {
+		document.addEventListener("webkitfullscreenchange", es_fullScreenChangeHandler, false);
+	}
+
+	document.addEventListener("animationstart", function(event) {
+		if (event.animationName === "es_screenshot_popup_modal_hook") {
+			$('<div class="btnv6_blue_hoverfade btn_medium es_fullscreen_toggle"><i></i></div>').appendTo(".screenshot_popup_modal_footer");
+			$(".es_fullscreen_toggle").css({
+				"right": `calc(${$(".screenshot_popup_modal_footer > .next").outerWidth()}px + 0.5em)`
+			});
+			$(".es_fullscreen_toggle").on("click", function() {
+				es_toggleFullScreen($(".screenshot_popup_modal_content")[0]);
+			});
+		}
+	}, false);
+}
+
 function survey_data_from_site(appid) {
 	storage.get(function(settings) {
 		if (settings.show_apppage_surveys === undefined) { settings.show_apppage_surveys = true; storage.set({'show_apppage_surveys': settings.show_apppage_surveys}); }
@@ -8555,6 +8601,7 @@ $(document).ready(function(){
 							display_coupon_message(appid);
 							show_pricing_history(appid, "app");
 							dlc_data_from_site(appid);
+							add_fullscreen_screenshots_button();
 
 							drm_warnings("app");
 							add_metacritic_userscore();
