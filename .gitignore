@@ -161,3 +161,8 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+#others
+node_modules
+out
+package-lock.json
