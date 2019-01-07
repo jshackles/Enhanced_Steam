@@ -2034,7 +2034,7 @@ function version_check() {
 function add_enhanced_steam_options() {
 	$('#global_action_menu').prepend(`
 		<div id="es_menu">
-			<span id="es_pulldown" class="pulldown global_action_link" onclick="ShowMenu( this, 'es_popup', 'right', 'bottom', true );">Enhanced Steam</span>
+			<span id="es_pulldown" class="pulldown global_action_link">Enhanced Steam</span>
 			<div id="es_popup" class="popup_block_new">
 				<div class="popup_body popup_menu">
 					<a class="popup_menu_item" target="_blank" href="${ chrome.extension.getURL("options.html") }">${ localized_strings.thewordoptions }</a>
@@ -2051,6 +2051,10 @@ function add_enhanced_steam_options() {
 			</div>
 		</div>
 	`);
+
+	$("#es_pulldown").click(function() {
+		$("#es_popup").toggle();
+	});
 
 	$('#es_clear_cache').on('click', function(e){
 		e.preventDefault();
