@@ -5292,55 +5292,6 @@ function survey_data_from_site(appid) {
 	});
 }
 
-function dlc_data_for_dlc_page() {
-	var totalunowned = 0;
-	var sessionid;
-	var addunowned = "<form name=\"add_all_unowned_dlc_to_cart\" action=\"" + protocol + "//store.steampowered.com/cart/\" method=\"POST\"><input type=\"hidden\" name=\"action\" value=\"add_to_cart\">";
-
-	window.setTimeout(function() {
-		$.each($("div.dlc_page_purchase_dlc"), function(j, node){
-			var appid = get_appid(node.href || $(node).find("a")[0].href) || get_appid_wishlist(node.id);
-			get_http("https://api.enhancedsteam.com/gamedata/?appid=" + appid, function (txt) {
-				var data;
-				if (txt != "{\"dlc\":}}") {
-					data = JSON.parse(txt);
-				}
-				var html = "<div style='width: 250px; margin-left: 310px;'>";
-
-				if (data) {
-					$.each(data["dlc"], function(index, value) {
-						html += "<div class='game_area_details_specs'><div class='icon'><img src='" + protocol + "//www.enhancedsteam.com/gamedata/icons/" + escapeHTML(value['icon']) + "' align='top'></div><a class='name'><span title='" + escapeHTML(value['text']) + "' style='cursor: default;'>" + escapeHTML(index) + "</span></a></div>";
-					});
-				}
-
-				html += "</div>";
-
-				$(node).css("height", "144px");
-				$(node).append(html);
-			});
-
-			if (!sessionid) {
-				sessionid = $(node).find("input[name=sessionid]").attr("value");
-				addunowned += "<input type=\"hidden\" name=\"sessionid\" value=\"" + sessionid + "\">";	
-			} 
-			if (appid) {
-				if ($(node).find(".ds_owned_flag").length == 0) {
-					addunowned += "<input type=\"hidden\" name=\"subid[]\" value=\"" + $(node).find("input[name=subid]").attr("value") + "\">";
-					totalunowned = totalunowned + 1;
-				}
-			}
-		});
-
-		addunowned += "</form>";
-
-		if (totalunowned > 0) {
-			$("#dlc_purchaseAll").before(addunowned);
-			var buttoncode = "<div class='btn_addtocart' style='float: right; margin-right: 15px;' id='dlc_purchaseAllunOwned'><a class='btnv6_green_white_innerfade btn_medium' href=\"javascript:document.forms['add_all_unowned_dlc_to_cart'].submit();\"><span>" + localized_strings.add_unowned_dlc_to_cart + "</span></a></div>";
-			$("#dlc_purchaseAll").after(buttoncode);
-		}
-	}, 500);
-}
-
 function add_app_badge_progress(appid) {
 	if (is_signed_in) {
 		storage.get(function(settings) {
@@ -8573,10 +8524,6 @@ $(document).ready(function(){
 							drm_warnings("sub");
 							show_pricing_history(bundleid, "bundle");
 							add_steamdb_links(bundleid, "bundle");
-							break;
-
-						case /^\/dlc\/.*/.test(path):
-							dlc_data_for_dlc_page();
 							break;
 
 						case /^\/video\/.*/.test(path):
