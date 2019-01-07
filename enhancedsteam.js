@@ -481,64 +481,6 @@ function currency_symbol_from_string (string_with_symbol) {
 	return match ? match[0] : '';
 }
 
-var currencyConversion = (function() {
-	var deferred;
-	var rates;
-
-	function load(currency) {
-		if (deferred) return deferred.promise();
-		deferred = new $.Deferred();
-		rates = cache_get(currency || user_currency);
-		if (rates) {
-			deferred.resolveWith(rates);
-		} else {
-			var apiurl = "https://api.enhancedsteam.com/currencydata/?base=" + (currency || user_currency);
-			get_http(apiurl, function(txt) {
-				rates = JSON.parse(txt);
-				cache_set(currency || user_currency, rates);
-				deferred.resolveWith(rates);
-			}, {timeout: 10000}).fail(function(){
-				rates = cache_get(currency || user_currency, true);
-				if (rates) {
-					deferred.resolveWith(rates);
-				} else {
-					deferred.reject();
-				}
-			});
-		}
-		return deferred.promise();
-	}
-
-	function convert(amount, currency_from, currency_to) {
-		if (rates) {
-			if (rates[currency_to]) return amount / rates[currency_to][currency_from];
-			if (rates[currency_from]) return amount * rates[currency_from][currency_to];
-		}
-	}
-	
-	function cache_set(currency, rates) {
-		var expires = parseInt(Date.now() / 1000, 10) + 24 * 60 * 60 * 3; // Three days from now
-		var cached = {
-			rates: rates[currency],
-			expires: expires
-		};
-		localStorage.setItem("currencyConversion_" + currency, JSON.stringify(cached));
-	}
-	function cache_get(currency, get_cached) {
-		var cached = JSON.parse(localStorage.getItem("currencyConversion_" + currency));
-		if (cached && (cached.expires > parseInt(Date.now() / 1000, 10) || get_cached)) {
-			var rates = {};
-			rates[currency] = cached.rates;
-			return rates;
-		}
-	}
-	
-	return {
-		load: load,
-		convert: convert
-	};
-})();
-
 /**
  * Gets the country code of store region.
  */
@@ -1623,15 +1565,8 @@ function add_wishlist_pricehistory() {
 										activates = "";
 									}
 								}
-
-								if (settings.override_price != "auto") {
-									currencyConversion.load().done(function() {
-										lowest = currencyConversion.convert(data["price"]["price"], data[".meta"]["currency"], settings.override_price);
-										currency_type = settings.override_price;
-									});
-								} else {
-									lowest = data["price"]["price"].toString();
-								}
+								
+								lowest = data["price"]["price"].toString();
 
 								line1 = localized_strings.lowest_price + ': ' + localized_strings.lowest_price_format.replace("__price__", formatCurrency(lowest, currency_type)).replace("__store__", '<a href="' + escapeHTML(data["price"]["url"].toString()) + '" target="_blank">' + escapeHTML(data["price"]["store"].toString()) + '</a>') + ' ' + activates + ' (<a href="' + escapeHTML(data["urls"]["info"].toString()) + '" target="_blank">' + localized_strings.info + '</a>)';
 								if (settings.showlowestpricecoupon) {
@@ -1643,14 +1578,7 @@ function add_wishlist_pricehistory() {
 
 							// "Historical Low"
 							if (data["lowest"]) {
-								if (settings.override_price != "auto") {
-									currencyConversion.load().done(function() {
-										lowesth = currencyConversion.convert(data["lowest"]["price"], data[".meta"]["currency"], settings.override_price);
-										currency_type = settings.override_price;
-									});
-								} else {
-									lowesth = data["lowest"]["price"].toString();
-								}
+								lowesth = data["lowest"]["price"].toString();
 								recorded = new Date(data["lowest"]["recorded"]*1000);
 								line2 = localized_strings.historical_low + ': ' + localized_strings.historical_low_format.replace("__price__", formatCurrency(lowesth, currency_type)).replace("__store__", escapeHTML(data["lowest"]["store"].toString())).replace("__date__", recorded.toLocaleDateString()) + ' (<a href="' + escapeHTML(data["urls"]["history"].toString()) + '" target="_blank">' + localized_strings.info + '</a>)';
 							}
@@ -2442,14 +2370,7 @@ function show_pricing_history(appid, type) {
 										}
 									}
 
-									if (settings.override_price != "auto") {
-										currencyConversion.load().done(function() {
-											lowest = currencyConversion.convert(data["price"]["price"], price_data[".meta"]["currency"], settings.override_price);
-											currency_type = settings.override_price;
-										});
-									} else {
-										lowest = data["price"]["price"].toString();
-									}
+									lowest = data["price"]["price"].toString();
 
 									line1 = localized_strings.lowest_price + ': ' + localized_strings.lowest_price_format.replace("__price__", formatCurrency(lowest, currency_type)).replace("__store__", '<a href="' + escapeHTML(data["price"]["url"].toString()) + '" target="_blank">' + escapeHTML(data["price"]["store"].toString()) + '</a>') + ' ' + activates + ' (<a href="' + escapeHTML(data["urls"]["info"].toString()) + '" target="_blank">' + localized_strings.info + '</a>)';
 									if (settings.showlowestpricecoupon) {
@@ -2461,15 +2382,7 @@ function show_pricing_history(appid, type) {
 
 								// "Historical Low"
 								if (data["lowest"]) {
-									if (settings.override_price != "auto") {
-										currencyConversion.load().done(function() {
-											lowesth = currencyConversion.convert(data["lowest"]["price"], price_data[".meta"]["currency"], settings.override_price);
-											currency_type = settings.override_price;
-										});
-									} else {
-										lowesth = data["lowest"]["price"].toString();
-									}
-
+									lowesth = data["lowest"]["price"].toString();
 									recorded = new Date(data["lowest"]["recorded"]*1000);
 									line2 = localized_strings.historical_low + ': ' + localized_strings.historical_low_format.replace("__price__", formatCurrency(lowesth, currency_type)).replace("__store__", escapeHTML(data["lowest"]["store"].toString())).replace("__date__", recorded.toLocaleDateString()) + ' (<a href="' + escapeHTML(data["urls"]["history"].toString()) + '" target="_blank">' + localized_strings.info + '</a>)';
 								}
@@ -2529,12 +2442,6 @@ function show_pricing_history(appid, type) {
 												if (Object.keys(data["bundles"]["live"][i]["tiers"]).length > 1) {
 													var tier_name = value.note || localized_strings.bundle.tier.replace("__num__", tier_num);
 													var tier_price = value.price;
-													if (settings.override_price != "auto") {
-														currencyConversion.load().done(function() {
-															tier_price = currencyConversion.convert(value.price, price_data[".meta"]["currency"], settings.override_price);
-															currency_type = settings.override_price;
-														});
-													}
 													tier_price = formatCurrency(tier_price, currency_type);
 													purchase += localized_strings.bundle.tier_includes.replace("__tier__", tier_name).replace("__price__", tier_price).replace("__num__", value.games.length);
 												} else {
@@ -2550,13 +2457,7 @@ function show_pricing_history(appid, type) {
 												tier_num += 1;
 											});
 											purchase += '</p><div class="game_purchase_action"><div class="game_purchase_action_bg"><div class="btn_addtocart btn_packageinfo"><a class="btnv6_blue_blue_innerfade btn_medium" href="' + data["bundles"]["live"][i]["details"] + '" target="_blank"><span>' + localized_strings.bundle.info + '</span></a></div></div><div class="game_purchase_action_bg">';
-											if (bundle_price && bundle_price > 0) {
-												if (settings.override_price != "auto") {
-													currencyConversion.load().done(function() {
-														bundle_price = currencyConversion.convert(bundle_price, price_data[".meta"]["currency"], settings.override_price);
-														currency_type = settings.override_price;
-													});
-												}
+											if (bundle_price && bundle_price > 0) {												
 												if (data["bundles"]["live"][i]["pwyw"]) {
 													purchase += '<div class="es_each_box" itemprop="price">';
 													purchase += '<div class="es_each">' + localized_strings.bundle.at_least + '</div><div class="es_each_price" style="text-align: right;">' + formatCurrency(bundle_price, currency_type) + '</div>';
@@ -5901,10 +5802,6 @@ function show_regional_pricing(type) {
 					var percentage_indicator = "es_percentage_equal";
 					var percentage;
 
-					if (settings.override_price != "auto") {
-						local_price = currencyConversion.convert(local_price, sub_info["prices"][local_country]["currency"], settings.override_price);
-					}
-
 					percentage = (((converted_price / local_price) * 100) - 100).toFixed(2);
 					if (percentage < 0) {
 						percentage = Math.abs(percentage);
@@ -5913,7 +5810,7 @@ function show_regional_pricing(type) {
 						percentage_indicator = "es_percentage_higher";
 					}
 
-					regional_price_div = '<div class="es_regional_price es_flag es_flag_' + country + '">' + formatted_price + ' <span class="es_regional_converted">(' + formatted_converted_price + ')</span><span class="es_percentage ' + percentage_indicator + '">' + percentage + '%</span></div>';
+					regional_price_div = '<div class="es_regional_price es_flag es_flag_' + country + '">' + formatted_price + '</div>';
 				} else {
 					regional_price_div = '<div class="es_regional_price es_flag es_flag_' + country + '"><span class="es_regional_unavailable">' + localized_strings.region_unavailable + '</span></div>';
 				}
@@ -5970,58 +5867,55 @@ function show_regional_pricing(type) {
 				});
 
 				$.when.apply(null, currency_deferred).done(function(){
-					currencyConversion.load().done(function(){
-						$.each(subid_info, function(index, subid) {
-							if (subid["subid"] != 0) {
-								var sub_formatted = [];
-								var app_pricing_div = $(pricing_div).clone().attr("id", "es_pricing_" + subid["subid"].toString());
+					$.each(subid_info, function(index, subid) {
+						if (subid["subid"] != 0) {
+							var sub_formatted = [];
+							var app_pricing_div = $(pricing_div).clone().attr("id", "es_pricing_" + subid["subid"].toString());
 
-								// Format prices for each country
-								$.each(countries, function(country_index, country) {
-									if (country !== local_country) {
-										if (subid["prices"][country]) {
-											var country_currency = subid["prices"][country]["currency"].toString().toUpperCase();
-											var app_price = subid["prices"][country]["final"];
-											var converted_price = currencyConversion.convert(parseFloat(app_price), country_currency, user_currency);
-											var regional_price = formatPriceData(subid, country, converted_price);
+							// Format prices for each country
+							$.each(countries, function(country_index, country) {
+								if (country !== local_country) {
+									if (subid["prices"][country]) {
+										var country_currency = subid["prices"][country]["currency"].toString().toUpperCase();
+										var app_price = subid["prices"][country]["final"];
+										var regional_price = formatPriceData(subid, country, app_price);
 
-											sub_formatted.push(regional_price);	
-										} else {
-											var regional_price = formatPriceData(subid, country);
-	
-											sub_formatted.push(regional_price);
-										}
-									}
-								});
-
-								$(app_pricing_div).append(sub_formatted);
-
-								// Insert regional prices into the page
-								var price_container;
-								if (sale) {
-									price_container = $(".sale_page_purchase_item").eq(index).addClass("es_regional_prices");
-									
-									if (settings.showregionalprice === "always") {
-										$(price_container).addClass("es_regional_always").prepend(app_pricing_div);
+										sub_formatted.push(regional_price);	
 									} else {
-										$(price_container).addClass("es_regional_onmouse").find(".game_purchase_action_bg").last().append(app_pricing_div);
-									}
-								} else {
-									price_container = $(".game_area_purchase_game").eq(index).addClass("es_regional_prices");
-									
-									if (settings.showregionalprice === "always") {
-										$(price_container).addClass("es_regional_always").find(".game_purchase_action").before(app_pricing_div);
-									} else {
-										$(price_container).addClass("es_regional_onmouse").find(".game_purchase_action_bg").last().append(app_pricing_div);
+										var regional_price = formatPriceData(subid, country);
+
+										sub_formatted.push(regional_price);
 									}
 								}
+							});
 
-								// Add the "globe" icon
-								if (settings.showregionalprice === "mouse" && !(settings.regional_hideworld)) {
-									$(price_container).find(".price, .discount_prices").addClass("es_regional_icon");
+							$(app_pricing_div).append(sub_formatted);
+
+							// Insert regional prices into the page
+							var price_container;
+							if (sale) {
+								price_container = $(".sale_page_purchase_item").eq(index).addClass("es_regional_prices");
+								
+								if (settings.showregionalprice === "always") {
+									$(price_container).addClass("es_regional_always").prepend(app_pricing_div);
+								} else {
+									$(price_container).addClass("es_regional_onmouse").find(".game_purchase_action_bg").last().append(app_pricing_div);
+								}
+							} else {
+								price_container = $(".game_area_purchase_game").eq(index).addClass("es_regional_prices");
+								
+								if (settings.showregionalprice === "always") {
+									$(price_container).addClass("es_regional_always").find(".game_purchase_action").before(app_pricing_div);
+								} else {
+									$(price_container).addClass("es_regional_onmouse").find(".game_purchase_action_bg").last().append(app_pricing_div);
 								}
 							}
-						});
+
+							// Add the "globe" icon
+							if (settings.showregionalprice === "mouse" && !(settings.regional_hideworld)) {
+								$(price_container).find(".price, .discount_prices").addClass("es_regional_icon");
+							}
+						}
 					});
 				});
 			}

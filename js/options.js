@@ -80,7 +80,6 @@ var settings_defaults = {
 		"chrono": true,
 		"savemi": true
 	},
-	"override_price": "auto",
 	"showregionalprice": "mouse",
 	"regional_countries": ["us", "gb", "eu1", "ru", "br", "au", "jp"],
 
