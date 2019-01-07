@@ -7469,111 +7469,6 @@ function add_gamecard_foil_link() {
 	}
 }
 
-// Display the cost estimate of crafting a game badge by purchasing unowned trading cards
-function add_badge_completion_cost() {
-	if (is_signed_in) {
-		if ($(".profile_small_header_texture:first a")[0].href == $(".playerAvatar:first a")[0].href.replace(/\/$/, "").replace(/\/$/, "")) {
-			var faq_html = $(".profile_xp_block_right").html();
-			$(".profile_xp_block_mid").append("<div class='es_faq_cards'>" + faq_html + "</div>");
-			
-			$(".profile_xp_block_right").html("<div id='es_cards_worth'></div>");
-			
-			var total_worth = 0, count = 0;
-
-			// Gather appid info
-			var appids = [],
-				foil_appids = [],
-				nodes = [],
-				foil_nodes = [];
-			$(".badge_row.is_link").each(function() {
-				var game = $(this).find(".badge_row_overlay")[0].href.match(/gamecards\/(\d+)\//),
-					foil = /\?border=1/.test($(this).find("a:last")[0].href),
-					node = $(this),
-					push = [];
-
-				if (game) {
-					push[0] = game[1];
-					push[1] = node[0];
-					if (foil) {
-						foil_appids.push(game[1]);
-						foil_nodes.push(push);
-					} else {
-						appids.push(game[1]);
-						nodes.push(push);
-					}
-				}
-			});
-
-			// Next, get the average card values
-			if (appids.length > 0) {
-				get_http("https://api.enhancedsteam.com/market_data/average_card_prices/?cur=" + user_currency.toLowerCase() + "&appids=" + appids.join(), function(json) {
-					var data = JSON.parse(json);
-					$.each(nodes, function(index, value) {
-						var appid = value[0],
-							node = value[1];
-
-						if (appid in data["avg_values"]) {
-							if ($(node).find("div[class$='badge_progress_info']").text()) {
-								var card = $(node).find("div[class$='badge_progress_info']").text().trim().match(/(\d+)\D*(\d+)/);
-								if (card) var need = card[2] - card[1];
-							}
-
-							var cost = (need * parseFloat(data["avg_values"][appid])).toFixed(2);
-							if ($(node).find(".progress_info_bold").text()) {
-								var drops = $(node).find(".progress_info_bold").text().match(/\d+/);
-								if (drops) { var worth = (drops[0] * parseFloat(data["avg_values"][appid])).toFixed(2); }
-							}
-
-							if (worth > 0) {
-								total_worth = total_worth + parseFloat(worth);
-							}
-
-							cost = formatCurrency(cost);
-							card = formatCurrency(worth);
-							worth_formatted = formatCurrency(total_worth);
-
-							if (worth > 0) {
-								$(node).find(".how_to_get_card_drops").after("<span class='es_card_drop_worth'>" + localized_strings.drops_worth_avg + " " + card + "</span>")
-								$(node).find(".how_to_get_card_drops").remove();
-							}
-
-							$(node).find(".badge_empty_name:last").after("<div class='badge_info_unlocked' style='color: #5c5c5c;'>" + localized_strings.badge_completion_avg + ": " + cost + "</div>");
-							$(node).find(".badge_empty_right").css("margin-top", "7px");
-							$(node).find(".gamecard_badge_progress .badge_info").css("width", "296px");
-
-							$("#es_cards_worth").text(localized_strings.drops_worth_avg + " " + worth_formatted);
-						}
-					});
-				});
-			}
-
-			// Finally, do the foils
-			if (foil_appids.length > 0) {
-				get_http("https://api.enhancedsteam.com/market_data/average_card_prices/?cur=" + user_currency.toLowerCase() + "&foil=true&appids=" + foil_appids.join(), function(json) {
-					var foil_data = JSON.parse(json);
-					$.each(foil_nodes, function(index, value) {
-						var appid = value[0],
-							node = value[1];
-
-						if (appid in foil_data["avg_values"]) {
-							if ($(node).find("div[class$='badge_progress_info']").text()) {
-								var card = $(node).find("div[class$='badge_progress_info']").text().trim().match(/(\d+)\D*(\d+)/);
-								if (card) var need = card[2] - card[1];
-							}
-
-							var cost = (need * parseFloat(foil_data["avg_values"][appid])).toFixed(2);
-							cost = formatCurrency(cost);
-							$(node).find(".badge_empty_name:last").after("<div class='badge_info_unlocked' style='color: #5c5c5c;'>" + localized_strings.badge_completion_avg + ": " + cost + "</div>");
-							$(node).find(".badge_empty_right").css("margin-top", "7px");
-							$(node).find(".gamecard_badge_progress .badge_info").css("width", "296px");
-						}
-					});
-				});
-			}
-		}
-	}
-}
-
 function add_store_trade_forum_link(appid) {
 	$(".gamecards_inventorylink").append(`
 		<a class="es_visit_tforum btn_grey_grey btn_medium" href="${ protocol }//store.steampowered.com/app/${ appid }">
@@ -8309,7 +8204,6 @@ $(document).ready(function(){
 							break;
 
 						case /^\/(?:id|profiles)\/.+\/badges(?!\/[0-9]+$)/.test(path):
-							add_badge_completion_cost();
 							add_total_drops_count();
 							add_cardexchange_links();
 							add_badge_sort();
