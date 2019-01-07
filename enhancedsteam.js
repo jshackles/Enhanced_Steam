@@ -7497,48 +7497,6 @@ function add_gamecard_foil_link() {
 	}
 }
 
-function add_gamecard_market_links(game) {
-	var cost = 0,
-		foil = /border=1/i.test(document.URL),
-		price_type = "price" + (user_currency != "USD" ? "_" + user_currency.toLowerCase() : "");
-
-	get_http("https://api.enhancedsteam.com/market_data/card_prices/?appid=" + game, function(txt) {
-		var data = JSON.parse(txt);
-
-		// Turn card names into keys, this way we no longer need to loop and search the data each and everytime
-		var namedData = {};
-		for (var i = 0; i < data.length; i++) {
-			namedData[data[i].name] = data[i];
-		}
-
-		$(".badge_card_set_card").each(function(i, node) {
-			var cardName = $(node).find(".badge_card_set_text").first().text().replace(/&amp;/g, '&').replace(/&/g, '&amp;').replace(/\(\d+\)/g, '').trim();
-			var cardData = namedData[cardName] || namedData[cardName + " (Trading Card)"];
-			if (foil) {
-				cardData = namedData[cardName + " (Foil)"] || namedData[cardName + " (Foil Trading Card)"];
-			}
-
-			if (cardData) {
-				var marketlink = protocol + "//steamcommunity.com/market/listings/" + cardData.url;
-				var card_price = formatCurrency(cardData[price_type]);
-				
-				if ($(node).hasClass("unowned")) cost += parseFloat(cardData[price_type]);
-
-				if (marketlink && card_price) {
-					var html = `<a class="es_card_search" href="${ marketlink }">${ localized_strings.lowest_price }: ${ card_price }</a>`;
-					$(node).append(html);
-				}
-			}
-		});
-		
-		if (cost > 0 && $(".profile_small_header_name .whiteLink").attr("href") == $(".user_avatar:first").attr("href").replace(/\/$/, "")) {
-			cost = formatCurrency(cost);
-			$(".badge_empty_name:last").after('<div class="badge_empty_name badge_info_unlocked">' + localized_strings.badge_completion_cost + ': ' + cost + '</div>');
-			$(".badge_empty_right").css("margin-top", "7px");
-		}
-	});
-}
-
 // Display the cost estimate of crafting a game badge by purchasing unowned trading cards
 function add_badge_completion_cost() {
 	if (is_signed_in) {
@@ -8399,7 +8357,6 @@ $(document).ready(function(){
 						case /^\/(?:id|profiles)\/.+\/gamecards/.test(path):
 							var gamecard = get_gamecard(path);
 							add_cardexchange_links(gamecard);
-							add_gamecard_market_links(gamecard);
 							add_gamecard_foil_link();
 							add_store_trade_forum_link(gamecard);
 							break;
