@@ -1594,19 +1594,26 @@ function add_wishlist_pricehistory() {
 				var hover_div = $("\t\t<div class=\"hover game_hover\" id=\"global_hover\" style=\"display: none; left: 0px; top: 0;\">\r\n\t\t\t<div class=\"game_hover_box hover_box\">\r\n\t\t\t\t<div class=\"content\" id=\"global_hover_content\">\r\n\t\t\t\t<\/div>\r\n\t\t\t<\/div>\r\n\t\t\t<div class=\"hover_arrow_left\" style=\"left: 6px;\"><\/div>\r\n\t\t\t<\/div>");
 				$(document.body).append( hover_div );
 
-				// Get country code from Steam cookie
-				var cc = getStoreRegionCountryCode();
-
 				function get_price_data(node, id) {
 					html = "<div class='es_lowest_price' id='es_price_" + id + "' style='background-color: transparent; padding: 0px; min-height: 50px;'><span id='es_price_loading_" + id + "'>" + localized_strings.loading + "</span>";
 					$("#global_hover_content").append(html);
 
-					get_http("https://api.enhancedsteam.com/pricev3/?appid=" + id + "&stores=" + storestring + "&cc=" + cc + "&coupon=" + settings.showlowestpricecoupon, function (txt) {
+					var itad_url = "https://api.isthereanydeal.com/v01/game/overview/?shop=steam&ids=app/" + id;
+					itad_url += "&allowed=" + storestring;
+					itad_url += "&country=" + getStoreRegionCountryCode();
+
+					if (settings.showlowestpricecoupon) {
+						itad_url += "&optional=voucher";
+					}
+
+					//itad_url += "&key=";
+
+					get_http(itad_url, function (txt) {
 						var data = JSON.parse(txt);
 						if (data) {
 							var activates = "", line1 = "", line2 = "", line3 = "", html, recorded, lowest, lowesth;
 							var currency_type = data[".meta"]["currency"];
-							data = data["app/" + id];
+							data = data["data"]["app/" + id];
 
 							// "Lowest Price"
 							if (data["price"]) {
@@ -2376,31 +2383,39 @@ function show_pricing_history(appid, type) {
 			});
 
 			if (storestring !== "") {
-				// Get country code from Steam cookie
-				var cc = getStoreRegionCountryCode();
+				var ids = "app/" + appid + ",";
 
 				// if this is a bundle page, get and pass the bundleid
-				var bundleid = "";
 				if (type == "bundle") {
-					bundleid = appid;
+					ids += "bundle/" + appid + ",";
 				}
 
 				// Get all of the subIDs on the page
 				var subids = "";
 				$("input[name=subid]").each(function(index, value) {
-					subids += value.value + ",";
+					ids += "sub/" + value.value + ",";
 				});
 
-				get_http("https://api.enhancedsteam.com/pricev3/?bundleid=" + bundleid + "&subs=" + subids + "&stores=" + storestring + "&cc=" + cc + "&appid=" + appid + "&coupon=" + settings.showlowestpricecoupon, function (txt) {
+				var itad_url = "https://api.isthereanydeal.com/v01/game/overview/?shop=steam&ids=" + ids;
+				itad_url += "&allowed=" + storestring;
+				itad_url += "&country=" + getStoreRegionCountryCode();
+
+				if (settings.showlowestpricecoupon) {
+					itad_url += "&optional=voucher";
+				}
+
+				//itad_url += "&key=";
+
+				get_http(itad_url, function (txt) {
 					var price_data = JSON.parse(txt);
 					if (price_data) {
 						var bundles = [];
 						var currency_type = price_data[".meta"]["currency"];
-						$.each(price_data, function(key, data) {
-							if (key != ".cached" && key != ".meta" && data) {
+						$.each(price_data["data"], function(key, data) {
+							if (key != ".cached" && key != ".meta" && key != "" && data) {
 								var subid = key.replace(/(bundle|sub|app)\//i, "");
 								
-								if (bundleid != "") {
+								if (type == "bundle") {
 									var node = $(".game_area_purchase_game:first");
 								} else {
 									var node = $("input[name='subid'][value='" + subid + "']").parent().parent();
