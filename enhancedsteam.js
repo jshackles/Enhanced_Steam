@@ -4546,34 +4546,6 @@ function inventory_market_helper(response) {
 		}
 	} else {
 		if (owns_inventory) {
-			// If is a booster pack add the average price of three cards
-			if (is_booster) {
-				var $sideMarketActsDiv = $sideMarketActs.find("div").last().css("margin-bottom", "8px"),
-					dataCardsPrice = $(thisItem).data("cards-price");
-
-				$(`#iteminfo${ item }_item_owner_actions`).prepend(`
-					<a class="btn_small btn_grey_white_innerfade" href="` + protocol + `//steamcommunity.com/my/gamecards/${ appid }/"><span>${ localized_strings.view_badge_progress }</span></a>
-				`);
-
-				// Monitor for when the price and volume are added
-				setMutationHandler(document, ".item_market_actions div:last-child br:last-child", function(){
-					if (dataCardsPrice) {
-						$sideMarketActsDiv.append(localized_strings.avg_price_3cards + ": " + dataCardsPrice + "<br>");
-					} else {
-						var api_url = "https://api.enhancedsteam.com/market_data/average_card_price/?appid=" + appid + "&cur=" + user_currency.toLowerCase();
-
-						get_http(api_url, function(price_data) {
-							var booster_price = formatCurrency(parseFloat(price_data,10) * 3);
-
-							$(thisItem).data("cards-price", booster_price);
-							$sideMarketActsDiv.append(localized_strings.avg_price_3cards + ": " + booster_price + "<br>");
-						});
-					}
-
-					this.disconnect();
-				});
-			}
-
 			storage.get(function(settings) {
 				// 1-Click turn into gems option
 				if (settings.show1clickgoo === undefined) { settings.show1clickgoo = true; storage.set({'show1clickgoo': settings.show1clickgoo}); }
