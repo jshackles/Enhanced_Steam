@@ -5217,31 +5217,6 @@ function subscription_savings_check() {
 	}, 500);
 }
 
-// Pull DLC gamedata from enhancedsteam.com
-function dlc_data_from_site(appid) {
-	if ($("div.game_area_dlc_bubble").length > 0) {
-		var appname = $(".apphub_AppName").html();
-		appname = encodeURIComponent(appname);
-		get_http("https://api.enhancedsteam.com/gamedata/?appid=" + appid + "&appname=" + appname, function (txt) {
-			var data;
-			if (txt != "{\"dlc\":}}") {
-				data = JSON.parse(txt);
-			}
-			var html = "<div class='block responsive_apppage_details_right heading'>" + localized_strings.dlc_details + "</div><div class='block'><div class='block_content'><div class='block_content_inner'><div class='details_block'>";
-
-			if (data) {
-				$.each(data["dlc"], function(index, value) {
-					html += "<div class='game_area_details_specs'><div class='icon'><img src='" + protocol + "//www.enhancedsteam.com/gamedata/icons/" + escapeHTML(value['icon']) + "' align='top'></div><a class='name' title='" + escapeHTML(value['text']) + "'>" + escapeHTML(index) + "</a></div>";
-				});
-			}
-
-			html += "</div><a class='linkbar' style='margin-top: 10px;' href=\"http://www.enhancedsteam.com/gamedata/dlc_category_suggest.php?appid=" + appid + "&appname=" + appname + "\" target='_blank'>" + localized_strings.dlc_suggest + "</a></div></div></div>";
-
-			$("#category_block").parent().before(html);
-		});
-	}
-}
-
 function survey_data_from_site(appid) {
 	storage.get(function(settings) {
 		if (settings.show_apppage_surveys === undefined) { settings.show_apppage_surveys = true; storage.set({'show_apppage_surveys': settings.show_apppage_surveys}); }
@@ -8540,7 +8515,6 @@ $(document).ready(function(){
 							add_app_page_wishlist_changes(appid);
 							display_coupon_message(appid);
 							show_pricing_history(appid, "app");
-							dlc_data_from_site(appid);
 
 							drm_warnings("app");
 							add_metacritic_userscore();
