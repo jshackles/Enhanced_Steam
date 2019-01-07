@@ -1,4 +1,8 @@
-﻿v9.9
+﻿v10.0
+-----
+
+
+v9.9
 -----
 + Added an option to toggle the display of the Enhanced Steam loading and status bar
 : Fixed a bug that caused custom wallet amounts not to process correctly
