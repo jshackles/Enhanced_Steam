@@ -2260,6 +2260,12 @@ function add_custom_money_amount() {
 	$(".giftcard_selection #es_custom_money_amount").on("click", function(e) {
 		e.preventDefault();
 	});
+	$(".es_custom_button").on("click", function(e) {
+		e.preventDefault();
+		$("#input_amount").attr("value", this.dataset.amount);
+		$("#input_currency").attr("value", this.dataset.currency);
+		$('#form_addfunds').submit();
+	});
 }
 
 // If app has a coupon, display a message.

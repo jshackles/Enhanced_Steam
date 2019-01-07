@@ -1,5 +1,6 @@
 ﻿v10.0
 -----
+: Fixed an issue with custom steam wallet amounts not processing correctly
 
 
 v9.9
