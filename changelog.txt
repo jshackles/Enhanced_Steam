@@ -1,6 +1,7 @@
 ﻿v10.0
 -----
 : Fixed an issue with custom steam wallet amounts not processing correctly
+: Fixed a bug with search filtering boxes not expanding properly
 
 
 v9.9

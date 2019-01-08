@@ -2869,7 +2869,7 @@ function add_hide_buttons_to_search() {
 						</div>
 					</div>
 				</div>
-				<a class="see_all_expander" href="#" id="es_hide_expander" onclick="ExpandOptions(this, 'es_hide_options'); return false;"></a>
+				<div class="see_all_expander" href="#" id="es_hide_expander" style="cursor: pointer;"></div>
 			</div>
 		`);
 		$("#es_hide_expander").text($(".see_all_expander:last").text());
@@ -2935,6 +2935,11 @@ function add_hide_buttons_to_search() {
 				if ($("#es_notpriceabove").is(".checked")) { apply_price_filter(this); }
 			});
 		}
+
+		$("#es_hide_expander").click(function() {
+			$("#es_hide_options").css("height", "inherit");
+			$(this).hide();
+		});
 
 		$("#es_owned_games").click(function() {
 			if ($("#es_owned_games").hasClass("checked")) {
