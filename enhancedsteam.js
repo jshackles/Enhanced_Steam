@@ -577,63 +577,6 @@ function get_http(url, callback, requestSettings) {
 	return jqxhr;
 }
 
-var storePageData = (function() {
-	var deferred = new $.Deferred();
-	var data;
-
-	function load(appid, metalink) {
-		data = cache_get(appid);
-		if (data) {
-			deferred.resolveWith(data);
-		} else {
-			var all = parseInt($("#review_type_all").next().find(".user_reviews_count").text().replace(/\(|\)|\,/g, "")),
-				pos = parseInt($("#review_type_positive").next().find(".user_reviews_count").text().replace(/\(|\)|\,/g, "")),
-				stm = parseInt($("#purchase_type_steam").next().find(".user_reviews_count").text().replace(/\(|\)|\,/g, ""));
-			var apiurl = "https://api.enhancedsteam.com/storepagedata/?appid=" + appid;
-			if (all && pos && stm) apiurl += "&r_all=" + all + "&r_pos=" + pos + "&r_stm=" + stm;
-			if (metalink) apiurl += "&mcurl=" + metalink;
-			
-			storage.get(function(settings) {
-				if (settings.showoc === undefined) { settings.showoc = true; storage.set({'showoc': settings.showoc}); }
-				if (settings.showoc) { apiurl += "&oc"; }
-
-				get_http(apiurl, function(txt) {
-					data = JSON.parse(txt);
-					cache_set(appid, data);
-					deferred.resolveWith(data);
-				}).fail(deferred.reject);
-			});			
-		}
-		return deferred.promise();
-	}
-
-	function get(api, callback) {
-		if (api && callback) deferred.done(function() {
-			if (data[api]) callback(data[api]);
-		});
-		return deferred.promise();
-	}
-
-	function cache_set(appid, data) {
-		var expires = parseInt(Date.now() / 1000, 10) + 1 * 60 * 60; // One hour from now
-		var cached = {
-			data: data,
-			expires: expires
-		};
-		localStorage.setItem("storePageData_" + appid, JSON.stringify(cached));
-	}
-
-	function cache_get(appid) {
-		var cached = $.parseJSON(localStorage.getItem("storePageData_" + appid));
-		if (cached && cached.expires > parseInt(Date.now() / 1000, 10)) return cached.data;
-	}
-
-	return {
-		load: load,
-		get: get
-	}
-})();
-
 function get_appid(t) {
 	if (t && t.match(/(?:store\.steampowered|steamcommunity)\.com\/(app|market\/listings)\/(\d+)\/?/)) return RegExp.$2;
 	else return null;
@@ -1714,74 +1657,6 @@ function add_package_info_button() {
 			});
 		}
 	});
-}
-
-// Display information on current players from SteamCharts.com
-function add_steamchart_info(appid) {
-	if ($(".game_area_dlc_bubble").length == 0) {
-		storage.get(function(settings) {
-			if (settings.show_steamchart_info === undefined) { settings.show_steamchart_info = true; storage.set({'show_steamchart_info': settings.show_steamchart_info}); }
-			if (settings.show_steamchart_info) {
-				storePageData.get("charts", function(data) {
-					if (data["chart"]) {
-						var html = '<div id="steam-charts" class="game_area_description"><h2>' + localized_strings.charts.current + '</h2>';
-						html += '<div id="chart-heading" class="chart-content"><div id="chart-image"><img src="' + protocol + '//steamcdn-a.akamaihd.net/steam/apps/' + appid + '/capsule_184x69.jpg" width="184" height="69"></div><div class="chart-stat">';
-						html += '<span class="num">' + escapeHTML(data["chart"]["current"]) + '</span><br>' + localized_strings.charts.playing_now + '</div><div class="chart-stat">';
-						html += '<span class="num">' + escapeHTML(data["chart"]["peaktoday"]) + '</span><br>' + localized_strings.charts.peaktoday + '</div><div class="chart-stat">';
-						html += '<span class="num">' + escapeHTML(data["chart"]["peakall"]) + '</span><br>' + localized_strings.charts.peakall + '</div><span class="chart-footer">Powered by <a href="http://steamcharts.com/app/' + appid + '" target="_blank">SteamCharts.com</a></span></div></div>';
-
-						if ($("#steam-spy").length) {
-							$("#steam-spy").before(html);
-						} else {
-							$(".sys_req").parent().before(html);
-						}
-					}
-				});
-			}
-		});
-	}
-}
-
-function add_steamspy_info(appid) {
-	if ($(".game_area_dlc_bubble").length == 0) {
-		storage.get(function(settings) {
-			if (settings.show_steamspy_info === undefined) { settings.show_steamspy_info = true; storage.set({'show_steamspy_info': settings.show_steamspy_info}); }
-			if (settings.show_steamspy_info) {
-				storePageData.get("steamspy", function(data) {
-					if (data["owners"] != 0) {
-						var owners1 = Number(parseInt(data["owners"]) - parseInt(data["owners_variance"])).toLocaleString("en"),
-							owners2 = Number(parseInt(data["owners"]) + parseInt(data["owners_variance"])).toLocaleString("en"),
-							players2weeks1 = Number(parseInt(data["players_2weeks"]) - parseInt(data["players_2weeks_variance"])).toLocaleString("en"),
-							players2weeks2 = Number(parseInt(data["players_2weeks"]) + parseInt(data["players_2weeks_variance"])).toLocaleString("en"),
-							players2weeksp = (parseInt(data["players_2weeks"]) / parseInt(data["owners"]) * 100).toFixed(2),
-							players1 = Number(parseInt(data["players_forever"]) - parseInt(data["players_forever_variance"])).toLocaleString("en"),
-							players2 = Number(parseInt(data["players_forever"]) + parseInt(data["players_forever_variance"])).toLocaleString("en"),
-							playersp = (parseInt(data["players_forever"]) / parseInt(data["owners"]) * 100).toFixed(2)
-							avg_hours = Math.floor(parseInt(data["average_forever"]) / 60),
-							avg_minutes = parseInt(data["average_forever"]) % 60,
-							avg_hours2 = Math.floor(parseInt(data["average_2weeks"]) / 60),
-							avg_minutes2 = parseInt(data["average_2weeks"]) % 60;
-
-						var html = '<div id="steam-spy" class="game_area_description"><h2>' + localized_strings.spy.player_data + '</h2>';
-						html += "<div class='spy_details'>";
-						if (!isNaN(owners1) && !isNaN(owners2)) { html += "<b>" + localized_strings.spy.owners + ":</b> " + owners1 + " - " + owners2 + "<br>"; }
-						if (!isNaN(players1) && !isNaN(players2)) { html += "<b>" + localized_strings.spy.players_total + ":</b> " + players1 + " - " + players2 + " (" + playersp + "%)<br>"; }
-						if (!isNaN(players2weeks1) && !isNaN(players2weeks2)) { html += "<b>" + localized_strings.spy.players_2weeks + ":</b> " + players2weeks1 + " - " + players2weeks2 + " (" + players2weeksp + "%)<br>"; }
-						html += "<b>" + localized_strings.spy.average_playtime + ":</b> " + localized_strings.spy.formatted_time.replace("__hours__", avg_hours).replace("__minutes__", avg_minutes);
-						html += "<br><b>" + localized_strings.spy.average_playtime_2weeks + ":</b> " + localized_strings.spy.formatted_time.replace("__hours__", avg_hours2).replace("__minutes__", avg_minutes2);
-						html += "<span class='chart-footer' style='padding-right: 13px;'>Powered by <a href='http://steamspy.com/app/" + appid + "' target='_blank'>steamspy.com</a></span>";
-						html += "</div>";
-
-						if ($("#steam-charts").length) {
-							$("#steam-charts").after(html);
-						} else {
-							$(".sys_req").parent().before(html);	
-						}							
-					}
-				});
-			}
-		});
-	}
 }
 
 // Add button to check system requirements on app pages 
@@ -3514,116 +3389,6 @@ function hide_activity_spam_comments() {
 	blotter_content_observer.observe($("#blotter_content")[0], {childList:true, subtree:true});
 }
 
-// Add Metacritic user scores to store page
-function add_metacritic_userscore() {
-	storage.get(function(settings) {
-		if (settings.showmcus === undefined) { settings.showmcus = true; storage.set({'showmcus': settings.showmcus}); }
-		if (settings.showmcus) {
-			if ($("#game_area_metascore").length) {
-				storePageData.get("metacritic", function(data) {
-					if (data.userscore) {
-						var metauserscore = data.userscore * 10;
-						if (!isNaN(metauserscore)) {
-							$("#game_area_metascore").after("<div id='game_area_userscore'></div>");
-							var rating;
-							if (metauserscore >= 75) { rating = "high"; } else {
-								if (metauserscore >= 50) { rating = "medium"; } else { rating = "low"; }
-							}
-							$("#game_area_userscore").append("<div class='score " + rating + "'>" + metauserscore + "</div><div class='logo'></div><div class='wordmark'><div class='metacritic'>" + localized_strings.user_score + "</div></div>");
-						}
-					}
-				});
-			}
-		}
-	});
-}
-
-// Adds data from OpenCritic.com to the store page, if applicable
-function add_opencritic_data(appid) {
-	storage.get(function(settings) {
-		if (settings.showoc === undefined) { settings.showoc = true; storage.set({'showoc': settings.showoc}); }
-		if (settings.show_apppage_reviews === undefined) { settings.show_apppage_reviews = true; storage.set({'show_apppage_reviews': settings.show_apppage_reviews}); }
-		if (settings.showoc) {
-			storePageData.get("oc", function(data) {
-				if (data.score && data.score > 0) {
-					// Add data to metacritic side bar, or create one if that block doesn't exist
-					if ($(".rightcol .responsive_apppage_reviewblock").length > 0) {
-						$("#game_area_userscore").after("<div id='game_area_opencritic'></div>");
-					} else {
-						$(".rightcol.game_meta_data:first").append("<div><div class='block responsive_apppage_reviewblock'><div id='game_area_opencritic' class='solo'></div><div style='clear: both'></div></div>");
-					}
-					$("#game_area_opencritic").append("<div class='score " + data.award.toLowerCase() + "'>" + data.score + "</div><div><img src='" + chrome.extension.getURL("img/opencritic.png") + "'></div><div class='oc_text'>\"" + data.award + "\" - <a href='" + data.url + "?utm_source=enhanced-steam&utm_medium=average' target='_blank'>" + localized_strings.read_reviews + " </a></div>");
-
-					// Add data to the review section in the left column, or create one if that block doesn't exist
-					if (data.reviews.length > 0) {
-						if ($("#game_area_reviews").length > 0) {
-							$("#game_area_reviews").find("p").prepend("<div id='es_opencritic_reviews'></div>");
-							$("#game_area_reviews").find("p").append("<div class='chart-footer'>" + localized_strings.read_more_reviews + " <a href='" + data.url + "?utm_source=enhanced-steam&utm_medium=reviews' target='_blank'>OpenCritic.com</a></div>");
-						} else {
-							$("#game_area_description").before("<div id='game_area_reviews' class='game_area_description'><h2>" + localized_strings.reviews + "</h2><div id='es_opencritic_reviews'></div><div class='chart-footer'>" + localized_strings.read_more_reviews + " <a href='" + data.url + "?utm_source=enhanced-steam&utm_medium=reviews' target='_blank'>OpenCritic.com</a></div></div>");
-							if (settings.show_apppage_reviews == false) {
-								$("#game_area_reviews").hide();
-							}
-						}
-
-						var review_text = "";
-						$.each(data.reviews, function(key, reviewdata) {
-							var date = new Date(reviewdata.date);
-							review_text += "<p>\"" + reviewdata.snippet + "\"<br>" + reviewdata.dScore + " - <a href='" + reviewdata.rURL + "' target='_blank' data-tooltip-text='" + reviewdata.author + ", " + date.toLocaleDateString() + "'>" + reviewdata.name + "</a></p>";
-						});
-
-						$("#es_opencritic_reviews").append(review_text);
-						runInPageContext("function() { BindTooltips( '#game_area_reviews', { tooltipCSSClass: 'store_tooltip'} ); }");
-					}
-				}
-			});
-		}
-	});
-}
-
-function add_hltb_info(appid) {
-	if ($(".game_area_dlc_bubble").length === 0) {
-		storage.get(function(settings) {
-			if (settings.showhltb === undefined) { settings.showhltb = true; storage.set({'showhltb': settings.showhltb}); }
-			if (settings.showhltb) {
-				storePageData.get("hltb", function(data) {
-					if (data["success"]) {
-						how_long_html = "<div class='block responsive_apppage_details_right heading'>" + localized_strings.hltb.title + "</div>"
-							+ "<div class='block game_details underlined_links'>"
-							+ "<div class='block_content'><div class='block_content_inner'><div class='details_block'>";
-						if (data["main_story"]){
-							how_long_html += "<b>" + localized_strings.hltb.main + ":</b><span style='float: right;'>" + escapeHTML(data['main_story']) + "</span><br>";
-						}
-						if (data["main_extras"]){
-							how_long_html += "<b>" + localized_strings.hltb.main_e + ":</b><span style='float: right;'>" + escapeHTML(data['main_extras']) + "</span><br>";
-						}
-						if (data["comp"]) {
-							how_long_html += "<b>" + localized_strings.hltb.compl + ":</b><span style='float: right;'>" + escapeHTML(data['comp']) + "</span><br>"
-						}
-						how_long_html += "</div>"
-							+ "<a class='linkbar' href='" + escapeHTML(data['url']) + "' target='_blank'>" + localized_strings.more_information + " <img src='" + protocol + "//store.steampowered.com/public/images/v5/ico_external_link.gif' border='0' align='bottom'></a>"
-							+ "<a class='linkbar' href='" + escapeHTML(data['submit_url']) + "' target='_blank'>" + localized_strings.hltb.submit + " <img src='" + protocol + "//store.steampowered.com/public/images/v5/ico_external_link.gif' border='0' align='bottom'></a>"
-							+ "<a class='linkbar' href='" + protocol + "//www.enhancedsteam.com/gamedata/hltb_link_suggest.php' id='suggest'>" + localized_strings.hltb.wrong + " - " + localized_strings.hltb.help + " <img src='" + protocol + "//store.steampowered.com/public/images/v5/ico_external_link.gif' border='0' align='bottom'></a>"
-							+ "</div></div></div>";
-						$("div.game_details:first").after(how_long_html);
-					} else {
-						how_long_html = "<div class='block game_details underlined_links'>"
-							+ "<div class='block_header'><h4>How Long to Beat</h4></div>"
-							+ "<div class='block_content'><div class='block_content_inner'><div class='details_block'>"
-							+ localized_strings.hltb.no_data + "</div>"
-							+ "<a class='linkbar' href='" + protocol + "//www.enhancedsteam.com/gamedata/hltb_link_suggest.php' id='suggest'>" + localized_strings.hltb.help + " <img src='" + protocol + "//store.steampowered.com/public/images/v5/ico_external_link.gif' border='0' align='bottom'></a>"
-							+ "</div></div></div>";
-						$("div.game_details:first").after(how_long_html);
-					}
-					$("#suggest").on("click", function() {
-						delValue("storePageData_" + appid);
-					});
-				});
-			}
-		});
-	}
-}
-
 // Add link to game pages on pcgamingwiki.com
 function add_pcgamingwiki_link(appid) {
 	storage.get(function(settings) {
@@ -3660,131 +3425,6 @@ function add_app_page_highlights() {
 		if (settings.highlight_owned) {
 			if ($(".game_area_already_owned").find(".ds_owned_flag").length > 0) {
 				$(".apphub_AppName").css("color", settings.highlight_owned_color);
-			}
-		}
-	});
-}
-
-// Display widescreen support information from wsgf.org
-function add_widescreen_certification(appid) {
-	storage.get(function(settings) {
-		if (settings.showwsgf === undefined) { settings.showwsgf = true; storage.set({'showwsgf': settings.showwsgf}); }
-		if ($(".game_area_dlc_bubble").length <= 0) {
-			if (settings.showwsgf) {
-				// Check to see if game data exists
-				storePageData.get("wsgf", function(data) {
-					$("div.game_details:first").each(function (index, node) {
-						var path = data["Path"];
-						var wsg = data["WideScreenGrade"];
-						var mmg = data["MultiMonitorGrade"];
-						var fkg = data["Grade4k"];
-						var uws = data["UltraWideScreenGrade"];
-						var wsg_icon = "", wsg_text = "", mmg_icon = "", mmg_text = "";
-						var fkg_icon = "", fkg_text = "", uws_icon = "", uws_text = "";
-
-						switch (wsg) {
-							case "A":
-								wsg_icon = chrome.extension.getURL("img/wsgf/ws-gold.png");
-								wsg_text = localized_strings.wsgf.gold.replace(/__type__/g, "Widescreen");
-								break;
-							case "B":
-								wsg_icon = chrome.extension.getURL("img/wsgf/ws-silver.png");
-								wsg_text = localized_strings.wsgf.silver.replace(/__type__/g, "Widescreen");
-								break;
-							case "C":
-								wsg_icon = chrome.extension.getURL("img/wsgf/ws-limited.png");
-								wsg_text = localized_strings.wsgf.limited.replace(/__type__/g, "Widescreen");
-								break;
-							case "Incomplete":
-								wsg_icon = chrome.extension.getURL("img/wsgf/ws-incomplete.png");
-								wsg_text = localized_strings.wsgf.incomplete;
-								break;
-							case "Unsupported":
-								wsg_icon = chrome.extension.getURL("img/wsgf/ws-unsupported.png");
-								wsg_text = localized_strings.wsgf.unsupported.replace(/__type__/g, "Widescreen");
-								break;
-						}
-
-						switch (mmg) {
-							case "A":
-								mmg_icon = chrome.extension.getURL("img/wsgf/mm-gold.png");
-								mmg_text = localized_strings.wsgf.gold.replace(/__type__/g, "Multi-Monitor");
-								break;
-							case "B":
-								mmg_icon = chrome.extension.getURL("img/wsgf/mm-silver.png");
-								mmg_text = localized_strings.wsgf.silver.replace(/__type__/g, "Multi-Monitor");
-								break;
-							case "C":
-								mmg_icon = chrome.extension.getURL("img/wsgf/mm-limited.png");
-								mmg_text = localized_strings.wsgf.limited.replace(/__type__/g, "Multi-Monitor");
-								break;
-							case "Incomplete":
-								mmg_icon = chrome.extension.getURL("img/wsgf/mm-incomplete.png");
-								mmg_text = localized_strings.wsgf.incomplete;
-								break;
-							case "Unsupported":
-								mmg_icon = chrome.extension.getURL("img/wsgf/mm-unsupported.png");
-								mmg_text = localized_strings.wsgf.unsupported.replace(/__type__/g, "Multi-Monitor");
-								break;
-						}
-
-						switch (uws) {
-							case "A":
-								uws_icon = chrome.extension.getURL("img/wsgf/uw-gold.png");
-								uws_text = localized_strings.wsgf.gold.replace(/__type__/g, "Ultra-Widescreen");
-								break;
-							case "B":
-								uws_icon = chrome.extension.getURL("img/wsgf/uw-silver.png");
-								uws_text = localized_strings.wsgf.silver.replace(/__type__/g, "Ultra-Widescreen");
-								break;
-							case "C":
-								uws_icon = chrome.extension.getURL("img/wsgf/uw-limited.png");
-								uws_text = localized_strings.wsgf.limited.replace(/__type__/g, "Ultra-Widescreen");
-								break;
-							case "Incomplete":
-								uws_icon = chrome.extension.getURL("img/wsgf/uw-incomplete.png");
-								uws_text = localized_strings.wsgf.incomplete;
-								break;
-							case "Unsupported":
-								uws_icon = chrome.extension.getURL("img/wsgf/uw-unsupported.png");
-								uws_text = localized_strings.wsgf.unsupported.replace(/__type__/g, "Ultra-Widescreen");
-								break;
-						}
-
-						switch (fkg) {
-							case "A":
-								fkg_icon = chrome.extension.getURL("img/wsgf/4k-gold.png");
-								fkg_text = localized_strings.wsgf.gold.replace(/__type__/g, "4k UHD");
-								break;
-							case "B":
-								fkg_icon = chrome.extension.getURL("img/wsgf/4k-silver.png");
-								fkg_text = localized_strings.wsgf.silver.replace(/__type__/g, "4k UHD");
-								break;
-							case "C":
-								fkg_icon = chrome.extension.getURL("img/wsgf/4k-limited.png");
-								fkg_text = localized_strings.wsgf.limited.replace(/__type__/g, "4k UHD");
-								break;
-							case "Incomplete":
-								fkg_icon = chrome.extension.getURL("img/wsgf/4k-incomplete.png");
-								fkg_text = localized_strings.wsgf.incomplete;
-								break;
-							case "Unsupported":
-								fkg_icon = chrome.extension.getURL("img/wsgf/4k-unsupported.png");
-								fkg_text = localized_strings.wsgf.unsupported.replace(/__type__/g, "4k UHD");
-								break;
-						}
-
-						var html = "<div class='block responsive_apppage_details_right heading'>"+localized_strings.wsgf.certifications+"</div><div class='block underlined_links'><div class='block_content'><div class='block_content_inner'><div class='details_block'><center>";
-
-						if (wsg != "Incomplete") { html += "<a target='_blank' href='" + escapeHTML(path) + "'><img src='" + escapeHTML(wsg_icon) + "' height='120' title='" + escapeHTML(wsg_text) + "' border=0></a>&nbsp;&nbsp;&nbsp;"; }
-						if (mmg != "Incomplete") { html += "<a target='_blank' href='" + escapeHTML(path) + "'><img src='" + escapeHTML(mmg_icon) + "' height='120' title='" + escapeHTML(mmg_text) + "' border=0></a>&nbsp;&nbsp;&nbsp;"; }
-						if (uws != "Incomplete") { html += "<a target='_blank' href='" + escapeHTML(path) + "'><img src='" + escapeHTML(uws_icon) + "' height='120' title='" + escapeHTML(uws_text) + "' border=0></a>&nbsp;&nbsp;&nbsp;"; }
-						if (fkg != "Incomplete") { html += "<a target='_blank' href='" + escapeHTML(path) + "'><img src='" + escapeHTML(fkg_icon) + "' height='120' title='" + escapeHTML(fkg_text) + "' border=0></a>&nbsp;&nbsp;&nbsp;"; }
-						if (path) { html += "</center><br><a class='linkbar' target='_blank' href='" + escapeHTML(path) + "'>" + localized_strings.rating_details + " <img src='" + protocol + "//store.steampowered.com/public/images/v5/ico_external_link.gif' border='0' align='bottom'></a>"; }
-						html += "</div></div></div></div>";
-						$(node).after(html);
-					});
-				});
 			}
 		}
 	});
@@ -4889,81 +4529,6 @@ function subscription_savings_check() {
 	}, 500);
 }
 
-function survey_data_from_site(appid) {
-	storage.get(function(settings) {
-		if (settings.show_apppage_surveys === undefined) { settings.show_apppage_surveys = true; storage.set({'show_apppage_surveys': settings.show_apppage_surveys}); }
-		if (settings.show_apppage_surveys) {
-			if ($("div.game_area_dlc_bubble").length == 0 && $(".game_area_purchase_game:first").find(".streamingvideo").length == 0) {
-				storePageData.get("survey", function(data) {
-					var html = "<div id='performance_survey' class='game_area_description'><h2>" + localized_strings.survey.performance_survey + "</h2>";
-					if (data["success"]) {
-						html += "<p>" + localized_strings.survey.users.replace("__users__", data["responses"]) + ".</p>";
-						html += "<p><b>" + localized_strings.survey.framerate + "</b>: " + Math.round(data["frp"]) + "% " + localized_strings.survey.framerate_response + " "
-						switch (data["fr"]) {
-							case "30": html += "<span style='color: #8f0e10;'>" + localized_strings.survey.framerate_30 + "</span>"; break;
-						 	case "fi": html += "<span style='color: #e1c48a;'>" + localized_strings.survey.framerate_fi + "</span>"; break;
-						 	case "va": html += "<span style='color: #8BC53F;'>" + localized_strings.survey.framerate_va + "</span>"; break;
-						}
-						html += "<br><b>" + localized_strings.survey.resolution + "</b>: " + localized_strings.survey.resolution_support + " "
-						switch (data["mr"]) {
-							case "less": html += "<span style='color: #8f0e10;'>" + localized_strings.survey.resolution_less.replace("__pixels__", "1920x1080") + "</span>"; break;
-							case "hd": html += "<span style='color: #8BC53F;'>" + localized_strings.survey.resolution_up.replace("__pixels__", "1920x1080 (HD)") + "</span>"; break;
-							case "wqhd": html += "<span style='color: #8BC53F;'>" + localized_strings.survey.resolution_up.replace("__pixels__", "2560x1440 (WQHD)") + "</span>"; break;
-							case "4k": html += "<span style='color: #8BC53F;'>" + localized_strings.survey.resolution_up.replace("__pixels__", "3840x2160 (4K)") + "</span>"; break;
-						}
-						html += "<br><b>" + localized_strings.survey.graphics_settings + "</b>: ";
-						if (data["gs"]) {
-							html += "<span style='color: #8BC53F;'>" + localized_strings.survey.gs_y + "</span></p>";
-						} else {
-							html += "<span style='color: #8f0e10;'>" + localized_strings.survey.gs_n + "</span></p>";
-						}
-						if (data["nvidia"] !== undefined || data["amd"] !== undefined || data["intel"] !== undefined || data["other"] !== undefined) {
-							html += "<p><b>" + localized_strings.survey.satisfaction + "</b>:";
-							html += "<div class='performance-graph'>";
-							if (data["nvidia"] !== undefined) {
-								if (data["nvidia"] > 90 || data["nvidia"] < 10) {
-									html += "<div class='row'><div class='left-bar nvidia' style='width: " + parseInt(data["nvidia"]).toString() + "%;'><span>Nvidia&nbsp;" + data["nvidia"] + "%</span></div><div class='right-bar' style='width: " + parseInt(100-data["nvidia"]) + "%;'></div></div>";
-								} else {
-									html += "<div class='row'><div class='left-bar nvidia' style='width: " + parseInt(data["nvidia"]).toString() + "%;'><span>Nvidia</span></div><div class='right-bar' style='width: " + parseInt(100-data["nvidia"]) + "%;'><span>" + data["nvidia"] + "%</span></div></div>";
-								}
-							}
-							if (data["amd"] !== undefined) {
-								if (data["amd"] > 90 || data["amd"] < 10) {
-									html += "<div class='row'><div class='left-bar amd' style='width: " + parseInt(data["amd"]).toString() + "%;'><span>AMD&nbsp;" + data["amd"] + "%</span></div><div class='right-bar' style='width: " + parseInt(100-data["amd"]) + "%'></div></div>";
-								} else {
-									html += "<div class='row'><div class='left-bar amd' style='width: " + parseInt(data["amd"]).toString() + "%;'><span>AMD</span></div><div class='right-bar' style='width: " + parseInt(100-data["amd"]) + "%'><span>" + data["amd"] + "%</span></div></div>";
-								}
-							}
-							if (data["intel"] !== undefined) {
-								if (data["intel"] > 90 || data["intel"] < 10) {
-									html += "<div class='row'><div class='left-bar intel' style='width: " + parseInt(data["intel"]).toString() + "%;'><span>Intel&nbsp;" + data["intel"] + "%</span></div><div class='right-bar' style='width: " + parseInt(100-data["intel"]) + "%'></div></div>";
-								} else {
-									html += "<div class='row'><div class='left-bar intel' style='width: " + parseInt(data["intel"]).toString() + "%;'><span>Intel</span></div><div class='right-bar' style='width: " + parseInt(100-data["intel"]) + "%'><span>" + data["intel"] + "%</span></div></div>";
-								}
-							}
-							if (data["other"] !== undefined) {
-								if (data["other"] > 90 || data["other"] < 10) {
-									html += "<div class='row'><div class='left-bar other' style='width: " + parseInt(data["other"]).toString() + "%;'><span>Other&nbsp;" + data["other"] + "%</span></div><div class='right-bar' style='width: " + parseInt(100-data["other"]) + "%'></div></div>";
-								} else {
-									html += "<div class='row'><div class='left-bar other' style='width: " + parseInt(data["other"]).toString() + "%;'><span>Other</span></div><div class='right-bar' style='width: " + parseInt(100-data["other"]) + "%'><span>" + data["other"] + "%</span></div></div>";
-								}
-							}
-							html += "</div>";
-						}
-					} else {
-						html += "<p>" + localized_strings.survey.nobody + ".</p>";
-					}
-					if ($(".game_area_already_owned").length > 0 && $(".hours_played").length > 0) {
-						html += "<a class='btnv6_blue_blue_innerfade btn_medium es_btn_systemreqs' href='" + protocol + "//enhancedsteam.com/survey/?appid=" + appid + "'><span>" + localized_strings.survey.take + "</span></a>";
-					}
-					html += "</div>";
-					$(".sys_req").parent().before(html);
-				});
-			}
-		}
-	});
-}
-
 function add_app_badge_progress(appid) {
 	if (is_signed_in) {
 		storage.get(function(settings) {
@@ -5548,7 +5113,6 @@ function customize_app_page(appid) {
 		if (settings.show_apppage_legal === undefined) { settings.show_apppage_legal = true; storage.set({'show_apppage_legal': settings.show_apppage_legal}); }
 		if (settings.show_apppage_morelikethis === undefined) { settings.show_apppage_morelikethis = true; storage.set({'show_apppage_morelikethis': settings.show_apppage_morelikethis}); }
 		if (settings.show_apppage_customerreviews === undefined) { settings.show_apppage_customerreviews = true; storage.set({'show_apppage_customerreviews': settings.show_apppage_customerreviews}); }
-		if (settings.show_apppage_surveys === undefined) { settings.show_apppage_surveys = true; storage.set({'show_apppage_surveys': settings.show_apppage_surveys}); }
 
 		$(".purchase_area_spacer:last").append(`
 			<link rel='stylesheet' type='text/css' href='` + protocol + `//steamstore-a.akamaihd.net/public/css/v6/home.css'>
@@ -5575,9 +5139,6 @@ function customize_app_page(appid) {
 		addToggleHandler("show_apppage_recentupdates", ".early_access_announcements");
 		addToggleHandler("show_apppage_reviews", "#game_area_reviews");
 		addToggleHandler("show_apppage_about", "#game_area_description");
-		addToggleHandler("show_steamchart_info", "#steam-charts", localized_strings.charts.current, true, function(){ if (!$("#steam-charts").length) add_steamchart_info(appid); });
-		addToggleHandler("show_steamspy_info", "#steam-spy", localized_strings.spy.player_data, true, function(){ if (!$("#steam-spy").length) add_steamspy_info(appid); });
-		addToggleHandler("show_apppage_surveys", "#performance_survey", localized_strings.survey.performance_survey, true, function(){ if (!$("#performance_survey").length) survey_data_from_site(appid); });
 		addToggleHandler("show_apppage_sysreq", ".sys_req");
 		addToggleHandler("show_apppage_legal", "#game_area_legal", localized_strings.apppage_legal);
 		addToggleHandler("show_apppage_morelikethis", "#recommended_block", $("#recommended_block").find("h4:first").text());
@@ -6053,14 +5614,6 @@ function add_steamdb_links(appid, type) {
 			$(useful_links).prependTo($("div.rightcol.game_meta_data").first());
 		}
 	}
-}
-
-function add_familysharing_warning(appid) {
-	storePageData.get("exfgls", function(data) {
-		if (data.excluded) {
-			$("#game_area_purchase").before('<div id="purchase_note"><div class="notice_box_top"></div><div class="notice_box_content">' + localized_strings.family_sharing_notice + '</div><div class="notice_box_bottom"></div></div>');
-		}
-	});
 }
 
 var memoized_stats_link = {};
@@ -7510,31 +7063,21 @@ $(document).ready(function(){
 							media_slider_expander(true);
 							init_hd_player();
 
-							storePageData.load(appid, metalink);
-
 							add_app_page_wishlist_changes(appid);
 							display_coupon_message(appid);
 							show_pricing_history(appid, "app");
 
 							drm_warnings("app");
-							add_metacritic_userscore();
-							add_opencritic_data(appid);
 							display_purchase_date();
 
-							add_widescreen_certification(appid);
-							add_hltb_info(appid);
 							add_steam_client_link(appid);
 							add_pcgamingwiki_link(appid);
 							add_steamcardexchange_link(appid);
 							add_app_page_highlights();
 							add_steamdb_links(appid, "app");
-							add_familysharing_warning(appid);
 							add_dlc_page_link(appid);
 							add_pack_breakdown();
 							add_package_info_button();
-							add_steamchart_info(appid);
-							add_steamspy_info(appid);
-							survey_data_from_site(appid);
 							add_system_requirements_check(appid);
 							add_app_badge_progress(appid);
 							add_dlc_checkboxes();
