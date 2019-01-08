@@ -7649,33 +7649,6 @@ function add_decline_button() {
 	}
 }
 
-function add_birthday_celebration(in_store) {
-	var setting_name = is_signed_in + "birthday";
-	var obj = {};
-	storage.get(function(settings) {
-		if (settings[setting_name] === undefined) {
-			get_http("https://api.enhancedsteam.com/steamapi/GetPlayerSummaries/?steamids=" + is_signed_in, function (txt) {
-				var data = JSON.parse(txt);
-				var timecreated = data["response"]["players"][0]["timecreated"];
-				obj[setting_name] = timecreated;
-				storage.set(obj);
-			});
-		} else {
-			var username = $("#global_header .username").text().trim();
-			var birth_date_unix = settings[setting_name];
-			var birth_date = new Date(birth_date_unix * 1000);
-			var now = new Date();
-			var years = 0;
-			if (now.getMonth() == birth_date.getMonth() && now.getDate() == birth_date.getDate()) {
-				years = now.getFullYear() - birth_date.getFullYear();
-				var message = localized_strings["birthday_message"].replace("__username__", username).replace("__age__", years);
-				$("body").addClass("es_birthday" + (in_store && $(".home_ctn").length ? " es_store_front" : ""));
-				$("#logo_holder img").attr({"title": message, "alt": message});
-			}
-		}
-	});
-}
-
 function add_review_toggle_button() {
 	$("#review_create").find("h1").append("<div style='float: right;'><a class='btnv6_lightblue_blue btn_mdium' id='es_review_toggle'><span>▲</span></a></div>");
 	$("#review_container").find("p, .avatar_block, .content").wrapAll("<div id='es_review_section'></div>");
@@ -8012,11 +7985,6 @@ $(document).ready(function(){
 
 			switch (window.location.host) {
 				case "store.steampowered.com":
-
-					if (is_signed_in) {
-						add_birthday_celebration(true);
-					}
-
 					switch (true) {
 						case /\bagecheck\b/.test(path):
 							send_age_verification();
@@ -8165,11 +8133,6 @@ $(document).ready(function(){
 					break;
 
 				case "steamcommunity.com":
-
-					if (is_signed_in) {
-						add_birthday_celebration();
-					}
-
 					switch (true) {
 						case /^\/chat\//.test(path):
 							chat_dropdown_options(true);
