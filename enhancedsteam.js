@@ -634,52 +634,6 @@ var storePageData = (function() {
 	}
 })();
 
-var storePageDataCN = (function() {
-	var deferred = new $.Deferred();
-	var data;
-
-	function load(appid) {
-		data = cache_get(appid);
-		if (data) {
-			deferred.resolveWith(data);
-		} else {
-			var apiurl = "https://api.enhancedsteam.com/storepagedatacn/?appid=" + appid;
-			get_http(apiurl, function(txt) {
-				data = JSON.parse(txt);
-				cache_set(appid, data);
-				deferred.resolveWith(data);
-			}).fail(deferred.reject);
-		}
-		return deferred.promise();
-	}
-
-	function get(api, callback) {
-		if (api && callback) deferred.done(function() {
-			if (data[api]) callback(data[api]);
-		});
-		return deferred.promise();
-	}
-
-	function cache_set(appid, data) {
-		var expires = parseInt(Date.now() / 1000, 10) + 1 * 60 * 60; // One hour from now
-		var cached = {
-			data: data,
-			expires: expires
-		};
-		localStorage.setItem("storePageDataCN_" + appid, JSON.stringify(cached));
-	}
-
-	function cache_get(appid) {
-		var cached = $.parseJSON(localStorage.getItem("storePageDataCN_" + appid));
-		if (cached && cached.expires > parseInt(Date.now() / 1000, 10)) return cached.data;
-	}
-
-	return {
-		load: load,
-		get: get
-	}
-})();
-
 var profileData = (function() {
 	var deferred = new $.Deferred();
 	var data;
@@ -5749,57 +5703,6 @@ function add_help_button(appid) {
 	$(".game_area_play_stats .already_owned_actions").after("<div class='game_area_already_owned_btn'><a class='btnv6_lightblue_blue btnv6_border_2px btn_medium' href='https://help.steampowered.com/wizard/HelpWithGame/?appid=" + appid + "'><span>" + localized_strings.get_help + "</span></a></div>");
 }
 
-function add_chinese_name() {
-	storePageDataCN.get("chineseName", function(data) {
-		$(".breadcrumbs").find("span[itemprop='name']").append("「" + data + "」");
-		$(".apphub_AppName:first").append("「" + data + "」");
-		var title = $(document).prop('title');
-		$(document).prop('title', title + "「" + data + "」");
-	});
-}
-
-function add_keylol_link() {
-	storage.get(function(settings) {
-		if (settings.show_keylol_links === undefined) { settings.show_keylol_links = false; storage.set({'show_keylol_links': settings.show_keylol_links}); }
-		if (settings.show_keylol_links) {
-			storePageDataCN.get("link", function(data) {
-				$('#ReportAppBtn').parent().prepend('<a class="btnv6_blue_hoverfade btn_medium keylol_btn" href="' + data + '" style="display: block; margin-bottom: 6px;"><span><i class="ico16" style="background-image:url(' + chrome.extension.getURL("img/ico/keylol.png") + ')"></i>&nbsp;&nbsp; 查看其乐据点</span></a>');
-
-				storePageDataCN.get("averageRating", function(score) {
-					var html = "<div class='block game_details underlined_links es_keylol'><div style='background-image: url(" + chrome.extension.getURL("img/keylol_bg.png") + "); background-repeat: no-repeat; height: 35px; font-size: 24px; color: #8BC53F; text-align: right; font-family: Motiva Sans Light, Arial, Helvetica, sans-serif; width: 270px;'>";
-					html += "<span>" + score + "</span>";
-					html += "<span style='color: #61686d; font-size: 25px;'>/</span>"
-					html += "<span style='color: #61686d; font-size: 11px;'>10</span></div>"
-					if (language == "schinese") { var title = "阅读游戏评测"; }
-					if (language == "tchinese") { var title = "閱覽遊戲評測"; }
-					html += "<a href='" + data + "/timeline'>" + title + "</a>&nbsp;";
-					html += "<img src='" + protocol + "//steamstore-a.akamaihd.net/public/images/ico/iconExternalLink.gif' border='0' align='bottom'>";
-					html += "</div></div>";
-					$("div.game_details:first").after(html);
-				});
-			});
-		}
-	});
-}
-
-function add_steamcn_mods() {
-	if (language == "schinese") { var heading = "第三方汉化"; }
-	if (language == "tchinese") { var heading = "第三方漢化"; }
-	$(".game_language_options").parent().append("<div class='block_title' style='margin-top: 10px;'>" + heading + ":</div><span id='es_c_mods'></span>");
-
-	storePageDataCN.get("chineseLocalizations", function(data) {
-		$.each(data, function() {
-			$("#es_c_mods").append("<a class='linkbar' href='" + this.link + "' target='_blank'>" + this.title + "</a>");
-		});
-	});
-
-	storePageDataCN.get("link", function(data) {
-		if (language == "schinese") { var link = "完整汉化情报"; }
-		if (language == "tchinese") { var link = "更多漢化信息"; }
-		$("#es_c_mods").after("<a href='" + data + "/intel' class='all_languages' target='_blank'>" + link + "</a>&nbsp;<img src='" + protocol + "//store.steampowered.com/public/images/v5/ico_external_link.gif' border='0' align='bottom'>");
-	});
-}
-
 function customize_app_page(appid) {
 	storage.get(function(settings) {
 		if (settings.show_apppage_recommendedbycurators === undefined) { settings.show_apppage_recommendedbycurators = true; storage.set({'show_apppage_recommendedbycurators': settings.show_apppage_recommendedbycurators}); }
@@ -7825,13 +7728,6 @@ $(document).ready(function(){
 							customize_app_page(appid);
 							add_help_button(appid);
 							skip_got_steam();
-
-							if (language == "schinese" || language == "tchinese") {
-								storePageDataCN.load(appid);
-								add_keylol_link();
-								add_steamcn_mods();
-								if (language == "schinese") add_chinese_name();
-							}
 
 							break;
 
