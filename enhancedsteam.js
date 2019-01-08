@@ -634,63 +634,6 @@ var storePageData = (function() {
 	}
 })();
 
-var profileData = (function() {
-	var deferred = new $.Deferred();
-	var data;
-
-	function load(steamid) {
-		if (!steamid && $("#reportAbuseModal").length) steamid = $("[name=abuseID]").val();
-		if (!steamid && $("html").html().match(/steamid"\:"(.+)","personaname/)) steamid = $("html").html().match(/steamid"\:"(.+)","personaname/)[1];
-
-		data = cache_get(steamid);
-		if (data) {
-			deferred.resolveWith(data);
-		} else if (steamid) {
-			var apiurl = "https://api.enhancedsteam.com/profiledata/?steam64=" + steamid;
-			get_http(apiurl, function(txt) {
-				data = JSON.parse(txt);
-				cache_set(steamid, data);
-				deferred.resolveWith(data);
-			}).fail(deferred.reject);
-		} else {
-			deferred.reject;
-		}
-
-		return deferred.promise();
-	}
-
-	function get(api, callback) {
-		if (api && callback) deferred.done(function() {
-			if (data[api]) callback(data[api]);
-		});
-		return deferred.promise();
-	}
-
-	function cache_set(steamid, data) {
-		var expires = parseInt(Date.now() / 1000, 10) + 24 * 60 * 60; // One day from now
-		var cached = {
-			data: data,
-			expires: expires
-		};
-		localStorage.setItem("profileData_" + steamid, JSON.stringify(cached));
-	}
-
-	function cache_get(steamid) {
-		var cached = $.parseJSON(localStorage.getItem("profileData_" + steamid));
-		if (cached && cached.expires > parseInt(Date.now() / 1000, 10)) return cached.data;
-	}
-
-	function clearOwn() {
-		localStorage.removeItem("profileData_" + is_signed_in);
-	}
-
-	return {
-		load: load,
-		get: get,
-		clearOwn: clearOwn
-	}
-})();
-
 function get_appid(t) {
 	if (t && t.match(/(?:store\.steampowered|steamcommunity)\.com\/(app|market\/listings)\/(\d+)\/?/)) return RegExp.$2;
 	else return null;
@@ -2720,31 +2663,6 @@ function add_wishlist_profile_link() {
 	}
 }
 
-// Add supporter badges to supporter's profiles
-function add_supporter_badges() {
-	profileData.get("supporter", function(data) {
-		var badge_count = data["badges"].length;
-
-		if (badge_count > 0) {
-			var html = '<div class="profile_badges" id="es_supporter_badges"><div class="profile_count_link"><a href="http://www.EnhancedSteam.com"><span class="count_link_label">' + localized_strings.es_supporter + '</span>&nbsp;<span class="profile_count_link_total">' + badge_count + '</span></a></div>';
-
-			for (i=0; i < data["badges"].length; i++) {
-				if (data["badges"][i].link) {
-					html += '<div class="profile_badges_badge" data-tooltip-html="Enhanced Steam<br>' + data["badges"][i].title + '"><a href="' + data["badges"][i].link + '"><img src="' + data["badges"][i].img + '"></a></div>';
-				} else {
-					html += '<div class="profile_badges_badge" data-tooltip-html="Enhanced Steam<br>' + data["badges"][i].title + '"><img src="' + data["badges"][i].img + '"></div>';
-				}
-			}
-
-			html += '<div style="clear: left;"></div></div>';
-			$(".profile_badges").after(html);
-			$("#es_supporter_badges .profile_badges_badge:nth-child(4n+1)").addClass("last").css("margin-bottom", "16px");
-			$("#es_supporter_badges .profile_badges_badge:last").css("margin-bottom", "0px");
-			runInPageContext(function() { SetupTooltips( { tooltipCSSClass: 'community_tooltip'} ); });
-		}
-	});
-}
-
 function chat_dropdown_options(in_chat) {
 	if (is_signed_in) {
 		var $send_button = $("div.profile_header_actions > a[href*=OpenFriendChat]");
@@ -3567,59 +3485,6 @@ function hide_spam_comments() {
 	});
 }
 
-function add_steamrep_api() {
-	storage.get(function(settings) {
-		if (settings.showsteamrepapi === undefined) { settings.showsteamrepapi = true; storage.set({'showsteamrepapi': settings.showsteamrepapi}); }
-		if (settings.showsteamrepapi) {
-			profileData.get("steamrepv2", function(txt) {
-				if (txt !== "") {
-					// Get the SteamID
-					var steamID = $("input[name='abuseID']").val();
-					if (!steamID) {
-						var rgData = $("script:contains('g_rgProfileData')").text();
-						steamID = (rgData && rgData.match(/steamid"\:"(\d+)","personaname/) || [])[1];
-					}
-
-					if (steamID) {
-						// Build reputation images regexp
-						var repimgs = {
-							"banned": "scammer|banned",
-							"valve": "valve admin",
-							"caution": "caution",
-							"okay": "admin|middleman",
-							"donate": "donator"
-						};
-						$.each(repimgs, function(img, match) {
-							repimgs[img] = new RegExp(repimgs[img], "gi");
-						});
-
-						// Build array from returned special reputation
-						var reps = txt.split(",");
-
-						// Build SteamRep section
-						$("div.responsive_status_info").append('<div id="es_steamrep"></div>');
-
-						reps.forEach(function(value) {
-							$.each(repimgs, function(img, regexp) {
-								if (value.match(regexp)) {
-									$("#es_steamrep").append(`
-										<div class="${ img }">
-											<img src="${ chrome.extension.getURL(`img/sr/${ img }.png`) }" /> 
-											<a href="` + protocol + `//steamrep.com/profiles/${ steamID }" target="_blank"> ${ escapeHTML(value) }</a>
-										</div>
-									`);
-
-									return;
-								}
-							});
-						});
-					}
-				}
-			});
-		}
-	});
-}
-
 function add_posthistory_link() {
 	$("#profile_action_dropdown .popup_body .profile_actions_follow").after("<a class='popup_menu_item' id='es_posthistory' href='" + window.location.pathname + "/posthistory'><img src='" + protocol + "//steamcommunity-a.akamaihd.net/public/images/skin_1/icon_btn_comment.png'>&nbsp; " + localized_strings.post_history + "</a>");
 }
@@ -3627,36 +3492,6 @@ function add_posthistory_link() {
 function add_nickname_link() {
 	if ($("#profile_action_dropdown .popup_body").find("img[src*='notification_icon_edit_bright']").length == 0) {
 		$("#es_posthistory").after("<a class='popup_menu_item' href='#' onclick='ShowNicknameModal(); HideMenu( \"profile_action_dropdown_link\", \"profile_action_dropdown\" ); return false;'><img src='" + protocol + "//steamcommunity-a.akamaihd.net/public/images/skin_1/notification_icon_edit_bright.png'>&nbsp; " + localized_strings.add_nickname + "</a>");
-	}
-}
-
-function add_profile_style() {
-	if (!$("body.profile_page.private_profile").length) {
-		profileData.get("profile_style", function(data) {
-			var txt = data.style;
-			var available_styles = ["clear", "green", "holiday2014", "orange", "pink", "purple", "red", "teal", "yellow", "blue"];
-			if ($.inArray(txt, available_styles) > -1) {
-				$("body").addClass("es_profile_style");
-				switch (txt) {
-					case "holiday2014":
-						$("head").append("<link rel='stylesheet' type='text/css' href='" + protocol + "//steamcommunity-a.akamaihd.net/public/css/skin_1/holidayprofile.css'>");
-						$(".profile_header_bg_texture").append("<div class='holidayprofile_header_overlay'></div>");
-						$(".profile_page").addClass("holidayprofile");
-						$.getScript(protocol + "//steamcommunity-a.akamaihd.net/public/javascript/holidayprofile.js").done(function() {
-							runInPageContext("function() { StartAnimation(); }");
-						});
-						break;
-					case "clear":
-						$("body").addClass("es_style_clear");
-						break;
-					default:
-						$("head").append("<link rel='stylesheet' type='text/css' href='" + chrome.extension.getURL("img/profile_styles/" + txt + "/style.css") + "'>");
-						$(".profile_header_bg_texture").css("background-image", "url('" + chrome.extension.getURL("img/profile_styles/" + txt + "/header.jpg") + "')");
-						$(".profile_customization").css("background-image", "url('" + chrome.extension.getURL("img/profile_styles/" + txt + "/showcase.png") + "')");
-						break;
-				}
-			}
-		});
 	}
 }
 
@@ -6500,22 +6335,6 @@ function change_user_background() {
 			$(".no_header.profile_page, .profile_background_image_content").css("background-image", "url('" + imgUrl + "')");
 			$(".es_bg_test").remove();
 		});
-	} else {
-		if (!$(".profile_page.private_profile").length) {
-			profileData.get("profile", function(data) {
-				var txt = data.background;
-				if (txt) {
-					$(".no_header")[0].style.backgroundImage = "url(" + escapeHTML(txt) + ")";
-					if ($(".profile_background_image_content").length > 0) {
-						$(".profile_background_image_content")[0].style.backgroundImage = "url(" + escapeHTML(txt) + ")";
-					} else {
-						$(".no_header").addClass("has_profile_background");
-						$(".profile_content").addClass("has_profile_background");
-						$(".profile_content").prepend('<div class="profile_background_holder_content"><div class="profile_background_overlay_content"></div><div class="profile_background_image_content " style="background-image: url(' + escapeHTML(txt) + ');"></div></div></div>');
-					}
-				}
-			});
-		}
 	}
 }
 
@@ -7831,11 +7650,6 @@ $(document).ready(function(){
 							hide_activity_spam_comments();
 							break;
 
-						case /^\/(?:id|profiles)\/.+\/edit/.test(path):
-							profileData.clearOwn();
-							profileData.load();
-							break;
-
 						case /^\/(?:id|profiles)\/.+\/inventory/.test(path):
 							bind_ajax_content_highlighting();
 							inventory_market_prepare();
@@ -7890,19 +7704,14 @@ $(document).ready(function(){
 							break;
 
 						case /^\/(?:id|profiles)\/.+/.test(path):
-							profileData.load();
 							add_community_profile_links();
 							add_custom_profile_links();
 							add_wishlist_profile_link();
-							add_supporter_badges();
-							change_user_background();
 							add_profile_store_links();
 							fix_app_image_not_found();
 							hide_spam_comments();
-							add_steamrep_api();
 							add_posthistory_link();
 							add_nickname_link();
-							add_profile_style();
 							chat_dropdown_options();
 							ingame_name_link();
 							break;
