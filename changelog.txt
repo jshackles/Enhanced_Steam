@@ -2,6 +2,8 @@
 -----
 : Fixed an issue with custom steam wallet amounts not processing correctly
 : Fixed a bug with search filtering boxes not expanding properly
+: Fixed an issue that caused the Enhanced Steam menu not to function correctly
+- Removed all features that relied on the Enhanced Steam API server, RIP :(
 
 
 v9.9
