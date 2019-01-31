@@ -5,7 +5,6 @@
 : Fixed an issue that caused the Enhanced Steam menu not to function correctly
 - Removed all features that relied on the Enhanced Steam API server, RIP :(
 
-
 v9.9
 -----
 + Added an option to toggle the display of the Enhanced Steam loading and status bar
