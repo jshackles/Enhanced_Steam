@@ -22,3 +22,12 @@
 .es_sites_icons.es_astatsnl_icon:after {
 	background-image: url("moz-extension://__MSG_@@extension_id__/img/ico/astatsnl.png");
 }
+.es_sites_icons.es_steamladder_icon:after {
+	background-image: url("moz-extension://__MSG_@@extension_id__/img/ico/steamladder.png");
+}
+.es_sites_icons.es_csgostats_icon:after {
+	background-image: url("moz-extension://__MSG_@@extension_id__/img/ico/csgostats.png");
+}
+.es_sites_icons.es_csgobackpack_icon:after {
+	background-image: url("moz-extension://__MSG_@@extension_id__/img/ico/csgobackpack.png");
+}
