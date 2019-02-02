@@ -146,6 +146,7 @@ var settings_defaults = {
 	"profile_custom_name": "Google",
 	"profile_custom_url": "google.com/search?q=[ID]",
 	"profile_custom_icon": "www.google.com/images/branding/product/ico/googleg_lodp.ico",
+	"overrideworkshopcollection": true,
 	"steamcardexchange": true,
 	"purchase_dates": true,
 	"show_badge_progress": true,

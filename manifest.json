@@ -94,6 +94,17 @@
             "css": [
                 "css/store.steampowered.com/store_front.css"
             ]
+        },
+        {
+            "matches": [
+                "*://steamcommunity.com/sharedfiles/managecollection/*"
+            ],
+            "js": [
+                "js/steamcommunity.com/managecollection.js"
+            ],
+            "css": [
+                "css/steamcommunity.com/managecollection.css"
+            ]
         }
         ,
         {
