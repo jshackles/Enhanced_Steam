@@ -141,6 +141,7 @@ var settings_defaults = {
 	"profile_astats": true,
 	"profile_backpacktf": true,
 	"profile_astatsnl": true,
+	"profile_steamhunters": true,
 	"profile_permalink": true,
 	"profile_custom": false,
 	"profile_custom_name": "Google",
