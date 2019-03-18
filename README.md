@@ -5,6 +5,8 @@ Enhanced Steam is an open-source Google Chrome browser extension.
 
 **Please note, development of this project has ended.  [You can read more about Enhanced Steam's end of life here.](http://www.enhancedsteam.com/blog/?p=256)**
 
+The API servers were taken offline on Feb 1, 2019, and a large number of the features that used to be available are no longer available as a result.
+
 If you are looking for the Firefox version, you can find it here
 https://github.com/jshackles/Enhanced_Steam_Firefox.
 
