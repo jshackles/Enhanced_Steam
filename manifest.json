@@ -48,8 +48,7 @@
                 "*://steamcommunity.com/login/*"
             ],
             "js": [
-                "js/jQuery.min.js",
-                "enhancedsteam.js"
+                "main.js"
             ],
             "css": [
                 "css/enhancedsteam.css"
@@ -71,7 +70,7 @@
                 "https://steamcommunity.com/tradeoffer/*"
             ],
             "js": [
-                "js/steamcommunity.com/tradeoffer.js"
+                "tradeoffer.js"
             ],
             "css": [
                 "css/steamcommunity.com/tradeoffer.css"
