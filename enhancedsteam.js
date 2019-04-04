@@ -5192,6 +5192,7 @@ function add_inventory_gotopage(){
 			goto_btn.style.padding = "0";
 			goto_btn.style.margin = "0 6px";
 			goto_btn.style.textAlign = "center";
+			goto_btn.style.display = "inline-table";
 			$(page_go).append(goto_btn);
 
 			$("#inventory_pagecontrols").before(page_go);
