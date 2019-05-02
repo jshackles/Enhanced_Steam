@@ -290,6 +290,15 @@
         "help": "Click here to help",
         "wrong": "Wrong game?"
     },
+    "uncensor": {
+        "title": "Uncensor Patch Details",
+        "narrow_by": "Filter by uncensor patch",
+        "status": "Uncensor patch status:",
+        "visit": "View details on UncensorPat.ch",
+        "exists": "Available",
+        "unsure": "Unsure",
+        "not_exists": "Doesn't exist"
+    },
     "library": {
         "in_library": "In Library",
         "error_loading_library": "Couldn't load your library.",
@@ -423,6 +432,7 @@
         "show_badge_progress": "Show apps badge progress on store pages",
         "show_wishlist_link": "Show a Wishlist link on profiles",
         "show_wishlist_count": "Show the number of items on Wishlist",
+        "show_uncensorpatch_info": "Show UncensorPat.ch info and filters (18+ only)",
         "lang": {
             "english": "English",
             "brazilian": "Portuguese-Brazil",
