@@ -4053,10 +4053,18 @@ function inventory_market_helper(response) {
 
 										get_http(protocol + "//steamcommunity.com/market/itemordershistogram?language=english&currency=" + wallet_currency + "&item_nameid=" + market_id, function(market_txt) {
 											var market = JSON.parse(market_txt),
-												price_high = parseFloat(market.lowest_sell_order / 100) + parseFloat(settings.quickinv_diff),
+												price_high = market.lowest_sell_order / 100
 												price_low = market.highest_buy_order / 100;
 
 											if (price_high < 0.03) price_high = 0.03;
+											
+											var quickSellDiff = settings.quickinv_diff;
+
+											if (settings.quickinv_diff_percent)
+												quickSellDiff = price_high * ( parseFloat(quickSellDiff) / 100 );
+
+											price_high = price_high + parseFloat(quickSellDiff);
+
 											price_high = parseFloat(price_high).toFixed(2);
 											price_low = parseFloat(price_low).toFixed(2);
 
