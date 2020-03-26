@@ -83,11 +83,8 @@ var settings_defaults = {
 	"showregionalprice": "mouse",
 	"regional_countries": ["us", "gb", "eu1", "ru", "br", "au", "jp"],
 
-<<<<<<< HEAD
 	"market_showlowestprice":true,
 	"showtotal": true,
-=======
->>>>>>> 802b0fab99fe6e302ce2604c0fe4fc489ec0a1cd
 	"showmarkettotal": false,
 	"showsteamrepapi": true,
 	"showmcus": true,
