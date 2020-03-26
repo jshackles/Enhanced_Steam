@@ -80,12 +80,14 @@ var settings_defaults = {
 		"chrono": true,
 		"savemi": true
 	},
-	"override_price": "auto",
 	"showregionalprice": "mouse",
 	"regional_countries": ["us", "gb", "eu1", "ru", "br", "au", "jp"],
 
+<<<<<<< HEAD
 	"market_showlowestprice":true,
 	"showtotal": true,
+=======
+>>>>>>> 802b0fab99fe6e302ce2604c0fe4fc489ec0a1cd
 	"showmarkettotal": false,
 	"showsteamrepapi": true,
 	"showmcus": true,
@@ -151,10 +153,10 @@ var settings_defaults = {
 	"profile_custom_icon": "www.google.com/images/branding/product/ico/googleg_lodp.ico",
 	"steamcardexchange": true,
 	"purchase_dates": true,
-	"add_to_cart_wishlist": true,
 	"show_badge_progress": true,
 	"show_wishlist_link": true,
-	"show_wishlist_count": true
+	"show_wishlist_count": true,
+	"show_progressbar": true
 };
 
 // Saves options to localStorage
